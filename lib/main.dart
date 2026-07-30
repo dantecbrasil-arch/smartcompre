@@ -1,4 +1,26 @@
 import 'package:flutter/material.dart';
+import 'screens/produtos_screen.dart';
+
+class ProdutosScreen extends StatelessWidget {
+  const ProdutosScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Produtos'),
+      ),
+      body: const Center(
+        child: Text(
+          'Tela de Produtos SmartCompre',
+          style: TextStyle(
+            fontSize: 24,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 void main() {
   runApp(const SmartCompreApp());
@@ -56,15 +78,23 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 40),
 
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const ProdutosScreen(),
+    ),
+  );
+},
                 child: const Text('Nova Lista'),
               ),
 
               const SizedBox(height: 15),
 
               ElevatedButton(
+          
                 onPressed: () {},
-                child: const Text('Produtos'),
+                child: const Text('Escanear Produtos'),
               ),
 
               const SizedBox(height: 15),
