@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../data/listas_repository.dart';
 
 class ProdutosScreen extends StatefulWidget {
   const ProdutosScreen({super.key});
@@ -13,7 +14,6 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
       TextEditingController();
 
   final List<Map<String, dynamic>> produtos = [];
-final List<Map<String, dynamic>> listasSalvas = [];
 
   double total = 0.0;
 
@@ -269,7 +269,7 @@ void salvarLista() {
     return;
   }
 
-  listasSalvas.add({
+  ListasRepository.listasSalvas.add({
     'nomeLista': nomeListaController.text,
     'data': DateTime.now(),
     'total': total,
