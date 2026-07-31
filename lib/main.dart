@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/produtos_screen.dart';
+import 'screens/listas_screen.dart';
 
 void main() {
   runApp(const SmartCompreApp());
@@ -58,20 +59,20 @@ class HomePage extends StatelessWidget {
 
               ElevatedButton(
                 onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const ProdutosScreen(),
-    ),
-  );
-},
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const ProdutosScreen(),
+                    ),
+                  );
+                },
                 child: const Text('🛒 Criar Lista'),
               ),
 
               const SizedBox(height: 15),
 
               ElevatedButton(
-          
                 onPressed: () {},
                 child: const Text('📷 Escanear Produtos'),
               ),
@@ -79,7 +80,15 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 15),
 
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const ListasScreen(),
+                    ),
+                  );
+                },
                 child: const Text('📋 Minhas Listas'),
               ),
             ],
