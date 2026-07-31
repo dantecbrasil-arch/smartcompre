@@ -23,7 +23,12 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
 
   void adicionarProduto() {
     final nomeController = TextEditingController();
-    final precoController = TextEditingController();
+
+    final quantidadeController =
+        TextEditingController(text: '1');
+
+    final precoController =
+        TextEditingController();
 
     showDialog(
       context: context,
@@ -40,10 +45,17 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                 ),
               ),
               TextField(
+                controller: quantidadeController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Quantidade',
+                ),
+              ),
+              TextField(
                 controller: precoController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Preço',
+                  labelText: 'Preço Unitário',
                 ),
               ),
             ],
@@ -59,6 +71,12 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
               onPressed: () {
                 final nome = nomeController.text;
 
+                final quantidade =
+                    int.tryParse(
+                          quantidadeController.text,
+                        ) ??
+                        1;
+
                 final textoPreco = precoController.text
                     .replaceAll('.', '')
                     .replaceAll(',', '.');
@@ -66,13 +84,18 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                 final preco =
                     double.tryParse(textoPreco) ?? 0.0;
 
+                final subtotal =
+                    quantidade * preco;
+
                 setState(() {
                   produtos.add({
                     'nome': nome,
+                    'quantidade': quantidade,
                     'preco': preco,
+                    'subtotal': subtotal,
                   });
 
-                  total += preco;
+                  total += subtotal;
                 });
 
                 Navigator.pop(context);
@@ -144,19 +167,33 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
 
             Expanded(
               child: produtos.isEmpty
-                  ? const Text('Nenhum produto adicionado.')
+                  ? const Text(
+                      'Nenhum produto adicionado.',
+                    )
                   : ListView.builder(
                       itemCount: produtos.length,
                       itemBuilder: (context, index) {
-                        return ListTile(
-                          leading:
-                              const Icon(Icons.shopping_cart),
-                          title: Text(
-                            produtos[index]['nome'],
-                          ),
-                          subtitle: Text(
-                            formatoMoeda.format(
-                              produtos[index]['preco'],
+                        final produto =
+                            produtos[index];
+
+                        return Card(
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.shopping_cart,
+                            ),
+                            title: Text(
+                              '${produto['nome']} | '
+                              '${produto['quantidade']} x '
+                              '${formatoMoeda.format(produto['preco'])}',
+                            ),
+                            trailing: Text(
+                              formatoMoeda.format(
+                                produto['subtotal'],
+                              ),
+                              style: const TextStyle(
+                                fontWeight:
+                                    FontWeight.bold,
+                              ),
                             ),
                           ),
                         );
