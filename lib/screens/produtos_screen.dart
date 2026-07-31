@@ -108,6 +108,41 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
     );
   }
 
+  void excluirProduto(int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Excluir Produto'),
+          content: Text(
+            'Deseja excluir ${produtos[index]['nome']}?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  total -=
+                      produtos[index]['subtotal'];
+
+                  produtos.removeAt(index);
+                });
+
+                Navigator.pop(context);
+              },
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,19 +216,42 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                             leading: const Icon(
                               Icons.shopping_cart,
                             ),
+
                             title: Text(
                               '${produto['nome']} | '
                               '${produto['quantidade']} x '
                               '${formatoMoeda.format(produto['preco'])}',
                             ),
-                            trailing: Text(
-                              formatoMoeda.format(
-                                produto['subtotal'],
-                              ),
-                              style: const TextStyle(
-                                fontWeight:
-                                    FontWeight.bold,
-                              ),
+
+                            subtitle: Text(
+                              'Subtotal: ${formatoMoeda.format(produto['subtotal'])}',
+                            ),
+
+                            trailing: Row(
+                              mainAxisSize:
+                                  MainAxisSize.min,
+                              children: [
+                                Text(
+                                  formatoMoeda.format(
+                                    produto['subtotal'],
+                                  ),
+                                  style: const TextStyle(
+                                    fontWeight:
+                                        FontWeight.bold,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    excluirProduto(
+                                      index,
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
