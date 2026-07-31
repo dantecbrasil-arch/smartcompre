@@ -13,6 +13,7 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
       TextEditingController();
 
   final List<Map<String, dynamic>> produtos = [];
+final List<Map<String, dynamic>> listasSalvas = [];
 
   double total = 0.0;
 
@@ -20,6 +21,14 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
     locale: 'pt_BR',
     symbol: 'R\$ ',
   );
+
+  void recalcularTotal() {
+    total = 0;
+
+    for (var produto in produtos) {
+      total += produto['subtotal'];
+    }
+  }
 
   void adicionarProduto() {
     final nomeController = TextEditingController();
@@ -62,9 +71,7 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
@@ -95,12 +102,109 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                     'subtotal': subtotal,
                   });
 
-                  total += subtotal;
+                  recalcularTotal();
                 });
 
                 Navigator.pop(context);
               },
               child: const Text('Adicionar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void editarProduto(int index) {
+    final produto = produtos[index];
+
+    final nomeController = TextEditingController(
+      text: produto['nome'],
+    );
+
+    final quantidadeController =
+        TextEditingController(
+      text: produto['quantidade'].toString(),
+    );
+
+    final precoController =
+        TextEditingController(
+      text: produto['preco']
+          .toStringAsFixed(2)
+          .replaceAll('.', ','),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar Produto'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nomeController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome do Produto',
+                ),
+              ),
+              TextField(
+                controller: quantidadeController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Quantidade',
+                ),
+              ),
+              TextField(
+                controller: precoController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Preço Unitário',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final nome = nomeController.text;
+
+                final quantidade =
+                    int.tryParse(
+                          quantidadeController.text,
+                        ) ??
+                        1;
+
+                final textoPreco = precoController.text
+                    .replaceAll('.', '')
+                    .replaceAll(',', '.');
+
+                final preco =
+                    double.tryParse(textoPreco) ?? 0.0;
+
+                final subtotal =
+                    quantidade * preco;
+
+                setState(() {
+                  produtos[index] = {
+                    'nome': nome,
+                    'quantidade': quantidade,
+                    'preco': preco,
+                    'subtotal': subtotal,
+                  };
+
+                  recalcularTotal();
+                });
+
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Salvar Alterações',
+              ),
             ),
           ],
         );
@@ -127,10 +231,9 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  total -=
-                      produtos[index]['subtotal'];
-
                   produtos.removeAt(index);
+
+                  recalcularTotal();
                 });
 
                 Navigator.pop(context);
@@ -143,6 +246,45 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
     );
   }
 
+void salvarLista() {
+  if (nomeListaController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Informe o nome da lista.',
+        ),
+      ),
+    );
+    return;
+  }
+
+  if (produtos.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Adicione ao menos um produto.',
+        ),
+      ),
+    );
+    return;
+  }
+
+  listasSalvas.add({
+    'nomeLista': nomeListaController.text,
+    'data': DateTime.now(),
+    'total': total,
+    'produtos': List.from(produtos),
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        'Lista "${nomeListaController.text}" salva com sucesso!',
+      ),
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,7 +294,8 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             const Text(
               'Nome da Lista',
@@ -175,9 +318,11 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
             const SizedBox(height: 20),
 
             ElevatedButton.icon(
-              onPressed: () {},
+onPressed: () {},
               icon: const Icon(Icons.camera_alt),
-              label: const Text('Escanear Produto'),
+              label: const Text(
+                'Escanear Produto',
+              ),
             ),
 
             const SizedBox(height: 10),
@@ -185,7 +330,9 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
             ElevatedButton.icon(
               onPressed: adicionarProduto,
               icon: const Icon(Icons.add),
-              label: const Text('Adicionar Manualmente'),
+              label: const Text(
+                'Adicionar Manualmente',
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -207,7 +354,8 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                     )
                   : ListView.builder(
                       itemCount: produtos.length,
-                      itemBuilder: (context, index) {
+                      itemBuilder:
+                          (context, index) {
                         final produto =
                             produtos[index];
 
@@ -235,11 +383,26 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                                   formatoMoeda.format(
                                     produto['subtotal'],
                                   ),
-                                  style: const TextStyle(
+                                  style:
+                                      const TextStyle(
                                     fontWeight:
                                         FontWeight.bold,
                                   ),
                                 ),
+
+                                IconButton(
+                                  onPressed: () {
+                                    editarProduto(
+                                      index,
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.edit,
+                                    color:
+                                        Colors.blue,
+                                  ),
+                                ),
+
                                 IconButton(
                                   onPressed: () {
                                     excluirProduto(
@@ -272,9 +435,11 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: salvarLista,
                 icon: const Icon(Icons.save),
-                label: const Text('Salvar Lista'),
+                label: const Text(
+                  'Salvar Lista',
+                ),
               ),
             ),
           ],
