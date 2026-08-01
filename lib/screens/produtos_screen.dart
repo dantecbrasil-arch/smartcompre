@@ -297,7 +297,7 @@ produtos[index] = {
     );
   }
 
-void salvarLista() {
+Future<void> salvarLista() async {
   if (nomeListaController.text.trim().isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -322,10 +322,12 @@ void salvarLista() {
 
   ListasRepository.listasSalvas.add({
   'nomeLista': nomeListaController.text,
-  'data': DateTime.now(),
+  'data': DateTime.now().toIso8601String(),
   'total': total,
   'produtos': List.from(produtos),
 });
+
+await ListasRepository.salvarListas();
 
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

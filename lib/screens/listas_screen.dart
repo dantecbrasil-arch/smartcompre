@@ -30,9 +30,8 @@ class _ListasScreenState extends State<ListasScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  ListasRepository.listasSalvas.removeAt(
-                    index,
-                  );
+                  ListasRepository.listasSalvas.removeAt(index);
+                    ListasRepository.salvarListas();
                 });
 
                 Navigator.pop(context);
@@ -97,9 +96,9 @@ class _ListasScreenState extends State<ListasScreen> {
                       lista['nomeLista'],
                     ),
                     subtitle: Text(
-                      '${formatoData.format(lista['data'])}\n'
-                      'Total: ${formatoMoeda.format(lista['total'])}',
-                    ),
+  '${formatoData.format(DateTime.parse(lista['data']))}\n'
+  'Total: ${formatoMoeda.format(lista['total'])}',
+),
                     trailing: IconButton(
                       icon: const Icon(
                         Icons.delete,

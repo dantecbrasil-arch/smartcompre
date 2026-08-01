@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'screens/produtos_screen.dart';
 import 'screens/listas_screen.dart';
+import 'data/listas_repository.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await ListasRepository.carregarListas();
+
   runApp(const SmartCompreApp());
 }
 

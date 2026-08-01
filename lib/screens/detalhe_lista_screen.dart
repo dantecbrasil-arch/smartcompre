@@ -11,7 +11,10 @@ class DetalheListaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final produtos = lista['produtos'];
+    final produtos =
+    List<Map<String, dynamic>>.from(
+      lista['produtos'] ?? [],
+    );
 
     final formatoMoeda = NumberFormat.currency(
       locale: 'pt_BR',
@@ -45,11 +48,11 @@ class DetalheListaScreen extends StatelessWidget {
             const SizedBox(height: 8),
 
             Text(
-              'Data: ${formatoData.format(lista['data'])}',
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
+  'Data: ${formatoData.format(DateTime.parse(lista['data']))}',
+  style: const TextStyle(
+    fontSize: 16,
+  ),
+),
 
             const SizedBox(height: 20),
 
