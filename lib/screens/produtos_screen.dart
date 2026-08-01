@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../data/listas_repository.dart';
+import 'scanner_screen.dart';
 
 class ProdutosScreen extends StatefulWidget {
   const ProdutosScreen({super.key});
@@ -379,12 +380,32 @@ final produtosFiltrados =
             const SizedBox(height: 20),
 
             ElevatedButton.icon(
-onPressed: () {},
-              icon: const Icon(Icons.camera_alt),
-              label: const Text(
-                'Escanear Produto',
-              ),
-            ),
+  onPressed: () async {
+    final codigo =
+        await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            const ScannerScreen(),
+      ),
+    );
+
+    if (codigo != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text(
+            'Código lido: $codigo',
+          ),
+        ),
+      );
+    }
+  },
+  icon: const Icon(Icons.camera_alt),
+  label: const Text(
+    'Escanear Produto',
+  ),
+),
 
             const SizedBox(height: 10),
 
