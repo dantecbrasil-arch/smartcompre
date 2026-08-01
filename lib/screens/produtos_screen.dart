@@ -15,6 +15,19 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
 
   final List<Map<String, dynamic>> produtos = [];
 
+String filtroBusca = '';
+
+final List<String> categorias = [
+  'Mercearia',
+  'Laticínios',
+  'Carnes',
+  'Bebidas',
+  'Limpeza',
+  'Hortifruti',
+  'Farmácia',
+  'Outros',
+];
+
   double total = 0.0;
 
   final formatoMoeda = NumberFormat.currency(
@@ -35,6 +48,7 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
 
     final quantidadeController =
         TextEditingController(text: '1');
+String categoriaSelecionada = 'Mercearia';
 
     final precoController =
         TextEditingController();
@@ -60,6 +74,21 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                   labelText: 'Quantidade',
                 ),
               ),
+              DropdownButtonFormField<String>(
+  value: categoriaSelecionada,
+  decoration: const InputDecoration(
+    labelText: 'Categoria',
+  ),
+  items: categorias.map((categoria) {
+    return DropdownMenuItem(
+      value: categoria,
+      child: Text(categoria),
+    );
+  }).toList(),
+  onChanged: (value) {
+    categoriaSelecionada = value!;
+  },
+),
               TextField(
                 controller: precoController,
                 keyboardType: TextInputType.number,
@@ -95,12 +124,13 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                     quantidade * preco;
 
                 setState(() {
-                  produtos.add({
-                    'nome': nome,
-                    'quantidade': quantidade,
-                    'preco': preco,
-                    'subtotal': subtotal,
-                  });
+                 produtos.add({
+  'nome': nome,
+  'categoria': categoriaSelecionada,
+  'quantidade': quantidade,
+  'preco': preco,
+  'subtotal': subtotal,
+}); 
 
                   recalcularTotal();
                 });
@@ -117,6 +147,9 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
 
   void editarProduto(int index) {
     final produto = produtos[index];
+
+String categoriaSelecionada =
+    produto['categoria'] ?? 'Mercearia';
 
     final nomeController = TextEditingController(
       text: produto['nome'],
@@ -148,6 +181,23 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                   labelText: 'Nome do Produto',
                 ),
               ),
+
+DropdownButtonFormField<String>(
+  value: categoriaSelecionada,
+  decoration: const InputDecoration(
+    labelText: 'Categoria',
+  ),
+  items: categorias.map((categoria) {
+    return DropdownMenuItem(
+      value: categoria,
+      child: Text(categoria),
+    );
+  }).toList(),
+  onChanged: (value) {
+    categoriaSelecionada = value!;
+  },
+),
+
               TextField(
                 controller: quantidadeController,
                 keyboardType: TextInputType.number,
@@ -190,13 +240,14 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                     quantidade * preco;
 
                 setState(() {
-                  produtos[index] = {
-                    'nome': nome,
-                    'quantidade': quantidade,
-                    'preco': preco,
-                    'subtotal': subtotal,
-                  };
-
+                  
+produtos[index] = {
+  'nome': nome,
+  'categoria': categoriaSelecionada,
+  'quantidade': quantidade,
+  'preco': preco,
+  'subtotal': subtotal,
+};
                   recalcularTotal();
                 });
 
@@ -287,6 +338,14 @@ void salvarLista() {
 
   @override
   Widget build(BuildContext context) {
+
+final produtosFiltrados =
+    produtos.where((produto) {
+  return produto['nome']
+      .toLowerCase()
+      .contains(filtroBusca);
+}).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('🛒 Criar Lista'),
@@ -337,13 +396,76 @@ onPressed: () {},
 
             const SizedBox(height: 20),
 
-            const Text(
-              'Produtos Adicionados',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            Row(
+  children: [
+    const Text(
+      'Produtos Adicionados',
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    const Spacer(),
+
+if (filtroBusca.isNotEmpty)
+  TextButton.icon(
+    onPressed: () {
+      setState(() {
+        filtroBusca = '';
+      });
+    },
+    icon: const Icon(
+      Icons.arrow_back,
+      size: 18,
+    ),
+    label: const Text('Voltar'),
+  ),
+
+TextButton.icon(
+  onPressed: () {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Buscar Produto',
+          ),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: 'Digite o nome...',
+            ),
+            onChanged: (value) {
+              setState(() {
+                filtroBusca =
+                    value.toLowerCase();
+              });
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Concluir',
               ),
             ),
+          ],
+        );
+      },
+    );
+  },
+  icon: const Icon(
+    Icons.search,
+    size: 18,
+  ),
+  label: const Text(
+    'Pesquisar',
+  ),
+),
+  ],
+),
 
             const SizedBox(height: 10),
 
@@ -353,11 +475,10 @@ onPressed: () {},
                       'Nenhum produto adicionado.',
                     )
                   : ListView.builder(
-                      itemCount: produtos.length,
+                      itemCount: produtosFiltrados.length,
                       itemBuilder:
                           (context, index) {
-                        final produto =
-                            produtos[index];
+                        final produto = produtosFiltrados[index];
 
                         return Card(
                           child: ListTile(
@@ -366,14 +487,11 @@ onPressed: () {},
                             ),
 
                             title: Text(
-                              '${produto['nome']} | '
-                              '${produto['quantidade']} x '
-                              '${formatoMoeda.format(produto['preco'])}',
-                            ),
-
-                            subtitle: Text(
-                              'Subtotal: ${formatoMoeda.format(produto['subtotal'])}',
-                            ),
+  '${produto['nome']} | '
+  '🏷️ ${produto['categoria']} | '
+  '${produto['quantidade']} x '
+  '${formatoMoeda.format(produto['preco'])}',
+),
 
                             trailing: Row(
                               mainAxisSize:

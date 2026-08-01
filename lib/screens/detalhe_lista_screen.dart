@@ -65,12 +65,14 @@ class DetalheListaScreen extends StatelessWidget {
                       leading: const Icon(
                         Icons.shopping_cart,
                       ),
+                      
                       title: Text(
-                        produto['nome'],
-                      ),
-                      subtitle: Text(
-                        '${produto['quantidade']} x ${formatoMoeda.format(produto['preco'])}',
-                      ),
+  '${produto['nome']} | '
+  '🏷️ ${produto['categoria']} | '
+  '${produto['quantidade']} x '
+  '${formatoMoeda.format(produto['preco'])}',
+),
+
                       trailing: Text(
                         formatoMoeda.format(
                           produto['subtotal'],
