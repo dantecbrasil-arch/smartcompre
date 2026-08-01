@@ -54,6 +54,10 @@ class _ListasScreenState extends State<ListasScreen> {
       symbol: 'R\$ ',
     );
 
+    final formatoData = DateFormat(
+      'dd/MM/yyyy',
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('📋 Minhas Listas'),
@@ -86,19 +90,16 @@ class _ListasScreenState extends State<ListasScreen> {
                         ),
                       );
                     },
-
                     leading: const Icon(
                       Icons.list_alt,
                     ),
-
                     title: Text(
                       lista['nomeLista'],
                     ),
-
                     subtitle: Text(
+                      '${formatoData.format(lista['data'])}\n'
                       'Total: ${formatoMoeda.format(lista['total'])}',
                     ),
-
                     trailing: IconButton(
                       icon: const Icon(
                         Icons.delete,

@@ -270,11 +270,11 @@ void salvarLista() {
   }
 
   ListasRepository.listasSalvas.add({
-    'nomeLista': nomeListaController.text,
-    'data': DateTime.now(),
-    'total': total,
-    'produtos': List.from(produtos),
-  });
+  'nomeLista': nomeListaController.text,
+  'data': DateTime.now(),
+  'total': total,
+  'produtos': List.from(produtos),
+});
 
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

@@ -18,9 +18,15 @@ class DetalheListaScreen extends StatelessWidget {
       symbol: 'R\$ ',
     );
 
+    final formatoData = DateFormat(
+      'dd/MM/yyyy',
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(lista['nomeLista']),
+        title: Text(
+          lista['nomeLista'],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -36,6 +42,15 @@ class DetalheListaScreen extends StatelessWidget {
               ),
             ),
 
+            const SizedBox(height: 8),
+
+            Text(
+              'Data: ${formatoData.format(lista['data'])}',
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
+
             const SizedBox(height: 20),
 
             Expanded(
@@ -47,17 +62,15 @@ class DetalheListaScreen extends StatelessWidget {
 
                   return Card(
                     child: ListTile(
-                      leading:
-                          const Icon(Icons.shopping_cart),
-
+                      leading: const Icon(
+                        Icons.shopping_cart,
+                      ),
                       title: Text(
                         produto['nome'],
                       ),
-
                       subtitle: Text(
                         '${produto['quantidade']} x ${formatoMoeda.format(produto['preco'])}',
                       ),
-
                       trailing: Text(
                         formatoMoeda.format(
                           produto['subtotal'],
