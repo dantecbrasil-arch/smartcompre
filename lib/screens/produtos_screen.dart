@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../data/listas_repository.dart';
 import 'scanner_screen.dart';
+import 'package:smartcompre/screens/captura_etiqueta_screen.dart';
 
 class ProdutosScreen extends StatefulWidget {
   const ProdutosScreen({super.key});
@@ -353,61 +354,78 @@ final produtosFiltrados =
       appBar: AppBar(
         title: const Text('🛒 Criar Lista'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Nome da Lista',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            TextField(
-              controller: nomeListaController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Ex: Compra do Mês',
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            ElevatedButton.icon(
-  onPressed: () async {
-    final codigo =
-        await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            const ScannerScreen(),
-      ),
-    );
-
-    if (codigo != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        SnackBar(
-          content: Text(
-            'Código lido: $codigo',
+      body: SafeArea(
+  child: Padding(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Nome da Lista',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      );
-    }
-  },
-  icon: const Icon(Icons.camera_alt),
-  label: const Text(
-    'Escanear Produto',
-  ),
-),
 
-            const SizedBox(height: 10),
+        const SizedBox(height: 10),
+
+        TextField(
+          controller: nomeListaController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Ex: Compra do Mês',
+          ),
+        ),
+
+        const SizedBox(height: 15),
+
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () async {
+                final codigo = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const ScannerPage(),
+                  ),
+                );
+
+                if (codigo != null) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Código lido: $codigo',
+                      ),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.camera_alt),
+              label: const Text(
+                'Escanear Produto',
+              ),
+            ),
+
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CapturaEtiquetaScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.photo_camera),
+              label: const Text(
+                'Capturar Etiqueta',
+              ),
+            ),
 
             ElevatedButton.icon(
               onPressed: adicionarProduto,
@@ -416,176 +434,167 @@ final produtosFiltrados =
                 'Adicionar Manualmente',
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            Row(
-  children: [
-    const Text(
-      'Produtos Adicionados',
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    const Spacer(),
-
-if (filtroBusca.isNotEmpty)
-  TextButton.icon(
-    onPressed: () {
-      setState(() {
-        filtroBusca = '';
-      });
-    },
-    icon: const Icon(
-      Icons.arrow_back,
-      size: 18,
-    ),
-    label: const Text('Voltar'),
-  ),
-
-TextButton.icon(
-  onPressed: () {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(
-            'Buscar Produto',
-          ),
-          content: TextField(
-            autofocus: true,
-            decoration: const InputDecoration(
-              hintText: 'Digite o nome...',
-            ),
-            onChanged: (value) {
-              setState(() {
-                filtroBusca =
-                    value.toLowerCase();
-              });
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Concluir',
-              ),
-            ),
           ],
-        );
-      },
-    );
-  },
-  icon: const Icon(
-    Icons.search,
-    size: 18,
-  ),
-  label: const Text(
-    'Pesquisar',
-  ),
-),
-  ],
-),
+        ),
 
-            const SizedBox(height: 10),
+        const SizedBox(height: 20),
 
-            Expanded(
-              child: produtos.isEmpty
-                  ? const Text(
-                      'Nenhum produto adicionado.',
-                    )
-                  : ListView.builder(
-                      itemCount: produtosFiltrados.length,
-                      itemBuilder:
-                          (context, index) {
-                        final produto = produtosFiltrados[index];
-
-                        return Card(
-                          child: ListTile(
-                            leading: const Icon(
-                              Icons.shopping_cart,
-                            ),
-
-                            title: Text(
-  '${produto['nome']} | '
-  '🏷️ ${produto['categoria']} | '
-  '${produto['quantidade']} x '
-  '${formatoMoeda.format(produto['preco'])}',
-),
-
-                            trailing: Row(
-                              mainAxisSize:
-                                  MainAxisSize.min,
-                              children: [
-                                Text(
-                                  formatoMoeda.format(
-                                    produto['subtotal'],
-                                  ),
-                                  style:
-                                      const TextStyle(
-                                    fontWeight:
-                                        FontWeight.bold,
-                                  ),
-                                ),
-
-                                IconButton(
-                                  onPressed: () {
-                                    editarProduto(
-                                      index,
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.edit,
-                                    color:
-                                        Colors.blue,
-                                  ),
-                                ),
-
-                                IconButton(
-                                  onPressed: () {
-                                    excluirProduto(
-                                      index,
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-
-            Text(
-              'Total: ${formatoMoeda.format(total)}',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: salvarLista,
-                icon: const Icon(Icons.save),
-                label: const Text(
-                  'Salvar Lista',
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Produtos Adicionados',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+
+            if (filtroBusca.isNotEmpty)
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    filtroBusca = '';
+                  });
+                },
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Voltar'),
+              ),
+
+            TextButton.icon(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text(
+                        'Buscar Produto',
+                      ),
+                      content: TextField(
+                        autofocus: true,
+                        decoration:
+                            const InputDecoration(
+                          hintText:
+                              'Digite o nome...',
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            filtroBusca =
+                                value.toLowerCase();
+                          });
+                        },
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child:
+                              const Text('Concluir'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              icon: const Icon(Icons.search),
+              label: const Text('Pesquisar'),
+            ),
           ],
         ),
-      ),
-    );
-  }
+
+        const SizedBox(height: 10),
+
+        Expanded(
+          child: produtosFiltrados.isEmpty
+              ? const Center(
+                  child: Text(
+                    'Nenhum produto adicionado.',
+                  ),
+                )
+              : ListView.builder(
+                  itemCount:
+                      produtosFiltrados.length,
+                  itemBuilder:
+                      (context, index) {
+                    final produto =
+                        produtosFiltrados[index];
+
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.shopping_cart,
+                        ),
+                        title: Text(
+                          '${produto['nome']} | '
+                          '🏷️ ${produto['categoria']} | '
+                          '${produto['quantidade']} x '
+                          '${formatoMoeda.format(produto['preco'])}',
+                        ),
+                        subtitle: Text(
+                          'Subtotal: ${formatoMoeda.format(produto['subtotal'])}',
+                        ),
+                        trailing: Row(
+                          mainAxisSize:
+                              MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                editarProduto(
+                                  index,
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                excluirProduto(
+                                  index,
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+
+        const SizedBox(height: 10),
+
+        Text(
+          'Total: ${formatoMoeda.format(total)}',
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: salvarLista,
+            icon: const Icon(Icons.save),
+            label: const Text(
+              'Salvar Lista',
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+);
+}
 }

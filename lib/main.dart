@@ -4,6 +4,18 @@ import 'screens/listas_screen.dart';
 import 'data/listas_repository.dart';
 
 Future<void> main() async {
+
+Future<void> main() async {
+
+  print('APP INICIOU');
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await ListasRepository.carregarListas();
+
+  runApp(const SmartCompreApp());
+}
+
   WidgetsFlutterBinding.ensureInitialized();
 
   await ListasRepository.carregarListas();
