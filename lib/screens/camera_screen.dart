@@ -1,6 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:smartcompre/services/ocr_service.dart';
+import 'package:smartcompre/services/etiqueta_parser.dart';
+import 'package:smartcompre/screens/cadastro_item_screen.dart';
+import 'package:smartcompre/models/item_compra.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -11,6 +14,12 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   CameraController? _controller;
+
+  String _produto = '';
+  double? _precoKg;
+  double? _total;
+
+final List<ItemCompra> _itens = [];
 
   @override
   void initState() {
@@ -60,34 +69,95 @@ class _CameraScreenState extends State<CameraScreen> {
     }
 
     return Scaffold(
-  appBar: AppBar(
-    title: const Text('Teste Camera'),
-  ),
-  body: CameraPreview(_controller!),
-  floatingActionButton: FloatingActionButton(
-   onPressed: () async {
-  try {
-    final foto = await _controller!.takePicture();
+      appBar: AppBar(
+        title: const Text('Teste Camera'),
+      ),
+      body: Stack(
+        children: [
+          CameraPreview(_controller!),
 
-    debugPrint('====================');
-    debugPrint('FOTO CAPTURADA');
-    debugPrint('CAMINHO: ${foto.path}');
-    debugPrint('====================');
+          if (_produto.isNotEmpty)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                color: Colors.black87,
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Produto: $_produto',
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'Preço/Kg: ${_precoKg ?? "-"}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'Total: ${_total ?? "-"}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          try {
+            final foto = await _controller!.takePicture();
 
-    final texto = await OCRService.extrairTexto(
-      foto.path,
-    );
+            debugPrint('====================');
+            debugPrint('FOTO CAPTURADA');
+            debugPrint('CAMINHO: ${foto.path}');
+            debugPrint('====================');
 
-    debugPrint('====================');
-    debugPrint('OCR RETORNOU');
-    debugPrint(texto);
-    debugPrint('====================');
-  } catch (e) {
-    debugPrint('ERRO FOTO: $e');
-  }
-},
-  child: const Icon(Icons.camera),
+            final texto = await OCRService.extrairTexto(
+              foto.path,
+            );
+
+            final dados = EtiquetaParser.extrair(texto);
+
+            debugPrint('PRODUTO: ${dados.produto}');
+            debugPrint('PRECO KG: ${dados.precoKg}');
+            debugPrint('TOTAL: ${dados.total}');
+
+            setState(() {
+              _produto = dados.produto;
+              _precoKg = dados.precoKg;
+              _total = dados.total;
+            });
+
+            Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (_) => CadastroItemScreen(
+      produto: dados.produto,
+      precoKg: dados.precoKg,
+      total: dados.total,
+    ),
   ),
 );
+
+            debugPrint('====================');
+            debugPrint('OCR RETORNOU');
+            debugPrint(texto);
+            debugPrint('====================');
+          } catch (e) {
+            debugPrint('ERRO FOTO: $e');
+          }
+        },
+        child: const Icon(Icons.camera),
+      ),
+    );
   }
 }
