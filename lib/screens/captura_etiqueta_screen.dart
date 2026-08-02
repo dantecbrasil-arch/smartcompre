@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/ocr_service.dart';
+import 'package:smartcompre/screens/camera_screen.dart';
 
 class CapturaEtiquetaScreen extends StatefulWidget {
   const CapturaEtiquetaScreen({super.key});
@@ -123,10 +124,17 @@ setState(() {
         child: Column(
           children: [
             ElevatedButton.icon(
-              onPressed: tirarFoto,
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('Tirar Foto'),
-            ),
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CameraScreen(),
+      ),
+    );
+  },
+  icon: const Icon(Icons.camera_alt),
+  label: const Text('Tirar Foto'),
+),
 
             const SizedBox(height: 20),
 
