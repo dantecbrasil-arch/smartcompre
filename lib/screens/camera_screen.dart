@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:smartcompre/services/ocr_service.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -64,19 +65,28 @@ class _CameraScreenState extends State<CameraScreen> {
   ),
   body: CameraPreview(_controller!),
   floatingActionButton: FloatingActionButton(
-    onPressed: () async {
-      try {
-        final foto = await _controller!.takePicture();
+   onPressed: () async {
+  try {
+    final foto = await _controller!.takePicture();
 
-        debugPrint('====================');
-        debugPrint('FOTO CAPTURADA');
-        debugPrint('CAMINHO: ${foto.path}');
-        debugPrint('====================');
-      } catch (e) {
-        debugPrint('ERRO FOTO: $e');
-      }
-    },
-    child: const Icon(Icons.camera),
+    debugPrint('====================');
+    debugPrint('FOTO CAPTURADA');
+    debugPrint('CAMINHO: ${foto.path}');
+    debugPrint('====================');
+
+    final texto = await OCRService.extrairTexto(
+      foto.path,
+    );
+
+    debugPrint('====================');
+    debugPrint('OCR RETORNOU');
+    debugPrint(texto);
+    debugPrint('====================');
+  } catch (e) {
+    debugPrint('ERRO FOTO: $e');
+  }
+},
+  child: const Icon(Icons.camera),
   ),
 );
   }
