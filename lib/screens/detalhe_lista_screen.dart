@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../data/listas_repository.dart';
 
 class DetalheListaScreen extends StatelessWidget {
   final Map<String, dynamic> lista;
