@@ -5,7 +5,6 @@ import 'package:smartcompre/services/etiqueta_parser.dart';
 import 'package:smartcompre/screens/cadastro_item_screen.dart';
 import 'package:smartcompre/models/item_compra.dart';
 import 'package:smartcompre/screens/lista_compras_screen.dart';
-import '../data/listas_repository.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -166,56 +165,10 @@ final List<ItemCompra> _itens = [];
 );
 
 if (item != null) {
-  setState(() {
-    _itens.add(item);
-  });
-
-  final listaExistente = ListasRepository.listasSalvas
-    .where((lista) => lista['nomeLista'] == 'Etiqueta OCR')
-    .toList();
-
-if (listaExistente.isEmpty) {
-  ListasRepository.listasSalvas.add({
-    'nomeLista': 'Etiqueta OCR',
-    'data': DateTime.now().toIso8601String(),
-    'total': item.total ?? 0,
-    'produtos': [
-      {
-        'nome': item.produto,
-        'categoria': 'Hortifruti',
-        'quantidade': 1,
-        'preco': item.precoKg ?? 0,
-        'subtotal': item.total ?? 0,
-      }
-    ],
-  });
-} else {
-  final lista = listaExistente.first;
-
-  final produtos =
-      List<Map<String, dynamic>>.from(
-    lista['produtos'],
-  );
-
-  produtos.add({
-    'nome': item.produto,
-    'categoria': 'Hortifruti',
-    'quantidade': 1,
-    'preco': item.precoKg ?? 0,
-    'subtotal': item.total ?? 0,
-  });
-
-  lista['produtos'] = produtos;
-
-  lista['total'] =
-      (lista['total'] ?? 0) +
-      (item.total ?? 0);
+  Navigator.pop(context, item);
 }
 
-await ListasRepository.salvarListas();
 
-  debugPrint('ITEM ADICIONADO: ${item.produto}');
-}
 
             debugPrint('====================');
             debugPrint('OCR RETORNOU');

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../data/listas_repository.dart';
 import 'scanner_screen.dart';
-import 'package:smartcompre/screens/captura_etiqueta_screen.dart';
+import 'package:smartcompre/screens/camera_screen.dart';
+import 'package:smartcompre/models/item_compra.dart';
+import 'listas_screen.dart';
 
 class ProdutosScreen extends StatefulWidget {
   const ProdutosScreen({super.key});
@@ -322,8 +324,48 @@ Future<void> salvarLista() async {
     return;
   }
 
+final nomeNovaLista =
+    nomeListaController.text.trim().toLowerCase();
+
+final existe = ListasRepository.listasSalvas.any(
+  (lista) {
+    final nomeSalvo =
+        lista['nomeLista']
+            .toString()
+            .trim()
+            .toLowerCase();
+
+    return nomeSalvo == nomeNovaLista;
+  },
+);
+
+debugPrint(
+  'TOTAL DE LISTAS: ${ListasRepository.listasSalvas.length}',
+);
+
+for (final lista in ListasRepository.listasSalvas) {
+  debugPrint(
+    'LISTA EXISTENTE: ${lista['nomeLista']}',
+  );
+}
+
+debugPrint(
+  'LISTAS SALVAS: ${ListasRepository.listasSalvas}',
+);
+
+if (existe) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text(
+        'Já existe uma lista com esse nome.',
+      ),
+    ),
+  );
+  return;
+}
+
   ListasRepository.listasSalvas.add({
-  'nomeLista': nomeListaController.text,
+  'nomeLista': nomeListaController.text.trim(),
   'data': DateTime.now().toIso8601String(),
   'total': total,
   'produtos': List.from(produtos),
@@ -331,13 +373,29 @@ Future<void> salvarLista() async {
 
 await ListasRepository.salvarListas();
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        'Lista "${nomeListaController.text}" salva com sucesso!',
-      ),
+final nomeLista = nomeListaController.text;
+
+ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+    content: Text(
+      'Lista "$nomeLista" salva com sucesso!',
     ),
-  );
+  ),
+);
+
+setState(() {
+  produtos.clear();
+  total = 0;
+});
+
+nomeListaController.clear();
+
+Navigator.pushReplacement(
+  context,
+  MaterialPageRoute(
+    builder: (_) => const ListasScreen(),
+  ),
+);
 }
 
   @override
@@ -412,20 +470,34 @@ final produtosFiltrados =
             ),
 
             ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CapturaEtiquetaScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.photo_camera),
-              label: const Text(
-                'Capturar Etiqueta',
-              ),
-            ),
+  onPressed: () async {
+    final item = await Navigator.push<ItemCompra>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            const CameraScreen(),
+      ),
+    );
+
+    if (item != null) {
+      setState(() {
+        produtos.add({
+          'nome': item.produto,
+          'categoria': 'Hortifruti',
+          'quantidade': 1,
+          'preco': item.precoKg ?? 0,
+          'subtotal': item.total ?? 0,
+        });
+
+        recalcularTotal();
+      });
+    }
+  },
+  icon: const Icon(Icons.photo_camera),
+  label: const Text(
+    'Capturar Etiqueta',
+  ),
+),
 
             ElevatedButton.icon(
               onPressed: adicionarProduto,
