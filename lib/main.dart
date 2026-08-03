@@ -4,17 +4,7 @@ import 'screens/listas_screen.dart';
 import 'data/listas_repository.dart';
 
 Future<void> main() async {
-
-Future<void> main() async {
-
   print('APP INICIOU');
-
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await ListasRepository.carregarListas();
-
-  runApp(const SmartCompreApp());
-}
 
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -54,11 +44,10 @@ class HomePage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Icon(
                 Icons.shopping_cart,
-                size: 100,
+                size: 130,
                 color: Colors.green,
               ),
 
@@ -66,47 +55,59 @@ class HomePage extends StatelessWidget {
 
               const Text(
                 'Bem-vindo ao SmartCompre',
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 30,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
               const SizedBox(height: 40),
 
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const ProdutosScreen(),
+              SizedBox(
+                width: 250,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const ProdutosScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    '🛒 Criar Lista',
+                    style: TextStyle(
+                      fontSize: 22,
                     ),
-                  );
-                },
-                child: const Text('🛒 Criar Lista'),
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
 
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('📷 Escanear Produtos'),
-              ),
-
-              const SizedBox(height: 15),
-
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const ListasScreen(),
+              SizedBox(
+                width: 250,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const ListasScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    '📋 Minhas Listas',
+                    style: TextStyle(
+                      fontSize: 22,
                     ),
-                  );
-                },
-                child: const Text('📋 Minhas Listas'),
+                  ),
+                ),
               ),
             ],
           ),

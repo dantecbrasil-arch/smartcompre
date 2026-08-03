@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../data/listas_repository.dart';
-import 'scanner_screen.dart';
 import 'package:smartcompre/screens/camera_screen.dart';
 import 'package:smartcompre/models/item_compra.dart';
 import 'listas_screen.dart';
