@@ -82,17 +82,21 @@ class _ListasScreenState extends State<ListasScreen> {
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              DetalheListaScreen(
-                            lista: lista,
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: () async {
+  await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) =>
+          DetalheListaScreen(
+        lista: lista,
+      ),
+    ),
+  );
+
+  await ListasRepository.carregarListas();
+
+  setState(() {});
+},
                     leading: const Icon(
                       Icons.list_alt,
                     ),

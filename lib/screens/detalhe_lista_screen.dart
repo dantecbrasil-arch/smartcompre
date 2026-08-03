@@ -116,9 +116,24 @@ class _DetalheListaScreenState
   ),
   onPressed: () async {
     final nomeController =
-        TextEditingController(
-      text: produto['nome'],
-    );
+    TextEditingController(
+  text: produto['nome'],
+);
+
+final categoriaController =
+    TextEditingController(
+  text: produto['categoria'],
+);
+
+final quantidadeController =
+    TextEditingController(
+  text: produto['quantidade'].toString(),
+);
+
+final precoController =
+    TextEditingController(
+  text: produto['preco'].toString(),
+);
 
     await showDialog(
       context: context,
@@ -127,14 +142,50 @@ class _DetalheListaScreenState
           title: const Text(
             'Editar Produto',
           ),
-          content: TextField(
-            controller: nomeController,
-            decoration:
-                const InputDecoration(
-              labelText:
-                  'Nome do Produto',
-            ),
-          ),
+          content: SingleChildScrollView(
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      TextField(
+        controller: nomeController,
+        decoration: const InputDecoration(
+          labelText: 'Nome',
+        ),
+      ),
+
+      const SizedBox(height: 10),
+
+      TextField(
+        controller: categoriaController,
+        decoration: const InputDecoration(
+          labelText: 'Categoria',
+        ),
+      ),
+
+      const SizedBox(height: 10),
+
+      TextField(
+        controller: quantidadeController,
+        keyboardType: TextInputType.number,
+        decoration: const InputDecoration(
+          labelText: 'Quantidade',
+        ),
+      ),
+
+      const SizedBox(height: 10),
+
+      TextField(
+        controller: precoController,
+        keyboardType: const TextInputType.numberWithOptions(
+          decimal: true,
+        ),
+        decoration: const InputDecoration(
+          labelText: 'Preço',
+        ),
+      ),
+    ],
+  ),
+),
           actions: [
             TextButton(
               onPressed: () {
@@ -146,20 +197,54 @@ class _DetalheListaScreenState
             ),
             TextButton(
               onPressed: () async {
-                setState(() {
-                  produto['nome'] =
-                      nomeController.text;
-                });
+  final quantidade =
+      int.tryParse(
+        quantidadeController.text,
+      ) ??
+      0;
 
-                await ListasRepository
-                    .salvarListas();
+  final preco =
+      double.tryParse(
+        precoController.text
+            .replaceAll(',', '.'),
+      ) ??
+      0;
 
-                if (mounted) {
-                  Navigator.pop(
-                    context,
-                  );
-                }
-              },
+  setState(() {
+    produto['nome'] =
+        nomeController.text;
+
+    produto['categoria'] =
+        categoriaController.text;
+
+    produto['quantidade'] =
+        quantidade;
+
+    produto['preco'] = preco;
+
+    produto['subtotal'] =
+        quantidade * preco;
+
+    widget.lista['total'] =
+        totalAtual;
+  });
+
+  await ListasRepository
+      .salvarListas();
+
+  if (mounted) {
+    Navigator.pop(context);
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Produto atualizado!',
+        ),
+      ),
+    );
+  }
+},
               child: const Text(
                 'Salvar',
               ),
@@ -170,10 +255,6 @@ class _DetalheListaScreenState
     );
   },
 ),
-                              onPressed: () {
-                                // editar produto
-                                },
-                                ),
 
                           IconButton(
                             icon: const Icon(
