@@ -339,20 +339,6 @@ final existe = ListasRepository.listasSalvas.any(
   },
 );
 
-debugPrint(
-  'TOTAL DE LISTAS: ${ListasRepository.listasSalvas.length}',
-);
-
-for (final lista in ListasRepository.listasSalvas) {
-  debugPrint(
-    'LISTA EXISTENTE: ${lista['nomeLista']}',
-  );
-}
-
-debugPrint(
-  'LISTAS SALVAS: ${ListasRepository.listasSalvas}',
-);
-
 if (existe) {
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(
@@ -373,7 +359,9 @@ if (existe) {
 
 await ListasRepository.salvarListas();
 
-final nomeLista = nomeListaController.text;
+final nomeLista =
+    nomeListaController.text.trim();
+
 
 ScaffoldMessenger.of(context).showSnackBar(
   SnackBar(
@@ -441,34 +429,7 @@ final produtosFiltrados =
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: [
-            ElevatedButton.icon(
-              onPressed: () async {
-                final codigo = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const ScannerPage(),
-                  ),
-                );
-
-                if (codigo != null) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Código lido: $codigo',
-                      ),
-                    ),
-                  );
-                }
-              },
-              icon: const Icon(Icons.camera_alt),
-              label: const Text(
-                'Escanear Produto',
-              ),
-            ),
-
+          children:  [ 
             ElevatedButton.icon(
   onPressed: () async {
     final item = await Navigator.push<ItemCompra>(
