@@ -73,7 +73,11 @@ class _ListasScreenState extends State<ListasScreen> {
           : ListView.builder(
               itemCount: listas.length,
               itemBuilder: (context, index) {
-                final lista = listas[index];
+  final lista = listas[index];
+
+  final quantidadeItens =
+      (lista['produtos'] as List).length;
+
 
                 return Card(
                   margin: const EdgeInsets.all(8),
@@ -97,8 +101,10 @@ class _ListasScreenState extends State<ListasScreen> {
                     ),
                     subtitle: Text(
   '${formatoData.format(DateTime.parse(lista['data']))}\n'
+  '$quantidadeItens itens\n'
   'Total: ${formatoMoeda.format(lista['total'])}',
 ),
+
                     trailing: IconButton(
                       icon: const Icon(
                         Icons.delete,
