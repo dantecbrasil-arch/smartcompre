@@ -1,4 +1,4 @@
-package com.example.smartcompre
+package com.daniel.smartcompre
 
 import io.flutter.embedding.android.FlutterActivity
 
