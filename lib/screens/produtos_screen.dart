@@ -363,20 +363,36 @@ const SizedBox(height: 20),
       ),
     );
 
-    if (item != null) {
-      setState(() {
-        produtos.add({
-          'nome': item.produto,
-          'categoria': 'Hortifruti',
-          'quantidade': 1,
-          'preco': item.precoKg ?? 0,
-          'subtotal': item.total ?? 0,
-        });
+ if (item != null) {
+  setState(() {
+    produtos.add({
+      'nome': item.produto,
+      'categoria': 'Hortifruti',
+      'quantidade': 1,
+      'preco': item.precoKg ?? 0,
+      'subtotal': item.total ?? 0,
+    });
 
-        recalcularTotal();
-      });
-    }
-  },
+    recalcularTotal();
+  });
+
+  final indiceLista =
+      ListasRepository.listasSalvas.indexWhere(
+    (lista) =>
+        lista['nomeLista'] ==
+        widget.nomeLista,
+  );
+
+  if (indiceLista != -1) {
+    ListasRepository.listasSalvas[indiceLista]
+        ['produtos'] = produtos;
+
+    ListasRepository.listasSalvas[indiceLista]
+        ['total'] = total;
+
+    await ListasRepository.salvarListas();
+  }
+}    },
   icon: const Icon(Icons.photo_camera),
   label: const Text(
     'Capturar Etiqueta',
