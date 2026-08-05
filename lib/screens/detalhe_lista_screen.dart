@@ -92,14 +92,109 @@ SizedBox(
   width: double.infinity,
   child: ElevatedButton.icon(
     onPressed: () {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Função Adicionar Produto será ligada na próxima etapa',
+  final nomeController = TextEditingController();
+  final categoriaController =
+      TextEditingController(text: 'Outros');
+  final quantidadeController =
+      TextEditingController(text: '1');
+  final precoController =
+      TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Adicionar Produto'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nomeController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome',
+                ),
+              ),
+              TextField(
+                controller: categoriaController,
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                ),
+              ),
+              TextField(
+                controller: quantidadeController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Quantidade',
+                ),
+              ),
+              TextField(
+                controller: precoController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(
+                  labelText: 'Preço',
+                ),
+              ),
+            ],
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final quantidade =
+                  int.tryParse(
+                        quantidadeController.text,
+                      ) ??
+                      1;
+
+              final preco =
+                  double.tryParse(
+                        precoController.text
+                            .replaceAll(',', '.'),
+                      ) ??
+                      0;
+
+              setState(() {
+                produtos.add({
+                  'nome': nomeController.text,
+                  'categoria':
+                      categoriaController.text,
+                  'quantidade': quantidade,
+                  'preco': preco,
+                  'subtotal':
+                      quantidade * preco,
+                });
+
+                widget.lista['produtos'] =
+                    produtos;
+
+                widget.lista['total'] =
+                    totalAtual;
+              });
+
+              await ListasRepository
+                  .salvarListas();
+
+              if (mounted) {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Salvar'),
+          ),
+        ],
       );
     },
+  );
+},
     icon: const Icon(Icons.add),
     label: const Text(
       'Adicionar Produto',
