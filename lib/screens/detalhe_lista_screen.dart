@@ -70,14 +70,44 @@ class _DetalheListaScreenState
 
             const SizedBox(height: 8),
 
-            Text(
-              'Data: ${formatoData.format(DateTime.parse(widget.lista['data']))}',
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
+Text(
+  '📍 ${widget.lista['nomeLocal'] ?? 'Local não informado'}',
+  style: const TextStyle(
+    fontSize: 16,
+  ),
+),
+
+const SizedBox(height: 6),
+
+Text(
+  '📅 ${formatoData.format(DateTime.parse(widget.lista['data']))}',
+  style: const TextStyle(
+    fontSize: 16,
+  ),
+),
 
             const SizedBox(height: 20),
+
+SizedBox(
+  width: double.infinity,
+  child: ElevatedButton.icon(
+    onPressed: () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Função Adicionar Produto será ligada na próxima etapa',
+          ),
+        ),
+      );
+    },
+    icon: const Icon(Icons.add),
+    label: const Text(
+      'Adicionar Produto',
+    ),
+  ),
+),
+
+const SizedBox(height: 20),
 
             Expanded(
               child: ListView.builder(

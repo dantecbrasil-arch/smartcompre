@@ -117,18 +117,29 @@ class _HomePageState extends State<HomePage> {
                   height: 60,
                   child: ElevatedButton(
                     onPressed: habilitarCriacao
-                        ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ProdutosScreen(
-  nomeLocal: localController.text.trim(),
-  nomeLista: listaController.text.trim(),
-),
-                              ),
-                            );
-                          }
-                        : null,
+    ? () async {
+
+        ListasRepository.listasSalvas.add({
+          'nomeLocal': localController.text.trim(),
+          'nomeLista': listaController.text.trim(),
+          'data': DateTime.now().toIso8601String(),
+          'total': 0.0,
+          'produtos': [],
+        });
+
+        await ListasRepository.salvarListas();
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProdutosScreen(
+              nomeLocal: localController.text.trim(),
+              nomeLista: listaController.text.trim(),
+            ),
+          ),
+        );
+      }
+    : null,
                     child: const Text(
                       '🛒 Criar Lista',
                       style: TextStyle(

@@ -101,12 +101,13 @@ class _ListasScreenState extends State<ListasScreen> {
                       Icons.list_alt,
                     ),
                     title: Text(
-                      lista['nomeLista'],
-                    ),
-                    subtitle: Text(
-  '${formatoData.format(DateTime.parse(lista['data']))}\n'
-  '$quantidadeItens itens\n'
-  'Total: ${formatoMoeda.format(lista['total'])}',
+  lista['nomeLista'],
+),
+subtitle: Text(
+  '📍 ${lista['nomeLocal'] ?? 'Local não informado'}\n'
+  '📅 ${formatoData.format(DateTime.parse(lista['data']))}\n'
+  '🛒 $quantidadeItens itens\n'
+  '💰 Total: ${formatoMoeda.format(lista['total'])}',
 ),
 
                     trailing: IconButton(

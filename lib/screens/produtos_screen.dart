@@ -6,30 +6,37 @@ import 'package:smartcompre/models/item_compra.dart';
 import 'listas_screen.dart';
 
 class ProdutosScreen extends StatefulWidget {
-  const ProdutosScreen({super.key});
+  final String nomeLocal;
+  final String nomeLista;
+
+  const ProdutosScreen({
+    super.key,
+    required this.nomeLocal,
+    required this.nomeLista,
+  });
 
   @override
-  State<ProdutosScreen> createState() => _ProdutosScreenState();
+  State<ProdutosScreen> createState() =>
+      _ProdutosScreenState();
 }
 
-class _ProdutosScreenState extends State<ProdutosScreen> {
-  final TextEditingController nomeListaController =
-      TextEditingController();
+class _ProdutosScreenState
+    extends State<ProdutosScreen> {
 
   final List<Map<String, dynamic>> produtos = [];
 
-String filtroBusca = '';
+  String filtroBusca = '';
 
-final List<String> categorias = [
-  'Mercearia',
-  'Laticínios',
-  'Carnes',
-  'Bebidas',
-  'Limpeza',
-  'Hortifruti',
-  'Farmácia',
-  'Outros',
-];
+  final List<String> categorias = [
+    'Mercearia',
+    'Laticínios',
+    'Carnes',
+    'Bebidas',
+    'Limpeza',
+    'Hortifruti',
+    'Farmácia',
+    'Outros',
+  ];
 
   double total = 0.0;
 
@@ -300,90 +307,6 @@ produtos[index] = {
     );
   }
 
-Future<void> salvarLista() async {
-  if (nomeListaController.text.trim().isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Informe o nome da lista.',
-        ),
-      ),
-    );
-    return;
-  }
-
-  if (produtos.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Adicione ao menos um produto.',
-        ),
-      ),
-    );
-    return;
-  }
-
-final nomeNovaLista =
-    nomeListaController.text.trim().toLowerCase();
-
-final existe = ListasRepository.listasSalvas.any(
-  (lista) {
-    final nomeSalvo =
-        lista['nomeLista']
-            .toString()
-            .trim()
-            .toLowerCase();
-
-    return nomeSalvo == nomeNovaLista;
-  },
-);
-
-if (existe) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text(
-        'Já existe uma lista com esse nome.',
-      ),
-    ),
-  );
-  return;
-}
-
-  ListasRepository.listasSalvas.add({
-  'nomeLista': nomeListaController.text.trim(),
-  'data': DateTime.now().toIso8601String(),
-  'total': total,
-  'produtos': List.from(produtos),
-});
-
-await ListasRepository.salvarListas();
-
-final nomeLista =
-    nomeListaController.text.trim();
-
-
-ScaffoldMessenger.of(context).showSnackBar(
-  SnackBar(
-    content: Text(
-      'Lista "$nomeLista" salva com sucesso!',
-    ),
-  ),
-);
-
-setState(() {
-  produtos.clear();
-  total = 0;
-});
-
-nomeListaController.clear();
-
-Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (_) => const ListasScreen(),
-  ),
-);
-}
 
   @override
   Widget build(BuildContext context) {
@@ -397,7 +320,7 @@ final produtosFiltrados =
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🛒 Criar Lista'),
+        title: const Text('🛒 Cadastro de Produtos'),
       ),
       body: SafeArea(
   child: Padding(
@@ -405,25 +328,26 @@ final produtosFiltrados =
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Nome da Lista',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
 
-        const SizedBox(height: 10),
+        Text(
+  widget.nomeLista,
+  style: const TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+  ),
+),
 
-        TextField(
-          controller: nomeListaController,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            hintText: 'Ex: Compra do Mês',
-          ),
-        ),
+const SizedBox(height: 8),
 
-        const SizedBox(height: 15),
+Text(
+  '📍 ${widget.nomeLocal}',
+  style: const TextStyle(
+    fontSize: 16,
+    color: Colors.grey,
+  ),
+),
+
+const SizedBox(height: 20),
 
         Wrap(
           spacing: 8,
@@ -613,16 +537,23 @@ final produtosFiltrados =
 
         const SizedBox(height: 10),
 
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: salvarLista,
-            icon: const Icon(Icons.save),
-            label: const Text(
-              'Salvar Lista',
-            ),
-          ),
+SizedBox(
+  width: double.infinity,
+  child: ElevatedButton.icon(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ListasScreen(),
         ),
+      );
+    },
+    icon: const Icon(Icons.list_alt),
+    label: const Text(
+      'Minhas Listas',
+    ),
+  ),
+),
       ],
     ),
   ),
