@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../data/listas_repository.dart';
+import 'camera_screen.dart';
+import '../models/item_compra.dart';
 
 class DetalheListaScreen extends StatefulWidget {
   final Map<String, dynamic> lista;
@@ -92,105 +94,195 @@ SizedBox(
   width: double.infinity,
   child: ElevatedButton.icon(
     onPressed: () {
-  final nomeController = TextEditingController();
-  final categoriaController =
-      TextEditingController(text: 'Outros');
-  final quantidadeController =
-      TextEditingController(text: '1');
-  final precoController =
-      TextEditingController();
-
-  showDialog(
+  showModalBottomSheet(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        title: const Text('Adicionar Produto'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nomeController,
-                decoration: const InputDecoration(
-                  labelText: 'Nome',
-                ),
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text(
+                'Capturar Etiqueta',
               ),
-              TextField(
-                controller: categoriaController,
-                decoration: const InputDecoration(
-                  labelText: 'Categoria',
-                ),
-              ),
-              TextField(
-                controller: quantidadeController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Quantidade',
-                ),
-              ),
-              TextField(
-                controller: precoController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: const InputDecoration(
-                  labelText: 'Preço',
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final quantidade =
-                  int.tryParse(
-                        quantidadeController.text,
-                      ) ??
-                      1;
-
-              final preco =
-                  double.tryParse(
-                        precoController.text
-                            .replaceAll(',', '.'),
-                      ) ??
-                      0;
-
-              setState(() {
-                produtos.add({
-                  'nome': nomeController.text,
-                  'categoria':
-                      categoriaController.text,
-                  'quantidade': quantidade,
-                  'preco': preco,
-                  'subtotal':
-                      quantidade * preco,
-                });
-
-                widget.lista['produtos'] =
-                    produtos;
-
-                widget.lista['total'] =
-                    totalAtual;
-              });
-
-              await ListasRepository
-                  .salvarListas();
-
-              if (mounted) {
+              onTap: () {
                 Navigator.pop(context);
-              }
-            },
-            child: const Text('Salvar'),
-          ),
-        ],
+
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Integração com OCR será ligada na próxima etapa',
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text(
+                'Inserir Manualmente',
+              ),
+              onTap: () {
+                Navigator.pop(context);
+
+                final nomeController =
+                    TextEditingController();
+
+                final categoriaController =
+                    TextEditingController(
+                  text: 'Outros',
+                );
+
+                final quantidadeController =
+                    TextEditingController(
+                  text: '1',
+                );
+
+                final precoController =
+                    TextEditingController();
+
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text(
+                        'Adicionar Produto',
+                      ),
+                      content:
+                          SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize:
+                              MainAxisSize.min,
+                          children: [
+                            TextField(
+                              controller:
+                                  nomeController,
+                              decoration:
+                                  const InputDecoration(
+                                labelText: 'Nome',
+                              ),
+                            ),
+                            TextField(
+                              controller:
+                                  categoriaController,
+                              decoration:
+                                  const InputDecoration(
+                                labelText:
+                                    'Categoria',
+                              ),
+                            ),
+                            TextField(
+                              controller:
+                                  quantidadeController,
+                              keyboardType:
+                                  TextInputType
+                                      .number,
+                              decoration:
+                                  const InputDecoration(
+                                labelText:
+                                    'Quantidade',
+                              ),
+                            ),
+                            TextField(
+                              controller:
+                                  precoController,
+                              keyboardType:
+                                  const TextInputType
+                                      .numberWithOptions(
+                                decimal: true,
+                              ),
+                              decoration:
+                                  const InputDecoration(
+                                labelText: 'Preço',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(
+                              context,
+                            );
+                          },
+                          child:
+                              const Text(
+                            'Cancelar',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final quantidade =
+                                int.tryParse(
+                                      quantidadeController
+                                          .text,
+                                    ) ??
+                                    1;
+
+                            final preco =
+                                double.tryParse(
+                                      precoController
+                                          .text
+                                          .replaceAll(
+                                            ',',
+                                            '.',
+                                          ),
+                                    ) ??
+                                    0;
+
+                            setState(() {
+                              produtos.add({
+                                'nome':
+                                    nomeController
+                                        .text,
+                                'categoria':
+                                    categoriaController
+                                        .text,
+                                'quantidade':
+                                    quantidade,
+                                'preco':
+                                    preco,
+                                'subtotal':
+                                    quantidade *
+                                        preco,
+                              });
+
+                              widget.lista[
+                                  'produtos'] = produtos;
+
+                              widget.lista[
+                                  'total'] =
+                                  totalAtual;
+                            });
+
+                            await ListasRepository
+                                .salvarListas();
+
+                            if (mounted) {
+                              Navigator.pop(
+                                context,
+                              );
+                            }
+                          },
+                          child:
+                              const Text(
+                            'Salvar',
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+
+                    ],
+        ),
       );
     },
   );
@@ -204,7 +296,7 @@ SizedBox(
 
 const SizedBox(height: 20),
 
-            Expanded(
+Expanded(
               child: ListView.builder(
                 itemCount: produtos.length,
                 itemBuilder: (context, index) {
