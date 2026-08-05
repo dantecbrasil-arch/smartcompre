@@ -4,8 +4,6 @@ import 'screens/listas_screen.dart';
 import 'data/listas_repository.dart';
 
 Future<void> main() async {
-  print('APP INICIOU');
-
   WidgetsFlutterBinding.ensureInitialized();
 
   await ListasRepository.carregarListas();
@@ -29,87 +27,142 @@ class SmartCompreApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final TextEditingController localController =
+      TextEditingController();
+
+  final TextEditingController listaController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    localController.dispose();
+    listaController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final habilitarCriacao =
+        localController.text.trim().isNotEmpty &&
+        listaController.text.trim().isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('SmartCompre'),
         centerTitle: true,
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.shopping_cart,
-                size: 130,
-                color: Colors.green,
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                'Bem-vindo ao SmartCompre',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.shopping_cart,
+                  size: 130,
+                  color: Colors.green,
                 ),
-              ),
 
-              const SizedBox(height: 40),
+                const SizedBox(height: 20),
 
-              SizedBox(
-                width: 250,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const ProdutosScreen(),
-                      ),
-                    );
+                const Text(
+                  'Bem-vindo ao SmartCompre',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                TextField(
+                  controller: localController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nome do Local',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.store),
+                  ),
+                  onChanged: (_) {
+                    setState(() {});
                   },
-                  child: const Text(
-                    '🛒 Criar Lista',
-                    style: TextStyle(
-                      fontSize: 22,
+                ),
+
+                const SizedBox(height: 15),
+
+                TextField(
+                  controller: listaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nome da Lista',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.list_alt),
+                  ),
+                  onChanged: (_) {
+                    setState(() {});
+                  },
+                ),
+
+                const SizedBox(height: 25),
+
+                SizedBox(
+                  width: 250,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: habilitarCriacao
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProdutosScreen(
+  nomeLocal: localController.text.trim(),
+  nomeLista: listaController.text.trim(),
+),
+                              ),
+                            );
+                          }
+                        : null,
+                    child: const Text(
+                      '🛒 Criar Lista',
+                      style: TextStyle(
+                        fontSize: 22,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              SizedBox(
-                width: 250,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const ListasScreen(),
+                SizedBox(
+                  width: 250,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const ListasScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      '📋 Minhas Listas',
+                      style: TextStyle(
+                        fontSize: 22,
                       ),
-                    );
-                  },
-                  child: const Text(
-                    '📋 Minhas Listas',
-                    style: TextStyle(
-                      fontSize: 22,
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
