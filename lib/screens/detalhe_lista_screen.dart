@@ -102,24 +102,44 @@ SizedBox(
           mainAxisSize: MainAxisSize.min,
           children: [
 
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text(
-                'Capturar Etiqueta',
-              ),
-              onTap: () {
-                Navigator.pop(context);
+           ListTile(
+  leading: const Icon(Icons.camera_alt),
+  title: const Text(
+    'Capturar Etiqueta',
+  ),
+  onTap: () async {
+    Navigator.pop(context);
 
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Integração com OCR será ligada na próxima etapa',
-                    ),
-                  ),
-                );
-              },
-            ),
+    final item =
+        await Navigator.push<ItemCompra>(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            const CameraScreen(),
+      ),
+    );
+
+    if (item != null) {
+      setState(() {
+        produtos.add({
+          'nome': item.produto,
+          'categoria': 'Hortifruti',
+          'quantidade': 1,
+          'preco': item.precoKg ?? 0,
+          'subtotal': item.total ?? 0,
+        });
+
+        widget.lista['produtos'] =
+            produtos;
+
+        widget.lista['total'] =
+            totalAtual;
+      });
+
+      await ListasRepository.salvarListas();
+    }
+  },
+), 
 
             ListTile(
               leading: const Icon(Icons.edit),
