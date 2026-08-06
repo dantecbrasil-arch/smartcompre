@@ -349,6 +349,68 @@ Text(
 
 const SizedBox(height: 20),
 
+Wrap(
+  spacing: 8,
+  runSpacing: 8,
+  children: [
+    ElevatedButton.icon(
+      onPressed: () async {
+        final item =
+            await Navigator.push<ItemCompra>(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                const CameraScreen(),
+          ),
+        );
+
+        if (item != null) {
+          setState(() {
+            produtos.add({
+              'nome': item.produto,
+              'categoria': 'Hortifruti',
+              'quantidade': 1,
+              'preco': item.precoKg ?? 0,
+              'subtotal': item.total ?? 0,
+            });
+
+            recalcularTotal();
+          });
+
+          final indiceLista =
+              ListasRepository.listasSalvas.indexWhere(
+            (lista) =>
+                lista['nomeLista'] ==
+                widget.nomeLista,
+          );
+
+          if (indiceLista != -1) {
+            ListasRepository.listasSalvas[
+                indiceLista]['produtos'] = produtos;
+
+            ListasRepository.listasSalvas[
+                indiceLista]['total'] = total;
+
+            await ListasRepository.salvarListas();
+          }
+        }
+      },
+      icon: const Icon(Icons.photo_camera),
+      label: const Text(
+        'Capturar Etiqueta',
+      ),
+    ),
+    ElevatedButton.icon(
+      onPressed: adicionarProduto,
+      icon: const Icon(Icons.add),
+      label: const Text(
+        'Adicionar Manualmente',
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 20),
         
 
         Row(
@@ -514,6 +576,17 @@ SizedBox(
     ),
   ),
 ),
+  
+bottomNavigationBar: Container(
+  height: 60,
+  color: Colors.grey.shade200,
+  child: const Center(
+    child: Text(
+      'Espaço para Banner',
+    ),
+  ),
+),
+  
 );
 }
 }
