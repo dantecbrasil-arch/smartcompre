@@ -114,7 +114,7 @@ String categoriaSelecionada = 'Mercearia';
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final nome = nomeController.text;
 
                 final quantidade =
@@ -134,18 +134,35 @@ String categoriaSelecionada = 'Mercearia';
                     quantidade * preco;
 
                 setState(() {
-                 produtos.add({
-  'nome': nome,
-  'categoria': categoriaSelecionada,
-  'quantidade': quantidade,
-  'preco': preco,
-  'subtotal': subtotal,
-}); 
+  produtos.add({
+    'nome': nome,
+    'categoria': categoriaSelecionada,
+    'quantidade': quantidade,
+    'preco': preco,
+    'subtotal': subtotal,
+  });
 
-                  recalcularTotal();
-                });
+  recalcularTotal();
+});
 
-                Navigator.pop(context);
+final indiceLista =
+    ListasRepository.listasSalvas.indexWhere(
+  (lista) =>
+      lista['nomeLista'] ==
+      widget.nomeLista,
+);
+
+if (indiceLista != -1) {
+  ListasRepository.listasSalvas[indiceLista]
+      ['produtos'] = produtos;
+
+  ListasRepository.listasSalvas[indiceLista]
+      ['total'] = total;
+
+  await ListasRepository.salvarListas();
+}
+
+Navigator.pop(context);
               },
               child: const Text('Adicionar'),
             ),
@@ -348,69 +365,6 @@ Text(
 ),
 
 const SizedBox(height: 20),
-
-Wrap(
-  spacing: 8,
-  runSpacing: 8,
-  children: [
-    ElevatedButton.icon(
-      onPressed: () async {
-        final item =
-            await Navigator.push<ItemCompra>(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                const CameraScreen(),
-          ),
-        );
-
-        if (item != null) {
-          setState(() {
-            produtos.add({
-              'nome': item.produto,
-              'categoria': 'Hortifruti',
-              'quantidade': 1,
-              'preco': item.precoKg ?? 0,
-              'subtotal': item.total ?? 0,
-            });
-
-            recalcularTotal();
-          });
-
-          final indiceLista =
-              ListasRepository.listasSalvas.indexWhere(
-            (lista) =>
-                lista['nomeLista'] ==
-                widget.nomeLista,
-          );
-
-          if (indiceLista != -1) {
-            ListasRepository.listasSalvas[
-                indiceLista]['produtos'] = produtos;
-
-            ListasRepository.listasSalvas[
-                indiceLista]['total'] = total;
-
-            await ListasRepository.salvarListas();
-          }
-        }
-      },
-      icon: const Icon(Icons.photo_camera),
-      label: const Text(
-        'Capturar Etiqueta',
-      ),
-    ),
-    ElevatedButton.icon(
-      onPressed: adicionarProduto,
-      icon: const Icon(Icons.add),
-      label: const Text(
-        'Adicionar Manualmente',
-      ),
-    ),
-  ],
-),
-
-const SizedBox(height: 20),
         
 
         Row(
@@ -545,18 +499,134 @@ const SizedBox(height: 20),
 
         const SizedBox(height: 10),
 
-        Text(
-          'Total: ${formatoMoeda.format(total)}',
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
+SizedBox(
+  width: double.infinity,
+  height: 60,
+  child: ElevatedButton.icon(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ListasScreen(),
         ),
+      );
+    },
+    icon: const Icon(Icons.list_alt),
+    label: const Text(
+      'Minhas Listas',
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  ),
+),
 
-        const SizedBox(height: 10),
+const SizedBox(height: 12),
+
+Text(
+  '💰 Total: ${formatoMoeda.format(total)}',
+  style: const TextStyle(
+    fontSize: 30,
+    fontWeight: FontWeight.bold,
+  ),
+),
+
+const SizedBox(height: 12),
+
+Row(
+  children: [
+
+    Expanded(
+  child: ElevatedButton.icon(
+    onPressed: () async {
+      final item =
+          await Navigator.push<ItemCompra>(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              const CameraScreen(),
+        ),
+      );
+
+      if (item != null) {
+        setState(() {
+          produtos.add({
+            'nome': item.produto,
+            'categoria': 'Hortifruti',
+            'quantidade': 1,
+            'preco': item.precoKg ?? 0,
+            'subtotal': item.total ?? 0,
+          });
+
+          recalcularTotal();
+        });
+
+        final indiceLista =
+            ListasRepository.listasSalvas.indexWhere(
+          (lista) =>
+              lista['nomeLista'] ==
+              widget.nomeLista,
+        );
+
+        if (indiceLista != -1) {
+          ListasRepository
+                  .listasSalvas[indiceLista]
+              ['produtos'] = produtos;
+
+          ListasRepository
+                  .listasSalvas[indiceLista]
+              ['total'] = total;
+
+          await ListasRepository.salvarListas();
+        }
+      }
+    },
+    icon: const Icon(
+      Icons.photo_camera,
+      size: 28,
+    ),
+    label: const Text(
+      'Capturar',
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    style: ElevatedButton.styleFrom(
+      minimumSize: const Size.fromHeight(60),
+    ),
+  ),
+),
+    const SizedBox(width: 8),
+
+  Expanded(
+  child: ElevatedButton.icon(
+    onPressed: adicionarProduto,
+    icon: const Icon(
+      Icons.edit,
+      size: 28,
+    ),
+    label: const Text(
+      'Digitar',
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    style: ElevatedButton.styleFrom(
+      minimumSize: const Size.fromHeight(60),
+    ),
+  ),
+),
+
+  ],
+),
+const SizedBox(height: 16),
 
 SizedBox(
   width: double.infinity,
+  height: 60,
   child: ElevatedButton.icon(
     onPressed: () {
       Navigator.push(
@@ -578,7 +648,7 @@ SizedBox(
 ),
   
 bottomNavigationBar: Container(
-  height: 60,
+  height: 120,
   color: Colors.grey.shade200,
   child: const Center(
     child: Text(
