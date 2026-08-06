@@ -499,30 +499,6 @@ const SizedBox(height: 20),
 
         const SizedBox(height: 10),
 
-SizedBox(
-  width: double.infinity,
-  height: 60,
-  child: ElevatedButton.icon(
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const ListasScreen(),
-        ),
-      );
-    },
-    icon: const Icon(Icons.list_alt),
-    label: const Text(
-      'Minhas Listas',
-      style: TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ),
-),
-
-const SizedBox(height: 12),
 
 Text(
   '💰 Total: ${formatoMoeda.format(total)}',
@@ -532,7 +508,6 @@ Text(
   ),
 ),
 
-const SizedBox(height: 12),
 
 Row(
   children: [
