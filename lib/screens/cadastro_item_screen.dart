@@ -68,12 +68,16 @@ class CadastroItemScreen extends StatelessWidget {
                 final item = ItemCompra(
                   produto: produtoController.text,
                   precoKg: double.tryParse(
-                    precoController.text,
-                  ),
+                    precoController.text
+                        .replaceAll(',', '.')
+                        .trim(),
+),
                   total: double.tryParse(
-                    totalController.text,
-                  ),
-                );
+                    totalController.text
+                        .replaceAll(',', '.')
+                        .trim(),
+),
+);
 
                 Navigator.pop(
                   context,

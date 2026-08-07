@@ -165,8 +165,16 @@ final List<ItemCompra> _itens = [];
 );
 
 if (item != null) {
+  debugPrint(
+    'ITEM RETORNOU => '
+    '${item.produto} | '
+    '${item.precoKg} | '
+    '${item.total}',
+  );
+
   Navigator.pop(context, item);
 }
+
 
 
 

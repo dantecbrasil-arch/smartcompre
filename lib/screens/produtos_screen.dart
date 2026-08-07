@@ -515,48 +515,67 @@ Row(
     Expanded(
   child: ElevatedButton.icon(
     onPressed: () async {
-      final item =
-          await Navigator.push<ItemCompra>(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              const CameraScreen(),
-        ),
-      );
 
-      if (item != null) {
-        setState(() {
-          produtos.add({
-            'nome': item.produto,
-            'categoria': 'Hortifruti',
-            'quantidade': 1,
-            'preco': item.precoKg ?? 0,
-            'subtotal': item.total ?? 0,
-          });
+  final item = await Navigator.push<ItemCompra>(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const CameraScreen(),
+    ),
+  );
 
-          recalcularTotal();
-        });
+  if (item == null) {
+    debugPrint('NENHUM ITEM RETORNOU DA CAMERA');
+    return;
+  }
 
-        final indiceLista =
-            ListasRepository.listasSalvas.indexWhere(
-          (lista) =>
-              lista['nomeLista'] ==
-              widget.nomeLista,
-        );
+  debugPrint('==============================');
+  debugPrint('PRODUTO RECEBIDO NA PRODUTOSSCREEN');
+  debugPrint('NOME: ${item.produto}');
+  debugPrint('PRECO: ${item.precoKg}');
+  debugPrint('TOTAL: ${item.total}');
+  debugPrint('==============================');
 
-        if (indiceLista != -1) {
-          ListasRepository
-                  .listasSalvas[indiceLista]
-              ['produtos'] = produtos;
+  setState(() {
 
-          ListasRepository
-                  .listasSalvas[indiceLista]
-              ['total'] = total;
+    produtos.add({
+      'nome': item.produto,
+      'categoria': 'Hortifruti',
+      'quantidade': 1,
+      'preco': item.precoKg ?? 0.0,
+      'subtotal': item.total ?? 0.0,
+    });
 
-          await ListasRepository.salvarListas();
-        }
-      }
-    },
+    recalcularTotal();
+
+    debugPrint(
+      'QUANTIDADE DE PRODUTOS: ${produtos.length}',
+    );
+  });
+
+  final indiceLista =
+      ListasRepository.listasSalvas.indexWhere(
+    (lista) =>
+        lista['nomeLista'] ==
+        widget.nomeLista,
+  );
+
+  if (indiceLista != -1) {
+
+    ListasRepository
+        .listasSalvas[indiceLista]['produtos'] =
+        List<Map<String, dynamic>>.from(produtos);
+
+    ListasRepository
+        .listasSalvas[indiceLista]['total'] =
+        total;
+
+    await ListasRepository.salvarListas();
+
+    debugPrint(
+      'LISTA SALVA COM ${produtos.length} PRODUTOS',
+    );
+  }
+},
     icon: const Icon(
       Icons.photo_camera,
       size: 28,
