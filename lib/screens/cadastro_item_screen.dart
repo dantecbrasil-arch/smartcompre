@@ -37,29 +37,35 @@ class CadastroItemScreen extends StatelessWidget {
         child: Column(
           children: [
             TextField(
-              controller: produtoController,
-              decoration: const InputDecoration(
-                labelText: 'Produto',
-              ),
-            ),
+  controller: produtoController,
+  decoration: const InputDecoration(
+    labelText: 'Produto',
+  ),
+),
 
-            const SizedBox(height: 16),
+const SizedBox(height: 16),
 
-            TextField(
-              controller: precoController,
-              decoration: const InputDecoration(
-                labelText: 'Preço/Kg',
-              ),
-            ),
+TextField(
+  controller: precoController,
+  keyboardType: const TextInputType.numberWithOptions(
+    decimal: true,
+  ),
+  decoration: const InputDecoration(
+    labelText: 'Preço/Kg',
+  ),
+),
 
-            const SizedBox(height: 16),
+const SizedBox(height: 16),
 
-            TextField(
-              controller: totalController,
-              decoration: const InputDecoration(
-                labelText: 'Total',
-              ),
-            ),
+TextField(
+  controller: totalController,
+  keyboardType: const TextInputType.numberWithOptions(
+    decimal: true,
+  ),
+  decoration: const InputDecoration(
+    labelText: 'Total',
+  ),
+),
 
             const SizedBox(height: 24),
 
