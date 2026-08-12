@@ -56,6 +56,11 @@ class _ProdutosScreenState
   void adicionarProduto() {
     final nomeController = TextEditingController();
 
+    final pesoController =
+        TextEditingController(
+          text: '0',
+        );
+
     final quantidadeController =
         TextEditingController(text: '1');
 String categoriaSelecionada = 'Mercearia';
@@ -77,6 +82,13 @@ String categoriaSelecionada = 'Mercearia';
                   labelText: 'Nome do Produto',
                 ),
               ),
+              TextField(
+                controller: pesoController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Peso (kg)',
+              ),
+            ),
               TextField(
                 controller: quantidadeController,
                 keyboardType: TextInputType.number,
@@ -129,14 +141,24 @@ String categoriaSelecionada = 'Mercearia';
 
                 final preco =
                     double.tryParse(textoPreco) ?? 0.0;
+                  
+                final peso =
+                    double.tryParse(
+                      pesoController.text
+                          .replaceAll(',', '.'),
+                    ) ??
+                    0;
 
                 final subtotal =
-                    quantidade * preco;
+                    peso > 0
+                        ? peso * preco
+                        : quantidade * preco;
 
                 setState(() {
   produtos.add({
     'nome': nome,
     'categoria': categoriaSelecionada,
+    'peso': peso,
     'quantidade': quantidade,
     'preco': preco,
     'subtotal': subtotal,
@@ -285,7 +307,9 @@ DropdownButtonFormField<String>(
                     ) ??
                     0;
                 final subtotal =
-                    peso * preco;
+                    peso > 0
+                         ? peso * preco
+                         : quantidade * preco;
 
                 setState(() {
                   
@@ -547,32 +571,11 @@ Row(
   );
 
   if (item == null) {
-    debugPrint('NENHUM ITEM RETORNOU DA CAMERA');
     return;
   }
 
-debugPrint('################################');
-debugPrint('CATEGORIA RECEBIDA: ${item.categoria}');
-debugPrint('################################');
-
-
-  debugPrint('==============================');
-debugPrint('PRODUTO RECEBIDO NA PRODUTOSSCREEN');
-debugPrint('NOME: ${item.produto}');
-debugPrint('CATEGORIA: ${item.categoria}');
-debugPrint('PRECO: ${item.precoKg}');
-debugPrint('TOTAL: ${item.total}');
-debugPrint('==============================');
 
   setState(() {
-
-debugPrint(
-  'ADICIONANDO PRODUTO COM CATEGORIA: ${item.categoria}',
-);
-
-debugPrint(
-  'ANTES ADD: ${item.categoria}',
-);
 
     produtos.add({
       'nome': item.produto,
@@ -583,15 +586,8 @@ debugPrint(
       'subtotal': item.total ?? 0.0,
     });
 
-debugPrint(
-  'ULTIMO ITEM: ${produtos.last['categoria']}',
-);
 
     recalcularTotal();
-
-    debugPrint(
-      'QUANTIDADE DE PRODUTOS: ${produtos.length}',
-    );
   });
 
   final indiceLista =
@@ -612,10 +608,6 @@ debugPrint(
         total;
 
     await ListasRepository.salvarListas();
-
-    debugPrint(
-      'LISTA SALVA COM ${produtos.length} PRODUTOS',
-    );
   }
 },
     icon: const Icon(

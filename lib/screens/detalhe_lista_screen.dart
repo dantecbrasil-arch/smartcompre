@@ -512,7 +512,7 @@ final precoController =
     peso * preco;
 
     produto['nome'] =
-    '${nomeController.text} | ${peso * preco}';
+    nomeController.text;
 
     widget.lista['produtos'] = produtos;
 
@@ -523,10 +523,6 @@ final precoController =
       (produto['subtotal'] as num).toDouble(),
      );
   });
-
-  throw Exception(
-    'CHEGUEI NO SALVAR DA EDICAO',
-  );
 
   await ListasRepository
       .salvarListas();
