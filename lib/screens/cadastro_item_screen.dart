@@ -73,6 +73,7 @@ void initState() {
 
 TextField(
   controller: pesoController,
+  keyboardType: TextInputType.number,
   decoration: const InputDecoration(
     labelText: 'Peso (kg)',
   ),
