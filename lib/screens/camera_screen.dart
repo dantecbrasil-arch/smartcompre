@@ -160,6 +160,7 @@ final List<ItemCompra> _itens = [];
       produto: dados.produto,
       peso: dados.peso,
       precoKg: dados.precoKg,
+      moeda: dados.moeda,
       total: dados.total,
     ),
   ),
@@ -170,6 +171,7 @@ if (item != null) {
     'ITEM RETORNOU => '
     '${item.produto} | '
     '${item.categoria} | '
+    '${item.moeda} | '
     '${item.peso} | '
     '${item.precoKg} | '
     '${item.total}',

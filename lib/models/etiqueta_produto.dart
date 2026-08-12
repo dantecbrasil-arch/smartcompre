@@ -1,5 +1,6 @@
 class EtiquetaProduto {
   final String produto;
+  final String? moeda;
   final double? peso;
   final double? precoKg;
   final double? total;
@@ -9,12 +10,14 @@ class EtiquetaProduto {
     this.peso,
     this.precoKg,
     this.total,
+    this.moeda,
   });
 
   @override
   String toString() {
     return '''
 Produto: $produto
+Moeda: $moeda
 Preço/Kg: $precoKg
 Total: $total
 ''';

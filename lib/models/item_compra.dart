@@ -1,6 +1,7 @@
 class ItemCompra {
   final String produto;
   final String categoria;
+  final String? moeda;
   final double? peso;
   final double? precoKg;
   final double? total;
@@ -11,5 +12,6 @@ class ItemCompra {
     this.peso,
     this.precoKg,
     this.total,
+    this.moeda,
   });
 }

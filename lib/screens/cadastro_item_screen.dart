@@ -5,6 +5,7 @@ class CadastroItemScreen extends StatefulWidget {
   final String produto;
   final double? precoKg;
   final double? total;
+  final String? moeda;
   final double? peso;
 
   const CadastroItemScreen({
@@ -13,6 +14,7 @@ class CadastroItemScreen extends StatefulWidget {
     this.peso,
     this.precoKg,
     this.total,
+    this.moeda,
   });
 
   @override
@@ -158,6 +160,7 @@ TextField(
                 final item = ItemCompra(
                   produto: produtoController.text,
                   categoria: categoriaSelecionada,
+                  moeda: widget.moeda,
                   peso: double.tryParse(
                     pesoController.text.replaceAll(',', '.'),
                   ),

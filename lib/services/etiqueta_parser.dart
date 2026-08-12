@@ -5,6 +5,7 @@ class EtiquetaParser {
     String produto = '';
     String precoKg = '';
     String total = '';
+    String moeda = 'BRL';
     String peso = '';
 
     final linhas = texto.split('\n');
@@ -14,6 +15,19 @@ class EtiquetaParser {
 
     for (final linha in linhas) {
       final l = linha.trim();
+
+      if (
+          l.contains(r'R$') ||
+          l.contains('RS') ||
+          l.contains('R5')
+      ) {
+
+       moeda = 'BRL';
+      } else if (l.contains('€')) {
+       moeda = 'EUR';
+      } else if (l.contains('\$')) {
+       moeda = 'USD';
+      }
 
       if (produto.isEmpty &&
           l.isNotEmpty &&
@@ -55,6 +69,7 @@ class EtiquetaParser {
 
     return EtiquetaProduto(
       produto: produto,
+      moeda: moeda,
       peso: peso.isNotEmpty ? double.tryParse(peso.replaceAll(',', '.')) : null,
       precoKg: precoKg.isNotEmpty
           ? double.tryParse(precoKg.replaceAll(',', '.'))
