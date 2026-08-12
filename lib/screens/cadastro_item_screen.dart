@@ -5,10 +5,12 @@ class CadastroItemScreen extends StatefulWidget {
   final String produto;
   final double? precoKg;
   final double? total;
+  final double? peso;
 
   const CadastroItemScreen({
     super.key,
     required this.produto,
+    this.peso,
     this.precoKg,
     this.total,
   });
@@ -37,6 +39,11 @@ void initState() {
     final produtoController =
         TextEditingController(text: widget.produto);
 
+    final pesoController =
+        TextEditingController(
+     text: widget.peso?.toString() ?? '',
+);
+
     final precoController =
         TextEditingController(
       text: widget.precoKg?.toString() ?? '',
@@ -59,6 +66,13 @@ void initState() {
   controller: produtoController,
   decoration: const InputDecoration(
     labelText: 'Produto',
+  ),
+),
+
+TextField(
+  controller: pesoController,
+  decoration: const InputDecoration(
+    labelText: 'Peso (kg)',
   ),
 ),
 
@@ -144,6 +158,9 @@ TextField(
                 final item = ItemCompra(
                   produto: produtoController.text,
                   categoria: categoriaSelecionada,
+                  peso: double.tryParse(
+                    pesoController.text.replaceAll(',', '.'),
+                  ),
                   precoKg: double.tryParse(
                     precoController.text
                         .replaceAll(',', '.')

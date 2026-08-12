@@ -158,6 +158,7 @@ final List<ItemCompra> _itens = [];
   MaterialPageRoute(
     builder: (_) => CadastroItemScreen(
       produto: dados.produto,
+      peso: dados.peso,
       precoKg: dados.precoKg,
       total: dados.total,
     ),
@@ -169,6 +170,7 @@ if (item != null) {
     'ITEM RETORNOU => '
     '${item.produto} | '
     '${item.categoria} | '
+    '${item.peso} | '
     '${item.precoKg} | '
     '${item.total}',
   );

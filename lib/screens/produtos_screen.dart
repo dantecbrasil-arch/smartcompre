@@ -553,6 +553,7 @@ debugPrint(
 
     produtos.add({
       'nome': item.produto,
+      'peso': item.peso,
       'categoria': item.categoria,
       'quantidade': 1,
       'preco': item.precoKg ?? 0.0,
