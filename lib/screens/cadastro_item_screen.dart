@@ -23,6 +23,15 @@ class _CadastroItemScreenState
 
       String categoriaSelecionada = 'Hortifruti';
 
+@override
+void initState() {
+  super.initState();
+  debugPrint(
+    'CATEGORIA INICIAL: $categoriaSelecionada',
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     final produtoController =
@@ -93,10 +102,15 @@ DropdownButtonFormField<String>(
     ),
   ],
   onChanged: (value) {
-    setState(() {
-      categoriaSelecionada = value!;
-    });
-  },
+  setState(() {
+    categoriaSelecionada = value!;
+  });
+
+  debugPrint(
+    'CATEGORIA SELECIONADA: $categoriaSelecionada',
+  );
+},
+
 ),
 
 const SizedBox(height: 16),
@@ -141,6 +155,12 @@ TextField(
                         .trim(),
 ),
 );
+
+debugPrint(
+  'SALVANDO CATEGORIA: $categoriaSelecionada',
+);
+
+
 
                 Navigator.pop(
                   context,

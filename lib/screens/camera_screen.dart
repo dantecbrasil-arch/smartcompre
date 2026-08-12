@@ -168,6 +168,7 @@ if (item != null) {
   debugPrint(
     'ITEM RETORNOU => '
     '${item.produto} | '
+    '${item.categoria} | '
     '${item.precoKg} | '
     '${item.total}',
   );

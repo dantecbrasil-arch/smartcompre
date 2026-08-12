@@ -123,7 +123,7 @@ SizedBox(
       setState(() {
         produtos.add({
           'nome': item.produto,
-          'categoria': 'Hortifruti',
+          'categoria': item.categoria,
           'quantidade': 1,
           'preco': item.precoKg ?? 0,
           'subtotal': item.total ?? 0,

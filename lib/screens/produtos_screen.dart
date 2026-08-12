@@ -528,14 +528,28 @@ Row(
     return;
   }
 
+debugPrint('################################');
+debugPrint('CATEGORIA RECEBIDA: ${item.categoria}');
+debugPrint('################################');
+
+
   debugPrint('==============================');
-  debugPrint('PRODUTO RECEBIDO NA PRODUTOSSCREEN');
-  debugPrint('NOME: ${item.produto}');
-  debugPrint('PRECO: ${item.precoKg}');
-  debugPrint('TOTAL: ${item.total}');
-  debugPrint('==============================');
+debugPrint('PRODUTO RECEBIDO NA PRODUTOSSCREEN');
+debugPrint('NOME: ${item.produto}');
+debugPrint('CATEGORIA: ${item.categoria}');
+debugPrint('PRECO: ${item.precoKg}');
+debugPrint('TOTAL: ${item.total}');
+debugPrint('==============================');
 
   setState(() {
+
+debugPrint(
+  'ADICIONANDO PRODUTO COM CATEGORIA: ${item.categoria}',
+);
+
+debugPrint(
+  'ANTES ADD: ${item.categoria}',
+);
 
     produtos.add({
       'nome': item.produto,
@@ -544,6 +558,10 @@ Row(
       'preco': item.precoKg ?? 0.0,
       'subtotal': item.total ?? 0.0,
     });
+
+debugPrint(
+  'ULTIMO ITEM: ${produtos.last['categoria']}',
+);
 
     recalcularTotal();
 
