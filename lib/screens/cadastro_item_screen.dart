@@ -28,6 +28,8 @@ class CadastroItemScreen extends StatelessWidget {
       text: total?.toString() ?? '',
     );
 
+    String categoriaSelecionada = 'Hortifruti';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cadastrar Produto'),
@@ -41,6 +43,48 @@ class CadastroItemScreen extends StatelessWidget {
   decoration: const InputDecoration(
     labelText: 'Produto',
   ),
+),
+
+DropdownButtonFormField<String>(
+  value: categoriaSelecionada,
+  decoration: const InputDecoration(
+    labelText: 'Categoria',
+  ),
+  items: const [
+    DropdownMenuItem(
+      value: 'Mercearia',
+      child: Text('Mercearia'),
+    ),
+    DropdownMenuItem(
+      value: 'Laticínios',
+      child: Text('Laticínios'),
+    ),
+    DropdownMenuItem(
+      value: 'Carnes',
+      child: Text('Carnes'),
+    ),
+    DropdownMenuItem(
+      value: 'Bebidas',
+      child: Text('Bebidas'),
+    ),
+    DropdownMenuItem(
+      value: 'Limpeza',
+      child: Text('Limpeza'),
+    ),
+    DropdownMenuItem(
+      value: 'Hortifruti',
+      child: Text('Hortifruti'),
+    ),
+    DropdownMenuItem(
+      value: 'Farmácia',
+      child: Text('Farmácia'),
+    ),
+    DropdownMenuItem(
+      value: 'Outros',
+      child: Text('Outros'),
+    ),
+  ],
+  onChanged: (value) {},
 ),
 
 const SizedBox(height: 16),
@@ -73,6 +117,7 @@ TextField(
               onPressed: () {
                 final item = ItemCompra(
                   produto: produtoController.text,
+                  categoria: 'Hortifruti',
                   precoKg: double.tryParse(
                     precoController.text
                         .replaceAll(',', '.')
