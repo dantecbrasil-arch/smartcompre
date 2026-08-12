@@ -90,9 +90,10 @@ Text(
 
             const SizedBox(height: 20),
 
-SizedBox(
-  width: double.infinity,
-  child: ElevatedButton.icon(
+if (false)
+  SizedBox(
+    width: double.infinity,
+    child: ElevatedButton.icon(
     onPressed: () {
   showModalBottomSheet(
     context: context,
@@ -641,7 +642,64 @@ final precoController =
               ),
             ),
 
+
+
             const SizedBox(height: 10),
+
+            const Center(
+              child: Text(
+                'Adicionar Produto',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+const SizedBox(height: 5),
+
+Row(
+  children: [
+    Expanded(
+      child: ElevatedButton.icon(
+        onPressed: () async {
+  final item =
+      await Navigator.push<ItemCompra>(
+    context,
+    MaterialPageRoute(
+      builder: (_) =>
+          const CameraScreen(),
+    ),
+  );
+},
+icon: const Icon(Icons.camera_alt),
+label: const Text(
+  'Capturar',
+  style: TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.w600,
+  ),
+ ),
+),
+),
+
+    const SizedBox(width: 10),
+
+    Expanded(
+      child: ElevatedButton.icon(
+        onPressed: () {},
+        icon: const Icon(Icons.edit),
+        label: const Text(
+          'Digitar',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    ),
+  ],
+),
 
             Text(
               'Total: ${formatoMoeda.format(totalAtual)}',
