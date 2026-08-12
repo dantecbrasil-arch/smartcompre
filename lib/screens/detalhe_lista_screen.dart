@@ -498,7 +498,7 @@ final precoController =
     produto['preco'] = preco;
 
     produto['subtotal'] =
-        quantidade * preco;
+        (produto['peso'] ?? 0) * preco;
 
     widget.lista['total'] =
         totalAtual;
