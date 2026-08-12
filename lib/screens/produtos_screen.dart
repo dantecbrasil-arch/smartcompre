@@ -457,6 +457,7 @@ const SizedBox(height: 20),
                         title: Text(
                           '${produto['nome']} | '
                           '🏷️ ${produto['categoria']} | '
+                          '⚖️ ${produto['peso'] ?? '-'} kg | '
                           '${produto['quantidade']} x '
                           '${formatoMoeda.format(produto['preco'])}',
                         ),

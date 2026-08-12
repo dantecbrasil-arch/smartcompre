@@ -123,6 +123,7 @@ SizedBox(
       setState(() {
         produtos.add({
           'nome': item.produto,
+          'peso': item.peso,
           'categoria': item.categoria,
           'quantidade': 1,
           'preco': item.precoKg ?? 0,
@@ -156,6 +157,13 @@ SizedBox(
                     TextEditingController(
                   text: 'Outros',
                 );
+
+                      final pesoController =
+                          TextEditingController(
+                            text: '',
+                   );
+                   
+  
 
                 final quantidadeController =
                     TextEditingController(
@@ -194,6 +202,15 @@ SizedBox(
                                 labelText:
                                     'Categoria',
                               ),
+                            ),
+                            TextField(
+                              controller: pesoController,
+                              keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true,
+                            ),
+                            decoration: const InputDecoration(
+                              labelText: 'Peso (kg)',
+                             ),
                             ),
                             TextField(
                               controller:
@@ -333,6 +350,7 @@ Expanded(
                       ),
                       subtitle: Text(
                         'Categoria: ${produto['categoria']}\n'
+                        'Peso: ${produto['peso'] ?? '-'} kg\n'
                         '${produto['quantidade']} x '
                         '${formatoMoeda.format(produto['preco'])}',
                       ),
@@ -355,6 +373,11 @@ Expanded(
     final nomeController =
     TextEditingController(
   text: produto['nome'],
+);
+
+final pesoController =
+    TextEditingController(
+  text: (produto['peso'] ?? '').toString(),
 );
 
 final categoriaController =
@@ -401,6 +424,15 @@ final precoController =
 
       const SizedBox(height: 10),
 
+      TextField(
+        controller: pesoController,
+        keyboardType: const TextInputType.numberWithOptions(
+          decimal: true,
+        ),
+  decoration: const InputDecoration(
+    labelText: 'Peso (kg)',
+  ),
+),
       TextField(
         controller: quantidadeController,
         keyboardType: TextInputType.number,
@@ -453,6 +485,12 @@ final precoController =
 
     produto['categoria'] =
         categoriaController.text;
+
+    produto['peso'] =
+        double.tryParse(
+          pesoController.text.replaceAll(',', '.'),
+        ) ??
+        0;
 
     produto['quantidade'] =
         quantidade;
