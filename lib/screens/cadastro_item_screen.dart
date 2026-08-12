@@ -157,24 +157,28 @@ TextField(
 
             ElevatedButton(
               onPressed: () {
-                final item = ItemCompra(
-                  produto: produtoController.text,
-                  categoria: categoriaSelecionada,
-                  moeda: widget.moeda,
-                  peso: double.tryParse(
-                    pesoController.text.replaceAll(',', '.'),
-                  ),
-                  precoKg: double.tryParse(
-                    precoController.text
-                        .replaceAll(',', '.')
-                        .trim(),
-),
-                  total: double.tryParse(
-                    totalController.text
-                        .replaceAll(',', '.')
-                        .trim(),
-),
-);
+           final peso =
+    double.tryParse(
+      pesoController.text
+          .replaceAll(',', '.'),
+    ) ??
+    0;
+
+final preco =
+    double.tryParse(
+      precoController.text
+          .replaceAll(',', '.'),
+    ) ??
+    0;
+
+final item = ItemCompra(
+  produto: produtoController.text,
+  categoria: categoriaSelecionada,
+  moeda: widget.moeda,
+  peso: peso,
+  precoKg: preco,
+  total: peso * preco,
+);   
 
 debugPrint(
   'SALVANDO CATEGORIA: $categoriaSelecionada',

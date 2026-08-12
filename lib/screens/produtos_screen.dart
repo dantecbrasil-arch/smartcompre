@@ -194,6 +194,11 @@ String categoriaSelecionada =
           .replaceAll('.', ','),
     );
 
+    final pesoController =
+        TextEditingController(
+      text: (produto['peso'] ?? 0).toString(),
+   );
+
     showDialog(
       context: context,
       builder: (context) {
@@ -202,6 +207,16 @@ String categoriaSelecionada =
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+               TextField(
+                 controller: pesoController,
+                 keyboardType: const TextInputType.numberWithOptions(
+                   decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Peso (kg)',
+                  ),
+                ),
+
               TextField(
                 controller: nomeController,
                 decoration: const InputDecoration(
@@ -263,14 +278,21 @@ DropdownButtonFormField<String>(
                 final preco =
                     double.tryParse(textoPreco) ?? 0.0;
 
+                final peso =
+                    double.tryParse(
+                      pesoController.text
+                          .replaceAll(',', '.'),
+                    ) ??
+                    0;
                 final subtotal =
-                    quantidade * preco;
+                    peso * preco;
 
                 setState(() {
                   
 produtos[index] = {
   'nome': nome,
   'categoria': categoriaSelecionada,
+  'peso': peso,
   'quantidade': quantidade,
   'preco': preco,
   'subtotal': subtotal,

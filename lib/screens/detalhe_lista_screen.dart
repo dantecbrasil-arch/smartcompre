@@ -272,6 +272,14 @@ SizedBox(
                                     ) ??
                                     0;
 
+                            final peso =
+                                double.tryParse(
+                                      pesoController
+                                           .text
+                                           .replaceAll(',', '.'),
+                                    ) ??
+                                    0;
+
                             setState(() {
                               produtos.add({
                                 'nome':
@@ -479,6 +487,13 @@ final precoController =
       ) ??
       0;
 
+  final peso =
+      double.tryParse(
+        pesoController.text
+           .replaceAll(',', '.'),
+      ) ??
+      0;
+
   setState(() {
     produto['nome'] =
         nomeController.text;
@@ -486,11 +501,7 @@ final precoController =
     produto['categoria'] =
         categoriaController.text;
 
-    produto['peso'] =
-        double.tryParse(
-          pesoController.text.replaceAll(',', '.'),
-        ) ??
-        0;
+    produto['peso'] = peso;
 
     produto['quantidade'] =
         quantidade;
@@ -498,14 +509,28 @@ final precoController =
     produto['preco'] = preco;
 
     produto['subtotal'] =
-        (produto['peso'] ?? 0) * preco;
+    peso * preco;
 
-    widget.lista['total'] =
-        totalAtual;
+    produto['nome'] =
+    '${nomeController.text} | ${peso * preco}';
+
+    widget.lista['produtos'] = produtos;
+
+    widget.lista['total'] = produtos.fold(
+  0.0,
+  (total, produto) =>
+      total +
+      (produto['subtotal'] as num).toDouble(),
+     );
   });
+
+  throw Exception(
+    'CHEGUEI NO SALVAR DA EDICAO',
+  );
 
   await ListasRepository
       .salvarListas();
+
 
   if (mounted) {
     Navigator.pop(context);
