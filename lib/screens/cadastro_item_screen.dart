@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/item_compra.dart';
 
-class CadastroItemScreen extends StatelessWidget {
+class CadastroItemScreen extends StatefulWidget {
   final String produto;
   final double? precoKg;
   final double? total;
@@ -14,21 +14,29 @@ class CadastroItemScreen extends StatelessWidget {
   });
 
   @override
+  State<CadastroItemScreen> createState() =>
+      _CadastroItemScreenState();
+}
+
+class _CadastroItemScreenState
+    extends State<CadastroItemScreen> {
+
+      String categoriaSelecionada = 'Hortifruti';
+
+  @override
   Widget build(BuildContext context) {
     final produtoController =
-        TextEditingController(text: produto);
+        TextEditingController(text: widget.produto);
 
     final precoController =
         TextEditingController(
-      text: precoKg?.toString() ?? '',
+      text: widget.precoKg?.toString() ?? '',
     );
 
     final totalController =
         TextEditingController(
-      text: total?.toString() ?? '',
+      text: widget.total?.toString() ?? '',
     );
-
-    String categoriaSelecionada = 'Hortifruti';
 
     return Scaffold(
       appBar: AppBar(
@@ -84,7 +92,11 @@ DropdownButtonFormField<String>(
       child: Text('Outros'),
     ),
   ],
-  onChanged: (value) {},
+  onChanged: (value) {
+    setState(() {
+      categoriaSelecionada = value!;
+    });
+  },
 ),
 
 const SizedBox(height: 16),
@@ -117,7 +129,7 @@ TextField(
               onPressed: () {
                 final item = ItemCompra(
                   produto: produtoController.text,
-                  categoria: 'Hortifruti',
+                  categoria: categoriaSelecionada,
                   precoKg: double.tryParse(
                     precoController.text
                         .replaceAll(',', '.')
