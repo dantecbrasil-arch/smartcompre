@@ -662,7 +662,8 @@ Row(
   children: [
     Expanded(
       child: ElevatedButton.icon(
-        onPressed: () async {
+onPressed: () async {
+
   final item =
       await Navigator.push<ItemCompra>(
     context,
@@ -671,6 +672,28 @@ Row(
           const CameraScreen(),
     ),
   );
+
+  if (item == null) {
+    return;
+  }
+
+  setState(() {
+
+    produtos.add({
+      'nome': item.produto,
+      'peso': item.peso,
+      'categoria': item.categoria,
+      'quantidade': 1,
+      'preco': item.precoKg ?? 0.0,
+      'subtotal': item.total ?? 0.0,
+    });
+
+    widget.lista['produtos'] = produtos;
+
+    widget.lista['total'] = totalAtual;
+  });
+
+  await ListasRepository.salvarListas();
 },
 icon: const Icon(Icons.camera_alt),
 label: const Text(
@@ -687,7 +710,179 @@ label: const Text(
 
     Expanded(
       child: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: () {
+  final nomeController =
+      TextEditingController();
+
+  final categoriaController =
+      TextEditingController(
+    text: 'Outros',
+  );
+
+  final pesoController =
+      TextEditingController();
+
+  final quantidadeController =
+      TextEditingController(
+    text: '1',
+  );
+
+  final precoController =
+      TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text(
+          'Adicionar Produto',
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              TextField(
+                controller: nomeController,
+                decoration:
+                    const InputDecoration(
+                  labelText: 'Nome',
+                ),
+              ),
+
+              TextField(
+                controller:
+                    categoriaController,
+                decoration:
+                    const InputDecoration(
+                  labelText: 'Categoria',
+                ),
+              ),
+
+              TextField(
+                controller: pesoController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration:
+                    const InputDecoration(
+                  labelText: 'Peso (kg)',
+                ),
+              ),
+
+              TextField(
+                controller:
+                    quantidadeController,
+                keyboardType:
+                    TextInputType.number,
+                decoration:
+                    const InputDecoration(
+                  labelText:
+                      'Quantidade',
+                ),
+              ),
+
+              TextField(
+                controller:
+                    precoController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration:
+                    const InputDecoration(
+                  labelText: 'Preço',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'Cancelar',
+            ),
+          ),
+
+          ElevatedButton(
+            onPressed: () async {
+
+              final quantidade =
+                  int.tryParse(
+                        quantidadeController
+                            .text,
+                      ) ??
+                      1;
+
+              final preco =
+                  double.tryParse(
+                        precoController.text
+                            .replaceAll(
+                              ',',
+                              '.',
+                            ),
+                      ) ??
+                      0;
+
+              final peso =
+                  double.tryParse(
+                        pesoController.text
+                            .replaceAll(
+                              ',',
+                              '.',
+                            ),
+                      ) ??
+                      0;
+
+              final subtotal =
+                  peso > 0
+                      ? peso * preco
+                      : quantidade * preco;
+
+              setState(() {
+
+                produtos.add({
+                  'nome':
+                      nomeController.text,
+                  'categoria':
+                      categoriaController
+                          .text,
+                  'peso': peso,
+                  'quantidade':
+                      quantidade,
+                  'preco': preco,
+                  'subtotal': subtotal,
+                });
+
+                widget.lista[
+                    'produtos'] = produtos;
+
+                widget.lista[
+                    'total'] = totalAtual;
+              });
+
+              await ListasRepository
+                  .salvarListas();
+
+              if (mounted) {
+                Navigator.pop(
+                  context,
+                );
+              }
+            },
+            child:
+                const Text('Salvar'),
+          ),
+        ],
+      );
+    },
+  );
+},
         icon: const Icon(Icons.edit),
         label: const Text(
           'Digitar',
