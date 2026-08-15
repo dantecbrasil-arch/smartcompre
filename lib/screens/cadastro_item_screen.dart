@@ -24,7 +24,8 @@ class CadastroItemScreen extends StatefulWidget {
 
 class _CadastroItemScreenState
     extends State<CadastroItemScreen> {
-
+      bool erroPeso = false;
+      bool erroPreco = false;
       String categoriaSelecionada = 'Hortifruti';
 
 @override
@@ -74,8 +75,14 @@ void initState() {
 TextField(
   controller: pesoController,
   keyboardType: TextInputType.number,
-  decoration: const InputDecoration(
+  decoration: InputDecoration(
     labelText: 'Peso (kg)',
+    labelStyle: TextStyle(
+      color: erroPeso ? Colors.red : null,
+    ),
+    errorText: erroPeso
+        ? 'Peso obrigatório'
+        : null,
   ),
 ),
 
@@ -137,8 +144,14 @@ TextField(
   keyboardType: const TextInputType.numberWithOptions(
     decimal: true,
   ),
-  decoration: const InputDecoration(
+  decoration: InputDecoration(
     labelText: 'Preço/Kg',
+    labelStyle: TextStyle(
+      color: erroPreco ? Colors.red : null,
+    ),
+    errorText: erroPreco
+        ? 'Preço/Kg obrigatório'
+        : null,
   ),
 ),
 
@@ -171,6 +184,49 @@ final preco =
           .replaceAll(',', '.'),
     ) ??
     0;
+
+
+
+if (preco > 0 && peso <= 0) {
+
+  setState(() {
+    erroPeso = true;
+    erroPreco = false;
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text(
+        'INSIRA O PESO PARA SALVAR.',
+      ),
+    ),
+  );
+
+  return;
+}
+
+if (peso > 0 && preco <= 0) {
+
+  setState(() {
+    erroPreco = true;
+    erroPeso = false;
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text(
+        'INSIRA O PREÇO/KG PARA SALVAR.',
+      ),
+    ),
+  );
+
+  return;
+}
+
+setState(() {
+  erroPeso = false;
+  erroPreco = false;
+});
 
 final item = ItemCompra(
   produto: produtoController.text,

@@ -1,5 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+
+import 'dart:io';
+import 'package:image/image.dart' as img;
+
 import 'package:smartcompre/services/ocr_service.dart';
 import 'package:smartcompre/services/etiqueta_parser.dart';
 import 'package:smartcompre/screens/cadastro_item_screen.dart';
@@ -38,7 +42,7 @@ final List<ItemCompra> _itens = [];
 
       _controller = CameraController(
         camera,
-        ResolutionPreset.medium,
+        ResolutionPreset.high,
       );
 
       await _controller!.initialize();
@@ -52,6 +56,57 @@ final List<ItemCompra> _itens = [];
       debugPrint('ERRO CAMERA: $e');
     }
   }
+
+Future<String> recortarCentro(String caminho) async {
+
+  final arquivo =
+      File(caminho);
+
+  final bytes =
+      await arquivo.readAsBytes();
+
+  final imagem =
+      img.decodeImage(bytes);
+
+  if (imagem == null) {
+    return caminho;
+  }
+
+  final largura = imagem.width;
+  final altura = imagem.height;
+
+  final larguraRecorte =
+      (largura * 0.80).toInt();
+
+  final alturaRecorte =
+      (altura * 0.35).toInt();
+
+  final x =
+      ((largura - larguraRecorte) / 2)
+          .toInt();
+
+  final y =
+      ((altura - alturaRecorte) / 2)
+          .toInt();
+
+  final recorte = img.copyCrop(
+    imagem,
+    x: x,
+    y: y,
+    width: larguraRecorte,
+    height: alturaRecorte,
+  );
+
+  final novoArquivo = File(
+    '${arquivo.parent.path}/ocr_crop.jpg',
+  );
+
+  await novoArquivo.writeAsBytes(
+    img.encodeJpg(recorte),
+  );
+
+  return novoArquivo.path;
+}
 
   @override
   void dispose() {
@@ -92,6 +147,31 @@ final List<ItemCompra> _itens = [];
     children: [
       CameraPreview(_controller!),
 
+      Center(
+  child: Container(
+    width: 320,
+    height: 140,
+    decoration: BoxDecoration(
+      border: Border.all(
+        color: Colors.green,
+        width: 4,
+      ),
+      borderRadius: BorderRadius.circular(12),
+      color: Colors.transparent,
+    ),
+    child: const Center(
+      child: Text(
+        'POSICIONE A ETIQUETA AQUI',
+        style: TextStyle(
+          color: Colors.green,
+          fontWeight: FontWeight.bold,
+          backgroundColor: Colors.black54,
+        ),
+      ),
+    ),
+  ),
+),
+
       if (_produto.isNotEmpty)
         Align(
           alignment: Alignment.bottomCenter,
@@ -130,6 +210,7 @@ final List<ItemCompra> _itens = [];
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           try {
+            
             final foto = await _controller!.takePicture();
 
             debugPrint('====================');
@@ -137,9 +218,10 @@ final List<ItemCompra> _itens = [];
             debugPrint('CAMINHO: ${foto.path}');
             debugPrint('====================');
 
-            final texto = await OCRService.extrairTexto(
+            final texto =
+                await OCRService.extrairTexto(
               foto.path,
-            );
+          );
 
             final dados = EtiquetaParser.extrair(texto);
 
