@@ -20,6 +20,8 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   CameraController? _controller;
 
+final GlobalKey _frameKey = GlobalKey();
+
   String _produto = '';
   double? _precoKg;
   double? _total;
@@ -31,7 +33,7 @@ final List<ItemCompra> _itens = [];
     super.initState();
     iniciarCamera();
   }
-
+  
   Future<void> iniciarCamera() async {
     try {
       final cameras = await availableCameras();
@@ -75,19 +77,12 @@ Future<String> recortarCentro(String caminho) async {
   final largura = imagem.width;
   final altura = imagem.height;
 
-  final larguraRecorte =
-      (largura * 0.80).toInt();
+  final larguraRecorte = 640;
+  final alturaRecorte = 240;
 
-  final alturaRecorte =
-      (altura * 0.35).toInt();
+  final x = 26;
 
-  final x =
-      ((largura - larguraRecorte) / 2)
-          .toInt();
-
-  final y =
-      ((altura - alturaRecorte) / 2)
-          .toInt();
+  final y = 560;
 
   final recorte = img.copyCrop(
     imagem,
@@ -104,6 +99,7 @@ Future<String> recortarCentro(String caminho) async {
   await novoArquivo.writeAsBytes(
     img.encodeJpg(recorte),
   );
+
 
   return novoArquivo.path;
 }
@@ -149,8 +145,9 @@ Future<String> recortarCentro(String caminho) async {
 
       Center(
   child: Container(
-    width: 320,
-    height: 140,
+    key: _frameKey,
+    width: 380,
+    height: 150,
     decoration: BoxDecoration(
       border: Border.all(
         color: Colors.green,
@@ -159,16 +156,7 @@ Future<String> recortarCentro(String caminho) async {
       borderRadius: BorderRadius.circular(12),
       color: Colors.transparent,
     ),
-    child: const Center(
-      child: Text(
-        'POSICIONE A ETIQUETA AQUI',
-        style: TextStyle(
-          color: Colors.green,
-          fontWeight: FontWeight.bold,
-          backgroundColor: Colors.black54,
-        ),
-      ),
-    ),
+    
   ),
 ),
 
@@ -209,6 +197,7 @@ Future<String> recortarCentro(String caminho) async {
   ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+
           try {
             
             final foto = await _controller!.takePicture();
@@ -218,10 +207,22 @@ Future<String> recortarCentro(String caminho) async {
             debugPrint('CAMINHO: ${foto.path}');
             debugPrint('====================');
 
+            final caminhoRecortado =
+                await recortarCentro(foto.path);
+
+
+            debugPrint(
+              'IMAGEM RECORTADA: $caminhoRecortado',
+            );
             final texto =
-                await OCRService.extrairTexto(
-              foto.path,
-          );
+               await OCRService.extrairTexto(
+              caminhoRecortado,
+            );
+
+            debugPrint('====================');
+            debugPrint('TEXTO OCR BRUTO');
+            debugPrint(texto);
+            debugPrint('===================='); 
 
             final dados = EtiquetaParser.extrair(texto);
 
@@ -257,6 +258,12 @@ if (item != null) {
     '${item.peso} | '
     '${item.precoKg} | '
     '${item.total}',
+  );
+
+  _itens.add(item);
+
+  debugPrint(
+    'TOTAL ITENS: ${_itens.length}',
   );
 
   Navigator.pop(context, item);

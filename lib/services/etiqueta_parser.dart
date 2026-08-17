@@ -12,6 +12,7 @@ class EtiquetaParser {
 
     final numeros = <String>[];
     final pesos = <String>[];
+    final produtos = <String>[]; 
 
     for (final linha in linhas) {
       final l = linha.trim();
@@ -29,15 +30,26 @@ class EtiquetaParser {
        moeda = 'USD';
       }
 
-      if (produto.isEmpty &&
-          l.isNotEmpty &&
-          !l.contains('DATA') &&
-          !l.contains('PESO') &&
-          !l.contains('PRECO') &&
-          !l.contains('TOTAL') &&
-          !RegExp(r'\d{2}/\d{2}/\d{2}').hasMatch(l)) {
-        produto = l;
-      }
+      if (produtos.isNotEmpty) {
+
+       produtos.sort(
+         (a, b) => b.length.compareTo(a.length),
+      );
+
+  produto = produtos.first;
+}
+
+      if (l.isNotEmpty &&
+    !l.contains('DATA') &&
+    !l.contains('PESO') &&
+    !l.contains('PES0') &&
+    !l.contains('PRECO') &&
+    !l.contains('PREÇO') &&
+    !l.contains('TOTAL') &&
+    !RegExp(r'\d{2}/\d{2}/\d{2}').hasMatch(l)) {
+
+  produtos.add(l);
+}
 
       if (RegExp(r'^\d+[,.]\d+.*$').hasMatch(l)) {
         pesos.add(l);
