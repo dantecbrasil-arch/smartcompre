@@ -30,30 +30,26 @@ class EtiquetaParser {
        moeda = 'USD';
       }
 
-      if (produtos.isNotEmpty) {
-
-       produtos.sort(
-         (a, b) => b.length.compareTo(a.length),
-      );
-
-  produto = produtos.first;
-}
-
       if (l.isNotEmpty &&
-    !l.contains('DATA') &&
-    !l.contains('PESO') &&
-    !l.contains('PES0') &&
-    !l.contains('PRECO') &&
-    !l.contains('PREÇO') &&
-    !l.contains('TOTAL') &&
-    !RegExp(r'\d{2}/\d{2}/\d{2}').hasMatch(l)) {
+          !l.contains('DATA') &&
+          !l.contains('PESO') &&
+          !l.contains('PES0') &&
+          !l.contains('PRECO') &&
+          !l.contains('PREÇO') &&
+          !l.contains('TOTAL') &&
+          !RegExp(r'\d{2}/\d{2}/\d{2}').hasMatch(l)) {
 
-  produtos.add(l);
+        produtos.add(l);
 }
 
-      if (RegExp(r'^\d+[,.]\d+.*$').hasMatch(l)) {
+      if (
+          l.contains('(L)') ||
+          l.contains('ka (L)') ||
+          l.contains('kg (L)') ||
+          l.contains('ks (L)')
+      ) {
         pesos.add(l);
-     }
+      }
 
 
       if (RegExp(r'^\d+[,\.]\d+$').hasMatch(l)) {
@@ -61,8 +57,27 @@ class EtiquetaParser {
       }
     }
 
+    
+    if (produtos.isNotEmpty) {
+
+      produtos.sort(
+        (a, b) => b.length.compareTo(a.length),
+      );
+
+      produto = produtos.first;
+
+      print('PRODUTO ESCOLHIDO: $produto');
+    }
+
     if (pesos.isNotEmpty) {
-      peso = pesos.first.replaceAll('ks', '');
+
+      final match =
+          RegExp(r'(\d+[.,]\d+)')
+              .firstMatch(pesos.first);
+
+      if (match != null) {
+        peso = match.group(1)!;
+      }
 
       print('PESO BRUTO: $peso');
     }
