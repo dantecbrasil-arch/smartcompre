@@ -8,9 +8,23 @@ class EtiquetaParser {
     String moeda = 'BRL';
     String peso = '';
 
+    final textoUpper = texto.toUpperCase();
+
+final ehEtiquetaPeso =
+    textoUpper.contains('PESO') ||
+    textoUpper.contains('PES0') ||
+    textoUpper.contains('TARA') ||
+    textoUpper.contains('TOTAL');
+
+    print(
+  'TIPO ETIQUETA: '
+  '${ehEtiquetaPeso ? "PESO" : "UNIDADE"}',
+);
+
     final linhas = texto.split('\n');
 
     final numeros = <String>[];
+    final precosUnidade = <String>[];
     final pesos = <String>[];
     final produtos = <String>[]; 
 
@@ -37,24 +51,46 @@ class EtiquetaParser {
           !l.contains('PRECO') &&
           !l.contains('PREÇO') &&
           !l.contains('TOTAL') &&
-          !RegExp(r'\d{2}/\d{2}/\d{2}').hasMatch(l)) {
-
+          !l.toUpperCase().contains('UNIDADE') &&
+          !l.toUpperCase().contains('VAREJO') &&
+          !l.toUpperCase().contains('ATACADO') &&
+          !l.toUpperCase().contains('A PARTIR') &&
+          !l.startsWith('*') &&
+          !RegExp(r'\d{2}/\d{2}/\d{2}').hasMatch(l) && 
+          !RegExp(r'^\d').hasMatch(l) &&
+          !RegExp(r'\d{6,}').hasMatch(l)
+      ) { 
         produtos.add(l);
 }
 
       if (
-          l.contains('(L)') ||
-          l.contains('ka (L)') ||
-          l.contains('kg (L)') ||
-          l.contains('ks (L)')
-      ) {
-        pesos.add(l);
-      }
+    RegExp(
+      r'^\d+[.,]\d+(kg|ks|ka)$',
+      caseSensitive: false,
+    ).hasMatch(
+      l.replaceAll(' ', ''),
+    )
+) {
+  pesos.add(
+    l.replaceAll(' ', ''),
+  );
+}
 
+      final matchNumero =
+    RegExp(r'(\d+[,.]\d+)')
+        .firstMatch(l);
 
-      if (RegExp(r'^\d+[,\.]\d+$').hasMatch(l)) {
-        numeros.add(l);
-      }
+if (matchNumero != null) {
+
+  final valor =
+      matchNumero.group(1)!;
+
+  numeros.add(valor);
+
+  if (!ehEtiquetaPeso) {
+    precosUnidade.add(valor);
+  }
+}
     }
 
     
@@ -86,13 +122,33 @@ class EtiquetaParser {
     print(
     'PESO DOUBLE: ${double.tryParse(peso.replaceAll(",", "."))}',
   );
-    if (numeros.isNotEmpty) {
-      precoKg = numeros[0];
-    }
+    if (ehEtiquetaPeso) {
 
-    if (numeros.length > 1) {
-      total = numeros[1];
-    }
+  final numerosSemPeso =
+      List<String>.from(numeros);
+
+  if (peso.isNotEmpty &&
+      numerosSemPeso.isNotEmpty &&
+      numerosSemPeso.first == peso) {
+    numerosSemPeso.removeAt(0);
+  }
+
+  if (numerosSemPeso.isNotEmpty) {
+    precoKg = numerosSemPeso[0];
+  }
+
+  if (numerosSemPeso.length > 1) {
+    total = numerosSemPeso[1];
+  }
+
+} else {
+
+  if (numeros.isNotEmpty) {
+    total = numeros.first;
+  }
+}
+
+
 
     return EtiquetaProduto(
       produto: produto,

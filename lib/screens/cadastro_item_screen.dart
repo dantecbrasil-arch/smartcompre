@@ -185,6 +185,12 @@ final preco =
     ) ??
     0;
 
+final total =
+    double.tryParse(
+      totalController.text
+          .replaceAll(',', '.'),
+    ) ??
+    0;
 
 
 if (preco > 0 && peso <= 0) {
@@ -234,8 +240,8 @@ final item = ItemCompra(
   moeda: widget.moeda,
   peso: peso,
   precoKg: preco,
-  total: peso * preco,
-);   
+  total: total,
+);
 
 debugPrint(
   'SALVANDO CATEGORIA: $categoriaSelecionada',
