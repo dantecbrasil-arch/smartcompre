@@ -1,4 +1,5 @@
 import '../models/etiqueta_produto.dart';
+import 'parsers/classificacao_etiqueta.dart';
 
 class EtiquetaParser {
   static EtiquetaProduto extrair(String texto) {
@@ -7,6 +8,15 @@ class EtiquetaParser {
     String total = '';
     String moeda = 'BRL';
     String peso = '';
+
+    final tipo =
+    ClassificacaoEtiqueta
+        .identificar(texto);
+
+    print(
+      'TIPO IDENTIFICADO: $tipo',
+    );
+
 
     final textoUpper = texto.toUpperCase();
 
