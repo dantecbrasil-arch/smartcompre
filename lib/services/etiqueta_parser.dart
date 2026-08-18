@@ -1,5 +1,6 @@
 import '../models/etiqueta_produto.dart';
 import 'parsers/classificacao_etiqueta.dart';
+import 'parsers/etiqueta_peso_parser.dart';
 
 class EtiquetaParser {
   static EtiquetaProduto extrair(String texto) {
@@ -9,9 +10,26 @@ class EtiquetaParser {
     String moeda = 'BRL';
     String peso = '';
 
+    print(
+      'ENTROU ETIQUETA PARSER',
+    );
+
     final tipo =
     ClassificacaoEtiqueta
         .identificar(texto);
+
+    if (tipo == TipoEtiqueta.peso) {
+
+      print(
+        'REDIRECIONANDO PARA PESO PARSER',
+      );
+
+      return EtiquetaPesoParser.extrair(texto);
+    }
+
+    if (tipo == TipoEtiqueta.unidade) {
+     print('FUTURO: USAR EtiquetaUnidadeParser');
+    }
 
     print(
       'TIPO IDENTIFICADO: $tipo',
