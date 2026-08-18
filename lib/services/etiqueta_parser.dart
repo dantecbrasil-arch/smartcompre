@@ -74,17 +74,17 @@ final ehEtiquetaPeso =
 }
 
       if (
-    RegExp(
-      r'^\d+[.,]\d+(kg|ks|ka)$',
-      caseSensitive: false,
-    ).hasMatch(
-      l.replaceAll(' ', ''),
-    )
-) {
-  pesos.add(
-    l.replaceAll(' ', ''),
-  );
-}
+          l.toUpperCase().contains('(L)')
+      ) {
+
+        final match =
+          RegExp(r'(\d+[.,]\d+)')
+              .firstMatch(l);
+
+        if (match != null) {
+          pesos.add(match.group(1)!);
+        }
+      }
 
       final matchNumero =
     RegExp(r'(\d+[,.]\d+)')
@@ -137,11 +137,18 @@ if (matchNumero != null) {
   final numerosSemPeso =
       List<String>.from(numeros);
 
-  if (peso.isNotEmpty &&
-      numerosSemPeso.isNotEmpty &&
-      numerosSemPeso.first == peso) {
-    numerosSemPeso.removeAt(0);
-  }
+  if (peso.isNotEmpty) {
+
+  numerosSemPeso.removeWhere(
+    (n) => n == peso,
+  );
+
+}
+
+if (numerosSemPeso.isNotEmpty) {
+  numerosSemPeso.removeAt(0);
+}
+
 
   if (numerosSemPeso.isNotEmpty) {
     precoKg = numerosSemPeso[0];
