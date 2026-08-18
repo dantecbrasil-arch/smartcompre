@@ -234,12 +234,19 @@ setState(() {
   erroPreco = false;
 });
 
+final ehProdutoUnidade =
+    peso <= 0 &&
+    preco <= 0 &&
+    total > 0;
+
 final item = ItemCompra(
   produto: produtoController.text,
   categoria: categoriaSelecionada,
   moeda: widget.moeda,
   peso: peso,
-  precoKg: preco,
+  precoKg: ehProdutoUnidade
+      ? total
+      : preco,
   total: total,
 );
 
@@ -247,6 +254,13 @@ debugPrint(
   'SALVANDO CATEGORIA: $categoriaSelecionada',
 );
 
+debugPrint(
+  'ITEM FINAL => '
+  '${item.produto} | '
+  '${item.peso} | '
+  '${item.precoKg} | '
+  '${item.total}',
+);
 
 
                 Navigator.pop(

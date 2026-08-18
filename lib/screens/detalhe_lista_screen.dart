@@ -127,7 +127,9 @@ if (false)
           'peso': item.peso,
           'categoria': item.categoria,
           'quantidade': 1,
-          'preco': item.precoKg ?? 0,
+          'preco': item.precoKg ??
+               item.total ??
+               0.0,
           'subtotal': item.total ?? 0,
         });
 
@@ -510,7 +512,9 @@ final precoController =
     produto['preco'] = preco;
 
     produto['subtotal'] =
-    peso * preco;
+    peso > 0
+        ? peso * preco
+        : quantidade * preco;
 
     produto['nome'] =
     nomeController.text;
@@ -684,7 +688,9 @@ onPressed: () async {
       'peso': item.peso,
       'categoria': item.categoria,
       'quantidade': 1,
-      'preco': item.precoKg ?? 0.0,
+      'preco': item.precoKg ??
+          item.total ??
+          0.0,
       'subtotal': item.total ?? 0.0,
     });
 

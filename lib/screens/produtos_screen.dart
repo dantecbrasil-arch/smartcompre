@@ -582,7 +582,9 @@ Row(
       'peso': item.peso,
       'categoria': item.categoria,
       'quantidade': 1,
-      'preco': item.precoKg ?? 0.0,
+      'preco': item.precoKg ??
+          item.total ??
+          0.0,
       'subtotal': item.total ?? 0.0,
     });
 
