@@ -12,10 +12,6 @@ class EtiquetaPesoParser {
     String precoKg = '';
     String total = '';
 
-    print(
-      'PARSER PESO EXECUTADO',
-    );
-
     final linhas = texto.split('\n');
 
     final numeros = <String>[];
@@ -147,19 +143,12 @@ if (pesos.isNotEmpty) {
 final numerosSemPeso =
     List<String>.from(numeros);
 
-    print(
-  'NUMEROS ORIGINAIS: $numeros',
-);
 
 if (peso.isNotEmpty) {
 
   numerosSemPeso.removeWhere(
     (n) => n == peso,
   );
-
-print(
-  'APOS REMOVER PESO: $numerosSemPeso',
-);
 
 }
 
@@ -175,9 +164,7 @@ if (numerosSemPeso.isNotEmpty) {
     numerosSemPeso.removeAt(0);
   }
 }
-print(
-  'NUMEROS SEM PESO: $numerosSemPeso',
-);
+
 
 
 if (numerosSemPeso.isNotEmpty) {
@@ -187,11 +174,6 @@ if (numerosSemPeso.isNotEmpty) {
 if (numerosSemPeso.length > 1) {
   total = numerosSemPeso[1];
 }
-
-print('PESO PARSER PRODUTO: $produto');
-print('PESO PARSER PESO: $peso');
-print('PESO PARSER PRECO: $precoKg');
-print('PESO PARSER TOTAL: $total');
 
     return EtiquetaProduto(
       produto: produto,

@@ -4,10 +4,6 @@ class EtiquetaUnidadeParser {
   static EtiquetaProduto extrair(
     String texto,
   ) {
-    print(
-      'PARSER UNIDADE EXECUTADO',
-    );
-
     String produto = '';
     String moeda = 'BRL';
     String total = '';
@@ -42,10 +38,9 @@ class EtiquetaUnidadeParser {
               .firstMatch(l);
 
       if (matchNumero != null) {
-        final valor =
-            matchNumero.group(1)!;
-
-        numeros.add(valor);
+        numeros.add(
+          matchNumero.group(1)!,
+        );
       }
     }
 
@@ -56,30 +51,22 @@ class EtiquetaUnidadeParser {
       );
 
       produto = produtos.first;
-
-      print(
-        'PRODUTO ESCOLHIDO: $produto',
-      );
     }
 
     if (numeros.isNotEmpty) {
       total = numeros.first;
-
-      print(
-        'PRECO ENCONTRADO: $total',
-      );
     }
 
     return EtiquetaProduto(
-  produto: produto,
-  moeda: moeda,
-  peso: null,
-  precoKg: null,
-  total: total.isNotEmpty
-      ? double.tryParse(
-          total.replaceAll(',', '.'),
-        )
-      : null,
-);
+      produto: produto,
+      moeda: moeda,
+      peso: null,
+      precoKg: null,
+      total: total.isNotEmpty
+          ? double.tryParse(
+              total.replaceAll(',', '.'),
+            )
+          : null,
+    );
   }
-} 
+}
