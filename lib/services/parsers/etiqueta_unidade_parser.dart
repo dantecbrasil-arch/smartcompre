@@ -1,4 +1,5 @@
 import '../../models/etiqueta_produto.dart';
+import '../../models/opcao_preco.dart';
 
 class EtiquetaUnidadeParser {
   static EtiquetaProduto extrair(
@@ -12,9 +13,32 @@ class EtiquetaUnidadeParser {
 
     final numeros = <String>[];
     final produtos = <String>[];
+    final opcoesPreco = <OpcaoPreco>[];
+
+    String? tipoPrecoAtual;
 
     for (final linha in linhas) {
       final l = linha.trim();
+
+      final linhaUpper =
+          l.toUpperCase();
+
+      if (linhaUpper.contains('ATACAD')) {
+       tipoPrecoAtual = 'ATACADO';
+      }
+
+      if (
+       linhaUpper.contains('PASSAI') ||
+       linhaUpper.contains('PAGSAI') ||
+       linhaUpper.contains('PASGAI') ||
+       linhaUpper.contains('PABSAI')
+      ) {
+     tipoPrecoAtual = 'PASSAI';
+      }
+
+      if (linhaUpper.contains('VAREJ')) {
+       tipoPrecoAtual = 'VAREJO';
+      }   
 
       if (
           l.contains(r'R$') ||
@@ -38,11 +62,34 @@ class EtiquetaUnidadeParser {
               .firstMatch(l);
 
       if (matchNumero != null) {
-        numeros.add(
-          matchNumero.group(1)!,
+
+  final valorTexto =
+      matchNumero.group(1)!;
+
+  numeros.add(valorTexto);
+
+  if (tipoPrecoAtual != null) {
+
+    final valor =
+        double.tryParse(
+          valorTexto.replaceAll(',', '.'),
         );
-      }
+
+    if (valor != null) {
+
+      opcoesPreco.add(
+        OpcaoPreco(
+          descricao: tipoPrecoAtual!,
+          valor: valor,
+        ),
+      );
+
+      tipoPrecoAtual = null;
     }
+  }
+}
+
+}
 
     if (produtos.isNotEmpty) {
       produtos.sort(
@@ -67,6 +114,7 @@ class EtiquetaUnidadeParser {
               total.replaceAll(',', '.'),
             )
           : null,
+      opcoesPreco: opcoesPreco,
     );
   }
 }

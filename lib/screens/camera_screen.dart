@@ -9,6 +9,7 @@ import 'package:smartcompre/services/etiqueta_parser.dart';
 import 'package:smartcompre/screens/cadastro_item_screen.dart';
 import 'package:smartcompre/models/item_compra.dart';
 import 'package:smartcompre/screens/lista_compras_screen.dart';
+import 'package:smartcompre/models/opcao_preco.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -226,25 +227,82 @@ Future<String> recortarCentro(String caminho) async {
 
             final dados = EtiquetaParser.extrair(texto);
 
-            debugPrint('PRODUTO: ${dados.produto}');
-            debugPrint('PRECO KG: ${dados.precoKg}');
-            debugPrint('TOTAL: ${dados.total}');
+            double? totalSelecionado =
+                dados.total;
+
+           
+             for (final opcao in dados.opcoesPreco) {
+              debugPrint(
+                '${opcao.descricao} => ${opcao.valor}',
+              );
+             }
+
+
+             if (dados.temMultiplosPrecos) {
+
+  final opcaoEscolhida =
+      await showDialog<OpcaoPreco>(
+    context: context,
+    builder: (_) {
+      return AlertDialog(
+        title: const Text(
+          'Múltiplos preços',
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: dados.opcoesPreco.map(
+            (opcao) {
+              return ListTile(
+                title: Text(
+                  opcao.descricao,
+                ),
+                subtitle: Text(
+                  'R\$ ${opcao.valor.toStringAsFixed(2)}',
+                ),
+                onTap: () {
+                  Navigator.pop(
+                    context,
+                    opcao,
+                  );
+                },
+              );
+            },
+          ).toList(),
+        ),
+      );
+    },
+  );
+
+  if (opcaoEscolhida == null) {
+    return;
+  }
+
+  totalSelecionado =
+      opcaoEscolhida.valor;
+
+  debugPrint(
+    'ESCOLHEU: ${opcaoEscolhida.descricao}',
+  );
+}
+
+
 
             setState(() {
               _produto = dados.produto;
               _precoKg = dados.precoKg;
-              _total = dados.total;
+              _total = totalSelecionado;
             });
 
             final item = await Navigator.push<ItemCompra>(
   context,
   MaterialPageRoute(
-    builder: (_) => CadastroItemScreen(
+    builder: (_) => 
+    CadastroItemScreen(
       produto: dados.produto,
       peso: dados.peso,
       precoKg: dados.precoKg,
       moeda: dados.moeda,
-      total: dados.total,
+      total: totalSelecionado,
     ),
   ),
 );

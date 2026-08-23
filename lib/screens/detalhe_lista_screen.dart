@@ -358,7 +358,13 @@ Expanded(
                       ),
                       title: Text(
                         produto['nome'],
-                      ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                   ),
                       subtitle: Text(
                         'Categoria: ${produto['categoria']}\n'
                         'Peso: ${produto['peso'] ?? '-'} kg\n'
