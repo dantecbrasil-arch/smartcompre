@@ -196,8 +196,22 @@ Future<String> recortarCentro(String caminho) async {
         ),
     ],
   ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButtonLocation:
+    FloatingActionButtonLocation.centerFloat,
+
+floatingActionButton:
+    Padding(
+      padding: const EdgeInsets.only(
+        bottom: 140,
+      ),
+      child: SizedBox(
+      width: 200,
+      height: 90,
+      child: FloatingActionButton(
+        backgroundColor: Colors.green,
+        elevation: 8,
         onPressed: () async {
+       
 
           try {
             
@@ -318,7 +332,7 @@ if (item != null) {
     '${item.total}',
   );
 
-  _itens.add(item);
+  _itens.insert(0, item);
 
   debugPrint(
     'TOTAL ITENS: ${_itens.length}',
@@ -338,8 +352,14 @@ if (item != null) {
             debugPrint('ERRO FOTO: $e');
           }
         },
-        child: const Icon(Icons.camera),
+        child: const Icon(
+          Icons.camera_alt,
+           size: 50,
+        ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
+
 }

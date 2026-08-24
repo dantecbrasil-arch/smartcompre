@@ -5,6 +5,7 @@ class ItemCompra {
   final double? peso;
   final double? precoKg;
   final double? total;
+  final int quantidade;
 
   ItemCompra({
     required this.produto,
@@ -13,5 +14,6 @@ class ItemCompra {
     this.precoKg,
     this.total,
     this.moeda,
+    this.quantidade = 1,
   });
 }

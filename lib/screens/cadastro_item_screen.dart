@@ -28,6 +28,8 @@ class _CadastroItemScreenState
       bool erroPreco = false;
       String categoriaSelecionada = 'Hortifruti';
 
+      int quantidade = 1;
+
 @override
 void initState() {
   super.initState();
@@ -167,6 +169,65 @@ TextField(
   ),
 ),
 
+const SizedBox(height: 16),
+
+const Text(
+  'Quantidade',
+  style: TextStyle(
+    fontWeight: FontWeight.bold,
+  ),
+),
+
+const SizedBox(height: 8),
+
+Row(
+  mainAxisAlignment:
+      MainAxisAlignment.center,
+  children: [
+    IconButton(
+      onPressed: () {
+        if (quantidade > 1) {
+          setState(() {
+            quantidade--;
+          });
+        }
+      },
+      icon: const Icon(Icons.remove),
+    ),
+
+    Text(
+      quantidade.toString(),
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+
+    IconButton(
+      onPressed: () {
+        setState(() {
+          quantidade++;
+        });
+      },
+      icon: const Icon(Icons.add),
+    ),
+  ],
+),
+
+const SizedBox(height: 16),
+
+Text(
+  'Subtotal: R\$ ${(((double.tryParse(
+    totalController.text.replaceAll(',', '.'),
+  ) ?? 0) * quantidade)
+      .toStringAsFixed(2)
+      .replaceAll('.', ','))}',
+  style: const TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+  ),
+),
+
             const SizedBox(height: 24),
 
             ElevatedButton(
@@ -244,10 +305,11 @@ final item = ItemCompra(
   categoria: categoriaSelecionada,
   moeda: widget.moeda,
   peso: peso,
+  quantidade: quantidade,
   precoKg: ehProdutoUnidade
       ? total
       : preco,
-  total: total,
+  total: total * quantidade,
 );
 
 debugPrint(

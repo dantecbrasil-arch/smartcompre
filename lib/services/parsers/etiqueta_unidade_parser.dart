@@ -23,22 +23,31 @@ class EtiquetaUnidadeParser {
       final linhaUpper =
           l.toUpperCase();
 
-      if (linhaUpper.contains('ATACAD')) {
-       tipoPrecoAtual = 'ATACADO';
+      final linhaNormalizada =
+          linhaUpper.replaceAll(' ', '');    
+
+      if (
+          linhaNormalizada.contains('ATACAD') ||
+          linhaNormalizada.contains('ALACAD')
+         ) {
+        tipoPrecoAtual = 'ATACADO';
       }
 
       if (
-       linhaUpper.contains('PASSAI') ||
-       linhaUpper.contains('PAGSAI') ||
-       linhaUpper.contains('PASGAI') ||
-       linhaUpper.contains('PABSAI')
-      ) {
-     tipoPrecoAtual = 'PASSAI';
+         linhaUpper.contains('PASSAI') ||
+         linhaUpper.contains('PAGSAI') ||
+         linhaUpper.contains('PASGAI') ||
+         linhaUpper.contains('PABSAI')
+       ) {
+      tipoPrecoAtual = 'PASSAI';
       }
 
-      if (linhaUpper.contains('VAREJ')) {
+      if (
+         linhaNormalizada.contains('VAREJ') ||
+         linhaNormalizada.contains('VAREJA')
+        ) {
        tipoPrecoAtual = 'VAREJO';
-      }   
+     }
 
       if (
           l.contains(r'R$') ||

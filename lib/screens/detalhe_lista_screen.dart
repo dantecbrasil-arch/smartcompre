@@ -122,11 +122,11 @@ if (false)
 
     if (item != null) {
       setState(() {
-        produtos.add({
+        produtos.insert(0, {
           'nome': item.produto,
           'peso': item.peso,
           'categoria': item.categoria,
-          'quantidade': 1,
+          'quantidade': item.quantidade,
           'preco': item.precoKg ??
                item.total ??
                0.0,
@@ -353,8 +353,10 @@ Expanded(
 
                   return Card(
                     child: ListTile(
-                      leading: const Icon(
-                        Icons.shopping_cart,
+                      leading: CircleAvatar(
+                        child: Text(
+                          '${produtos.length - index}',
+                        ),
                       ),
                       title: Text(
                         produto['nome'],
@@ -689,11 +691,11 @@ onPressed: () async {
 
   setState(() {
 
-    produtos.add({
+    produtos.insert(0, {
       'nome': item.produto,
       'peso': item.peso,
       'categoria': item.categoria,
-      'quantidade': 1,
+      'quantidade': item.quantidade,
       'preco': item.precoKg ??
           item.total ??
           0.0,

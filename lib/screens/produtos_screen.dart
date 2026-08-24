@@ -497,8 +497,10 @@ const SizedBox(height: 20),
 
                     return Card(
                       child: ListTile(
-                        leading: const Icon(
-                          Icons.shopping_cart,
+                        leading: CircleAvatar(
+                          child: Text(
+                            '${index + 1}',
+                          ),
                         ),
                         title: Text(
                           '${produto['nome']} | '
@@ -577,11 +579,11 @@ Row(
 
   setState(() {
 
-    produtos.add({
+    produtos.insert(0, {
       'nome': item.produto,
       'peso': item.peso,
       'categoria': item.categoria,
-      'quantidade': 1,
+      'quantidade': item.quantidade,
       'preco': item.precoKg ??
           item.total ??
           0.0,
