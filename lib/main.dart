@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'screens/produtos_screen.dart';
+import 'screens/categorias_screen.dart';
 import 'screens/listas_screen.dart';
 import 'data/listas_repository.dart';
 import 'data/catalogo/catalogo_repository.dart';
 import 'data/catalogo/categorias_repository.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -179,6 +181,30 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
+
+               const SizedBox(height: 20),
+
+               SizedBox(
+                 width: 250,
+                 height: 60,
+                 child: ElevatedButton(
+                   onPressed: () {
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(
+                         builder: (_) =>
+                             const CategoriasScreen(),
+                        ),
+                      );
+                   },
+                   child: const Text(
+                     '⚙ Categorias',
+                     style: TextStyle(
+                       fontSize: 22,
+                     ),
+                   ),
+                 ),
+               ),
               ],
             ),
           ),

@@ -40,4 +40,18 @@ class CategoriasRepository {
       jsonEncode(categorias),
     );
   }
+
+  static Future<void> adicionar(
+    String categoria,
+  ) async {
+    if (
+        categoria.trim().isEmpty ||
+        categorias.contains(categoria)) {
+      return;
+    }
+
+    categorias.add(categoria);
+
+    await salvar();
+  }
 }
