@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../data/listas_repository.dart';
 import 'camera_screen.dart';
 import '../models/item_compra.dart';
+import '../data/catalogo/categorias_repository.dart';
 
 class DetalheListaScreen extends StatefulWidget {
   final Map<String, dynamic> lista;
@@ -197,14 +198,24 @@ if (false)
                                 labelText: 'Nome',
                               ),
                             ),
-                            TextField(
-                              controller:
-                                  categoriaController,
-                              decoration:
-                                  const InputDecoration(
-                                labelText:
-                                    'Categoria',
+                            DropdownButtonFormField<String>(
+                              value: categoriaController.text,
+                              decoration: const InputDecoration(
+                                labelText: 'Categoria',
                               ),
+                              items: CategoriasRepository.categorias
+                                  .map(
+                                    (categoria) =>
+                                        DropdownMenuItem(
+                                      value: categoria,
+                                      child: Text(categoria),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (valor) {
+                                categoriaController.text =
+                                    valor ?? 'Outros';
+                              },
                             ),
                             TextField(
                               controller: pesoController,
@@ -434,12 +445,24 @@ final precoController =
 
       const SizedBox(height: 10),
 
-      TextField(
-        controller: categoriaController,
-        decoration: const InputDecoration(
-          labelText: 'Categoria',
+      DropdownButtonFormField<String>(
+  value: categoriaController.text,
+  decoration: const InputDecoration(
+    labelText: 'Categoria',
+  ),
+  items: CategoriasRepository.categorias
+      .map(
+        (categoria) => DropdownMenuItem(
+          value: categoria,
+          child: Text(categoria),
         ),
-      ),
+      )
+      .toList(),
+  onChanged: (valor) {
+    categoriaController.text =
+        valor ?? 'Outros';
+  },
+),
 
       const SizedBox(height: 10),
 
@@ -769,13 +792,23 @@ label: const Text(
                 ),
               ),
 
-              TextField(
-                controller:
-                    categoriaController,
-                decoration:
-                    const InputDecoration(
-                  labelText: 'Categoria',
-                ),
+              DropdownButtonFormField<String>(
+                 value: categoriaController.text,
+                 decoration: const InputDecoration(
+                   labelText: 'Categoria',
+                 ),
+                 items: CategoriasRepository.categorias
+                    .map(
+                      (categoria) => DropdownMenuItem<String>(
+                        value: categoria,
+                        child: Text(categoria),
+                      ),
+                    )
+                    .toList(),
+                 onChanged: (valor) {
+                   categoriaController.text =
+                       valor ?? 'Outros';
+                 },
               ),
 
               TextField(
@@ -865,7 +898,7 @@ label: const Text(
 
               setState(() {
 
-                produtos.add({
+                produtos.insert(0, {
                   'nome':
                       nomeController.text,
                   'categoria':
