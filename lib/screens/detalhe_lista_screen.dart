@@ -520,9 +520,14 @@ final precoController =
     produto['preco'] = preco;
 
     produto['subtotal'] =
-    peso > 0
-        ? peso * preco
-        : quantidade * preco;
+    double.parse(
+      (
+        peso > 0
+            ? peso * preco
+            : quantidade * preco
+      ).toStringAsFixed(2),
+    );
+
 
     produto['nome'] =
     nomeController.text;

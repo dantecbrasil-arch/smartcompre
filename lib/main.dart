@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'screens/produtos_screen.dart';
 import 'screens/listas_screen.dart';
 import 'data/listas_repository.dart';
+import 'data/catalogo/catalogo_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await ListasRepository.carregarListas();
 
-  runApp(const SmartCompreApp());
+  await CatalogoRepository.instance
+    .carregarCatalogo();
+
+
+runApp(const SmartCompreApp());
 }
 
 class SmartCompreApp extends StatelessWidget {

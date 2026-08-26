@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/item_compra.dart';
+import '../data/catalogo/catalogo_repository.dart';
+import '../data/catalogo/produto_catalogo.dart';
 
 class CadastroItemScreen extends StatefulWidget {
   final String produto;
@@ -24,8 +26,14 @@ class CadastroItemScreen extends StatefulWidget {
 
 class _CadastroItemScreenState
     extends State<CadastroItemScreen> {
+
+  final _catalogo = CatalogoRepository.instance;
+
+  late TextEditingController produtoController;
+
       bool erroPeso = false;
       bool erroPreco = false;
+
       String categoriaSelecionada = 'Hortifruti';
 
       int quantidade = 1;
@@ -33,6 +41,27 @@ class _CadastroItemScreenState
 @override
 void initState() {
   super.initState();
+
+  produtoController =
+      TextEditingController(
+    text: widget.produto,
+  );
+
+  final produtoExistente =
+      _catalogo.buscarProduto(
+    widget.produto,
+  );
+
+  if (produtoExistente != null) {
+    categoriaSelecionada =
+        produtoExistente.categoria;
+
+    debugPrint(
+      'CATEGORIA RECUPERADA: '
+      '${produtoExistente.categoria}',
+    );
+  }
+
   debugPrint(
     'CATEGORIA INICIAL: $categoriaSelecionada',
   );
@@ -41,8 +70,7 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
-    final produtoController =
-        TextEditingController(text: widget.produto);
+
 
     final pesoController =
         TextEditingController(
@@ -60,12 +88,14 @@ void initState() {
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Cadastrar Produto'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
   controller: produtoController,
@@ -143,6 +173,7 @@ const SizedBox(height: 16),
 
 TextField(
   controller: precoController,
+
   keyboardType: const TextInputType.numberWithOptions(
     decimal: true,
   ),
@@ -253,6 +284,54 @@ final total =
     ) ??
     0;
 
+final subtotalCalculado =
+    double.parse(
+      (
+        peso > 0 && preco > 0
+            ? peso * preco
+            : total
+      ).toStringAsFixed(2),
+    );
+
+final diferencaOCR =
+    (subtotalCalculado - total)
+        .abs();
+
+if (peso > 0 &&
+    preco > 0 &&
+    total > 0 &&
+    diferencaOCR > 1.00) {
+
+ 
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text(
+        '⚠️ Possível erro de leitura',
+      ),
+      content: Text(
+        'Peso: $peso\n'
+        'Preço/Kg: $preco\n'
+        'Total OCR: $total\n'
+        'Valor calculado: $subtotalCalculado',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text(
+            'Corrigir',
+          ),
+        ),
+      ],
+    ),
+  );
+
+  return;
+}
+
 
 if (preco > 0 && peso <= 0) {
 
@@ -309,7 +388,10 @@ final item = ItemCompra(
   precoKg: ehProdutoUnidade
       ? total
       : preco,
-  total: total * quantidade,
+  total: double.parse(
+  (subtotalCalculado * quantidade)
+      .toStringAsFixed(2),
+),
 );
 
 debugPrint(
@@ -324,6 +406,16 @@ debugPrint(
   '${item.total}',
 );
 
+CatalogoRepository.instance.salvarProduto(
+  ProdutoCatalogo(
+    nome: produtoController.text,
+    categoria: categoriaSelecionada,
+  ),
+);
+
+debugPrint(
+  'PRODUTO ADICIONADO AO CATALOGO',
+);
 
                 Navigator.pop(
                   context,
