@@ -30,6 +30,11 @@ class _CadastroItemScreenState
   final _catalogo = CatalogoRepository.instance;
 
   late TextEditingController produtoController;
+  late TextEditingController pesoController;
+  late TextEditingController precoController;
+  late TextEditingController totalController;
+
+      double totalOcrOriginal = 0;
 
       bool erroPeso = false;
       bool erroPreco = false;
@@ -46,6 +51,24 @@ void initState() {
       TextEditingController(
     text: widget.produto,
   );
+
+  pesoController =
+    TextEditingController(
+  text: widget.peso?.toString() ?? '',
+);
+
+precoController =
+    TextEditingController(
+  text: widget.precoKg?.toString() ?? '',
+);
+
+totalController =
+    TextEditingController(
+  text: widget.total?.toString() ?? '',
+);
+
+totalOcrOriginal =
+    widget.total ?? 0;
 
   final produtoExistente =
       _catalogo.buscarProduto(
@@ -67,25 +90,31 @@ void initState() {
   );
 }
 
+void atualizarTotal() {
+  final peso =
+      double.tryParse(
+        pesoController.text.replaceAll(',', '.'),
+      ) ??
+      0;
+
+  final preco =
+      double.tryParse(
+        precoController.text.replaceAll(',', '.'),
+      ) ??
+      0;
+
+  if (peso > 0 && preco > 0) {
+    totalController.text =
+        (peso * preco)
+            .toStringAsFixed(2);
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
 
 
-    final pesoController =
-        TextEditingController(
-     text: widget.peso?.toString() ?? '',
-);
-
-    final precoController =
-        TextEditingController(
-      text: widget.precoKg?.toString() ?? '',
-    );
-
-    final totalController =
-        TextEditingController(
-      text: widget.total?.toString() ?? '',
-    );
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -106,6 +135,7 @@ void initState() {
 
 TextField(
   controller: pesoController,
+  onChanged: (_) => atualizarTotal(),
   keyboardType: TextInputType.number,
   decoration: InputDecoration(
     labelText: 'Peso (kg)',
@@ -173,6 +203,7 @@ const SizedBox(height: 16),
 
 TextField(
   controller: precoController,
+  onChanged: (_) => atualizarTotal(),
 
   keyboardType: const TextInputType.numberWithOptions(
     decimal: true,
@@ -294,7 +325,8 @@ final subtotalCalculado =
     );
 
 final diferencaOCR =
-    (subtotalCalculado - total)
+    (subtotalCalculado - 
+            totalOcrOriginal)
         .abs();
 
 if (peso > 0 &&
