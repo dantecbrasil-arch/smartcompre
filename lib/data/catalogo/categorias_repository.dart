@@ -24,11 +24,18 @@ class CategoriasRepository {
         prefs.getString(_key);
 
     if (json != null) {
-      categorias =
-          List<String>.from(
-        jsonDecode(json),
-      );
-    }
+  categorias =
+      List<String>.from(
+    jsonDecode(json),
+  );
+
+  categorias.sort(
+    (a, b) =>
+        a.toLowerCase().compareTo(
+          b.toLowerCase(),
+        ),
+  );
+}
   }
 
   static Future<void> salvar() async {
@@ -44,13 +51,31 @@ class CategoriasRepository {
   static Future<void> adicionar(
     String categoria,
   ) async {
-    if (
-        categoria.trim().isEmpty ||
-        categorias.contains(categoria)) {
-      return;
-    }
+    if (categoria.trim().isEmpty) {
+  return;
+}
+
+final existe =
+    categorias.any(
+  (c) =>
+      c.toLowerCase() ==
+      categoria.toLowerCase(),
+);
+
+if (existe) {
+  throw Exception(
+    'Categoria já existe',
+  );
+}
 
     categorias.add(categoria);
+
+    categorias.sort(
+  (a, b) =>
+      a.toLowerCase().compareTo(
+        b.toLowerCase(),
+      ),
+);
 
     await salvar();
   }
@@ -68,7 +93,14 @@ class CategoriasRepository {
 
   categorias[index] = nova;
 
-  await salvar();
+categorias.sort(
+  (a, b) =>
+      a.toLowerCase().compareTo(
+        b.toLowerCase(),
+      ),
+);
+
+await salvar();
 }
 static Future<void> excluir(
   String categoria,

@@ -12,6 +12,13 @@ class CategoriasScreen extends StatefulWidget {
 class _CategoriasScreenState
     extends State<CategoriasScreen> {
 
+  String? categoriaDestacada;
+
+  final ScrollController
+    _scrollController =
+        ScrollController();
+
+
   Future<void> _adicionarCategoria() async {
     final controller =
         TextEditingController();
@@ -61,11 +68,78 @@ class _CategoriasScreenState
       return;
     }
 
-    await CategoriasRepository.adicionar(
-      novaCategoria,
-    );
+    try {
 
-    setState(() {});
+  await CategoriasRepository.adicionar(
+    novaCategoria,
+  );
+
+  setState(() {});
+
+} catch (e) {
+
+  setState(() {
+    categoriaDestacada =
+      novaCategoria;
+  });
+
+  final index =
+    CategoriasRepository
+        .categorias
+        .indexWhere(
+  (c) =>
+      c.toLowerCase() ==
+      novaCategoria.toLowerCase(),
+);
+
+if (index >= 0) {
+
+  Future.delayed(
+    const Duration(
+      milliseconds: 300,
+    ),
+    () {
+
+      _scrollController.animateTo(
+        index * 72.0,
+        duration: const Duration(
+          milliseconds: 500,
+        ),
+        curve: Curves.easeInOut,
+      );
+
+    },
+  );
+
+}
+
+  if (!mounted) return;
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text(
+          'Categoria existente',
+        ),
+        content: Text(
+          'A categoria "$novaCategoria" já está cadastrada.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'OK',
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+}
   }
 
   @override
@@ -81,6 +155,7 @@ class _CategoriasScreenState
         ],
       ),
       body: ListView.builder(
+        controller: _scrollController,
         itemCount:
             CategoriasRepository
                 .categorias
@@ -90,11 +165,31 @@ class _CategoriasScreenState
               CategoriasRepository
                   .categorias[index];
 
-      return ListTile(
-  leading: const Icon(
-    Icons.category,
-  ),
-  title: Text(categoria),
+      return Container(
+  color:
+      categoriaDestacada != null &&
+              categoria.toLowerCase() ==
+                  categoriaDestacada!
+                      .toLowerCase()
+          ? Colors.green.shade100
+          : null,
+  child: ListTile(
+    leading: const Icon(
+      Icons.category,
+    ),
+    title: Text(
+      categoria,
+      style: TextStyle(
+        fontWeight:
+            categoriaDestacada != null &&
+                    categoria.toLowerCase() ==
+                        categoriaDestacada!
+                            .toLowerCase()
+                ? FontWeight.bold
+                : FontWeight.normal,
+      ),
+    ),
+
   trailing: SizedBox(
     width: 96,
     child: Row(
@@ -216,7 +311,9 @@ class _CategoriasScreenState
       ],
     ),
   ),
+  ),
 );  
+
         },
       ),
     );
