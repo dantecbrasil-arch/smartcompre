@@ -625,30 +625,30 @@ final precoController =
                               );
 
                               if (confirmar == true) {
-  setState(() {
-    produtos.removeAt(
-      index,
-    );
 
-    widget.lista['produtos'] =
-        produtos;
+                                setState(() {
+                                  produtos.removeAt(index);
 
-    widget.lista['total'] =
-        totalAtual;
-  });
+                                  widget.lista['produtos'] = 
+                                      produtos;
 
-  await ListasRepository.salvarListas();
+                                  widget.lista['total'] =
+                                     totalAtual;
+                                });
 
-  if (mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Produto removido com sucesso!',
-        ),
-      ),
-    );
-  }
-}
+                                await ListasRepository.salvarListas();
+
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Produto removido com sucesso!',
+                                      ),
+                                    ),
+                                 );
+                               }
+                             }
                             },
                           ),
                         ],

@@ -54,4 +54,32 @@ class CategoriasRepository {
 
     await salvar();
   }
+  static Future<void> editar(
+  String antiga,
+  String nova,
+) async {
+
+  final index =
+      categorias.indexOf(antiga);
+
+  if (index == -1) {
+    return;
+  }
+
+  categorias[index] = nova;
+
+  await salvar();
+}
+static Future<void> excluir(
+  String categoria,
+) async {
+
+  if (categoria == 'Outros') {
+    return;
+  }
+
+  categorias.remove(categoria);
+
+  await salvar();
+}
 }

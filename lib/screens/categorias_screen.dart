@@ -90,11 +90,133 @@ class _CategoriasScreenState
               CategoriasRepository
                   .categorias[index];
 
-          return ListTile(
-            leading:
-                const Icon(Icons.category),
-            title: Text(categoria),
-          );
+      return ListTile(
+  leading: const Icon(
+    Icons.category,
+  ),
+  title: Text(categoria),
+  trailing: SizedBox(
+    width: 96,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.edit),
+          onPressed: () async {
+            final controller =
+                TextEditingController(
+              text: categoria,
+            );
+
+            final novoNome =
+                await showDialog<String>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text(
+                    'Editar Categoria',
+                  ),
+                  content: TextField(
+                    controller: controller,
+                    decoration:
+                        const InputDecoration(
+                      labelText: 'Categoria',
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        'Cancelar',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(
+                          context,
+                          controller.text.trim(),
+                        );
+                      },
+                      child: const Text(
+                        'Salvar',
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (novoNome != null &&
+                novoNome.isNotEmpty) {
+              await CategoriasRepository.editar(
+                categoria,
+                novoNome,
+              );
+
+              setState(() {});
+            }
+          },
+        ),
+        IconButton(
+  icon: const Icon(
+    Icons.delete,
+    color: Colors.red,
+  ),
+  onPressed: () async {
+
+    final confirmar =
+        await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Excluir Categoria',
+          ),
+          content: Text(
+            'Deseja excluir "$categoria"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  false,
+                );
+              },
+              child: const Text(
+                'Cancelar',
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  true,
+                );
+              },
+              child: const Text(
+                'Excluir',
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar == true) {
+      await CategoriasRepository
+          .excluir(categoria);
+
+      setState(() {});
+    }
+  },
+),
+      ],
+    ),
+  ),
+);  
         },
       ),
     );
