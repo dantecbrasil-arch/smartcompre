@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/item_compra.dart';
 import '../data/catalogo/catalogo_repository.dart';
 import '../data/catalogo/produto_catalogo.dart';
+import '../data/catalogo/categorias_repository.dart';
 
 class CadastroItemScreen extends StatefulWidget {
   final String produto;
@@ -153,40 +154,14 @@ DropdownButtonFormField<String>(
   decoration: const InputDecoration(
     labelText: 'Categoria',
   ),
-  items: const [
-    DropdownMenuItem(
-      value: 'Mercearia',
-      child: Text('Mercearia'),
-    ),
-    DropdownMenuItem(
-      value: 'Laticínios',
-      child: Text('Laticínios'),
-    ),
-    DropdownMenuItem(
-      value: 'Carnes',
-      child: Text('Carnes'),
-    ),
-    DropdownMenuItem(
-      value: 'Bebidas',
-      child: Text('Bebidas'),
-    ),
-    DropdownMenuItem(
-      value: 'Limpeza',
-      child: Text('Limpeza'),
-    ),
-    DropdownMenuItem(
-      value: 'Hortifruti',
-      child: Text('Hortifruti'),
-    ),
-    DropdownMenuItem(
-      value: 'Farmácia',
-      child: Text('Farmácia'),
-    ),
-    DropdownMenuItem(
-      value: 'Outros',
-      child: Text('Outros'),
-    ),
-  ],
+  items: CategoriasRepository.categorias
+    .map(
+      (categoria) => DropdownMenuItem(
+        value: categoria,
+        child: Text(categoria),
+      ),
+    )
+    .toList(),
   onChanged: (value) {
   setState(() {
     categoriaSelecionada = value!;
@@ -333,7 +308,16 @@ if (peso > 0 &&
     preco > 0 &&
     total > 0 &&
     diferencaOCR > 1.00) {
-
+      
+debugPrint(
+  'VALIDACAO OCR => '
+  'peso=$peso '
+  'preco=$preco '
+  'total=$total '
+  'totalOcrOriginal=$totalOcrOriginal '
+  'subtotalCalculado=$subtotalCalculado '
+  'diferencaOCR=$diferencaOCR',
+);
  
 
   showDialog(

@@ -80,7 +80,7 @@ class EtiquetaPesoParser {
   if (
     l.toUpperCase().contains('(L)') ||
     RegExp(
-      r'\d+[.,]\d+(kg|ks|ka)',
+      r'\d+[.,]\d+.*k',
       caseSensitive: false,
     ).hasMatch(
       l.replaceAll(' ', ''),
@@ -92,6 +92,10 @@ class EtiquetaPesoParser {
           .firstMatch(l);
 
   if (match != null) {
+
+    print(
+      'PESO ENCONTRADO => ${match.group(1)}',
+    );
 
   final valor =
       double.tryParse(
@@ -105,14 +109,15 @@ class EtiquetaPesoParser {
 }
 }
 final matchNumero =
-    RegExp(r'(\d+[,.]\d+)')
+    RegExp(r'(\d+[,. ]\d+)')
         .firstMatch(l);
 
 if (matchNumero != null) {
 
   numeros.add(
-    matchNumero.group(1)!,
-  );
+  matchNumero.group(1)!
+      .replaceAll(' ', '.'),
+);
 
 }
 }

@@ -3,15 +3,17 @@ import 'screens/produtos_screen.dart';
 import 'screens/listas_screen.dart';
 import 'data/listas_repository.dart';
 import 'data/catalogo/catalogo_repository.dart';
+import 'data/catalogo/categorias_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await ListasRepository.carregarListas();
 
-  await CatalogoRepository.instance
+await CatalogoRepository.instance
     .carregarCatalogo();
 
+await CategoriasRepository.carregar();
 
 runApp(const SmartCompreApp());
 }

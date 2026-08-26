@@ -294,18 +294,25 @@ floatingActionButton:
   totalSelecionado =
       opcaoEscolhida.valor;
 
-  debugPrint(
-    'ESCOLHEU: ${opcaoEscolhida.descricao}',
-  );
-}
+           debugPrint(
+             'ESCOLHEU: '
+             '${opcaoEscolhida.descricao} '
+             'VALOR=${opcaoEscolhida.valor}',
+            );
 
-
-
+            }
             setState(() {
               _produto = dados.produto;
               _precoKg = dados.precoKg;
               _total = totalSelecionado;
             });
+
+            debugPrint(
+              'ABRINDO TELA => '
+              'peso=${dados.peso} '
+              'precoKg=${dados.precoKg} '
+              'total=$totalSelecionado',
+            );
 
             final item = await Navigator.push<ItemCompra>(
   context,
