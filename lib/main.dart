@@ -169,13 +169,29 @@ class _HomePageState extends State<HomePage> {
                     onPressed: habilitarCriacao
     ? () async {
 
+        final listaId =
+            DateTime.now().millisecondsSinceEpoch;
+
         ListasRepository.listasSalvas.add({
-          'nomeLocal': localController.text.trim(),
-          'nomeLista': listaController.text.trim(),
-          'data': DateTime.now().toIso8601String(),
-          'total': 0.0,
-          'produtos': [],
-        });
+          'id': listaId,
+
+  'nomeLocal': estabelecimentoSelecionado?.nome ??
+      localController.text.trim(),
+
+  'endereco':
+      estabelecimentoSelecionado?.endereco ?? '',
+
+  'tipo':
+      estabelecimentoSelecionado?.tipo ?? '',
+
+  'nomeLista': listaController.text.trim(),
+
+  'data': DateTime.now().toIso8601String(),
+
+  'total': 0.0,
+
+  'produtos': [],
+});
 
         await ListasRepository.salvarListas();
 
@@ -183,6 +199,7 @@ class _HomePageState extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (_) => ProdutosScreen(
+              listaId: listaId,
               nomeLocal: localController.text.trim(),
               nomeLista: listaController.text.trim(),
             ),

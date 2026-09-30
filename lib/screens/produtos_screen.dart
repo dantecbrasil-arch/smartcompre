@@ -6,11 +6,14 @@ import 'package:smartcompre/models/item_compra.dart';
 import 'listas_screen.dart';
 
 class ProdutosScreen extends StatefulWidget {
+  final int listaId;
+
   final String nomeLocal;
   final String nomeLista;
 
   const ProdutosScreen({
     super.key,
+    required this.listaId,
     required this.nomeLocal,
     required this.nomeLista,
   });
@@ -170,8 +173,8 @@ String categoriaSelecionada = 'Mercearia';
 final indiceLista =
     ListasRepository.listasSalvas.indexWhere(
   (lista) =>
-      lista['nomeLista'] ==
-      widget.nomeLista,
+      lista['id'] ==
+      widget.listaId,
 );
 
 if (indiceLista != -1) {
@@ -597,8 +600,8 @@ Row(
   final indiceLista =
       ListasRepository.listasSalvas.indexWhere(
     (lista) =>
-        lista['nomeLista'] ==
-        widget.nomeLista,
+        lista['id'] ==
+        widget.listaId,
   );
 
   if (indiceLista != -1) {

@@ -73,11 +73,28 @@ class _DetalheListaScreenState
 
             const SizedBox(height: 8),
 
-Text(
-  '📍 ${widget.lista['nomeLocal'] ?? 'Local não informado'}',
-  style: const TextStyle(
-    fontSize: 16,
-  ),
+Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Text(
+      '📍 ${widget.lista['nomeLocal'] ?? 'Local não informado'}',
+      style: const TextStyle(
+        fontSize: 16,
+      ),
+    ),
+    Text(
+      '🏠 ${widget.lista['endereco'] ?? '-'}',
+      style: const TextStyle(
+        fontSize: 16,
+      ),
+    ),
+    Text(
+      '🏷 ${widget.lista['tipo'] ?? '-'}',
+      style: const TextStyle(
+        fontSize: 16,
+      ),
+    ),
+  ],
 ),
 
 const SizedBox(height: 6),

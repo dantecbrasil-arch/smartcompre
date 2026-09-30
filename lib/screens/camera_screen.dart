@@ -27,8 +27,6 @@ final GlobalKey _frameKey = GlobalKey();
   double? _precoKg;
   double? _total;
 
-final List<ItemCompra> _itens = [];
-
   @override
   void initState() {
     super.initState();
@@ -124,21 +122,6 @@ Future<String> recortarCentro(String caminho) async {
     return Scaffold(
   appBar: AppBar(
     title: const Text('SmartCompre'),
-    actions: [
-      IconButton(
-        icon: const Icon(Icons.list),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ListaComprasScreen(
-                itens: _itens,
-              ),
-            ),
-          );
-        },
-      ),
-    ],
   ),
   body: Stack(
     children: [
@@ -337,12 +320,6 @@ if (item != null) {
     '${item.peso} | '
     '${item.precoKg} | '
     '${item.total}',
-  );
-
-  _itens.insert(0, item);
-
-  debugPrint(
-    'TOTAL ITENS: ${_itens.length}',
   );
 
   Navigator.pop(context, item);

@@ -105,6 +105,8 @@ class _ListasScreenState extends State<ListasScreen> {
 ),
 subtitle: Text(
   '📍 ${lista['nomeLocal'] ?? 'Local não informado'}\n'
+  '🏠 ${lista['endereco'] ?? '-'}\n'
+  '🏷 ${lista['tipo'] ?? '-'}\n'
   '📅 ${formatoData.format(DateTime.parse(lista['data']))}\n'
   '🛒 $quantidadeItens itens\n'
   '💰 Total: ${formatoMoeda.format(lista['total'])}',
