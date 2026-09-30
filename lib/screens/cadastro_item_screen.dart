@@ -3,6 +3,9 @@ import '../models/item_compra.dart';
 import '../data/catalogo/catalogo_repository.dart';
 import '../data/catalogo/produto_catalogo.dart';
 import '../data/catalogo/categorias_repository.dart';
+import '../repositorios/estabelecimentos_repository.dart';
+import '../services/estabelecimentos_service.dart';
+import '../models/estabelecimento.dart';
 
 class CadastroItemScreen extends StatefulWidget {
   final String produto;
@@ -30,6 +33,12 @@ class _CadastroItemScreenState
 
   final _catalogo = CatalogoRepository.instance;
 
+  final _estabelecimentosRepository =
+    EstabelecimentosRepository();
+
+  final _estabelecimentosService =
+    EstabelecimentosService();
+
   late TextEditingController produtoController;
   late TextEditingController pesoController;
   late TextEditingController precoController;
@@ -42,11 +51,32 @@ class _CadastroItemScreenState
 
       String categoriaSelecionada = 'Hortifruti';
 
+      String? _estabelecimentoSelecionado;
+
+      List<String> _categoriasDisponiveis = [];
+
+      List<Estabelecimento> _estabelecimentos = [];
+
       int quantidade = 1;
+
+      Future<void> _carregarEstabelecimentos() async {
+  final estabelecimentos =
+      await _estabelecimentosRepository.carregar();
+
+      debugPrint(
+        'Estabelecimentos carregados: ${estabelecimentos.length}',
+      );
+
+  setState(() {
+    _estabelecimentos = estabelecimentos;
+  });
+}
 
 @override
 void initState() {
   super.initState();
+
+  _carregarEstabelecimentos();
 
   produtoController =
       TextEditingController(
@@ -147,6 +177,31 @@ TextField(
         ? 'Peso obrigatório'
         : null,
   ),
+),
+
+const SizedBox(height: 16),
+
+DropdownButtonFormField<String>(
+  value: _estabelecimentoSelecionado,
+  decoration: const InputDecoration(
+    labelText: 'Estabelecimento',
+  ),
+  items: _estabelecimentos.map((estabelecimento) {
+    return DropdownMenuItem<String>(
+      value: estabelecimento.nome,
+      child: Text(estabelecimento.nome),
+    );
+  }).toList(),
+  onChanged: (value) {
+    setState(() {
+      _estabelecimentoSelecionado = value;
+    });
+
+    debugPrint(
+      'ESTABELECIMENTO SELECIONADO: '
+      '$_estabelecimentoSelecionado',
+    );
+  },
 ),
 
 DropdownButtonFormField<String>(

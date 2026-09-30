@@ -195,8 +195,10 @@ if (index >= 0) {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
-          icon: const Icon(Icons.edit),
+
+  if (categoria != 'Outros')
+    IconButton(
+      icon: const Icon(Icons.edit),
           onPressed: () async {
             final controller =
                 TextEditingController(
@@ -254,12 +256,13 @@ if (index >= 0) {
             }
           },
         ),
-        IconButton(
-  icon: const Icon(
-    Icons.delete,
-    color: Colors.red,
-  ),
-  onPressed: () async {
+        if (categoria != 'Outros')
+  IconButton(
+    icon: const Icon(
+      Icons.delete,
+      color: Colors.red,
+    ),
+    onPressed: () async {
 
     final confirmar =
         await showDialog<bool>(

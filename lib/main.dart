@@ -5,7 +5,8 @@ import 'screens/listas_screen.dart';
 import 'data/listas_repository.dart';
 import 'data/catalogo/catalogo_repository.dart';
 import 'data/catalogo/categorias_repository.dart';
-
+import 'pages/estabelecimentos_page.dart';
+import 'models/estabelecimento.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +50,7 @@ class _HomePageState extends State<HomePage> {
 
   final TextEditingController listaController =
       TextEditingController();
+      Estabelecimento? estabelecimentoSelecionado;
 
   @override
   void dispose() {
@@ -95,15 +97,54 @@ class _HomePageState extends State<HomePage> {
 
                 TextField(
                   controller: localController,
+                  readOnly: true,
                   decoration: const InputDecoration(
-                    labelText: 'Nome do Local',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.store),
+                    labelText: 'Estabelecimento',
+                     border: OutlineInputBorder(),
+                     prefixIcon: Icon(Icons.store),
+                     suffixIcon: Icon(Icons.arrow_drop_down),
                   ),
-                  onChanged: (_) {
-                    setState(() {});
+                  onTap: () async {
+                    final estabelecimento =
+                        await Navigator.push<Estabelecimento>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const EstabelecimentosPage(),
+                      ),
+                    );
+
+                    if (estabelecimento != null) {
+                      setState(() {
+                        estabelecimentoSelecionado =
+                            estabelecimento;
+
+                        localController.text =
+                            estabelecimento.nome;
+                      });
+                    }
                   },
-                ),
+                  ),
+
+                  if (estabelecimentoSelecionado != null)
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                        left: 12,
+                        bottom: 8,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '📍 ${estabelecimentoSelecionado!.endereco}\n'
+                          '🏷 ${estabelecimentoSelecionado!.tipo}',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+
 
                 const SizedBox(height: 15),
 
