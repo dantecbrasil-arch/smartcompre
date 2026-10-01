@@ -134,7 +134,10 @@ if (false)
       context,
       MaterialPageRoute(
         builder: (_) =>
-            const CameraScreen(),
+            CameraScreen(
+              tipoEstabelecimento:
+                  widget.lista['tipo'] ?? 'Outros',
+            ),
       ),
     );
 
@@ -726,7 +729,10 @@ onPressed: () async {
     context,
     MaterialPageRoute(
       builder: (_) =>
-          const CameraScreen(),
+          CameraScreen(
+            tipoEstabelecimento:
+                widget.lista['tipo'] ?? 'Outros',
+          ),
     ),
   );
 

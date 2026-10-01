@@ -202,6 +202,9 @@ class _HomePageState extends State<HomePage> {
               listaId: listaId,
               nomeLocal: localController.text.trim(),
               nomeLista: listaController.text.trim(),
+              tipoEstabelecimento:
+                  estabelecimentoSelecionado?.tipo ??
+                  'Outros',
             ),
           ),
         );

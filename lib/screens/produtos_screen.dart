@@ -11,11 +11,14 @@ class ProdutosScreen extends StatefulWidget {
   final String nomeLocal;
   final String nomeLista;
 
+  final String tipoEstabelecimento;
+
   const ProdutosScreen({
     super.key,
     required this.listaId,
     required this.nomeLocal,
     required this.nomeLista,
+    required this.tipoEstabelecimento,
   });
 
   @override
@@ -571,7 +574,10 @@ Row(
   final item = await Navigator.push<ItemCompra>(
     context,
     MaterialPageRoute(
-      builder: (context) => const CameraScreen(),
+      builder: (context) => CameraScreen(
+        tipoEstabelecimento:
+            widget.tipoEstabelecimento,
+      ),
     ),
   );
 

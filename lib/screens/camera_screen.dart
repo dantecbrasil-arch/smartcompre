@@ -12,7 +12,13 @@ import 'package:smartcompre/screens/lista_compras_screen.dart';
 import 'package:smartcompre/models/opcao_preco.dart';
 
 class CameraScreen extends StatefulWidget {
-  const CameraScreen({super.key});
+
+  final String tipoEstabelecimento;
+
+  const CameraScreen({
+    super.key,
+    required this.tipoEstabelecimento,
+  });
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
@@ -303,6 +309,8 @@ floatingActionButton:
     builder: (_) => 
     CadastroItemScreen(
       produto: dados.produto,
+      tipoEstabelecimento:
+          widget.tipoEstabelecimento,
       peso: dados.peso,
       precoKg: dados.precoKg,
       moeda: dados.moeda,

@@ -3,7 +3,7 @@ import '../models/item_compra.dart';
 import '../data/catalogo/catalogo_repository.dart';
 import '../data/catalogo/produto_catalogo.dart';
 import '../data/catalogo/categorias_repository.dart';
-
+import '../core/constants/categorias_por_tipo.dart';
 
 
 class CadastroItemScreen extends StatefulWidget {
@@ -12,14 +12,17 @@ class CadastroItemScreen extends StatefulWidget {
   final double? total;
   final String? moeda;
   final double? peso;
+  final String tipoEstabelecimento;
 
   const CadastroItemScreen({
     super.key,
     required this.produto,
+    required this.tipoEstabelecimento,
     this.peso,
     this.precoKg,
     this.total,
     this.moeda,
+    
   });
 
   @override
@@ -163,7 +166,9 @@ DropdownButtonFormField<String>(
   decoration: const InputDecoration(
     labelText: 'Categoria',
   ),
-  items: CategoriasRepository.categorias
+  items: CategoriasPorTipo.obter(
+widget.tipoEstabelecimento,
+)
     .map(
       (categoria) => DropdownMenuItem(
         value: categoria,
