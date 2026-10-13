@@ -70,12 +70,31 @@ class CategoriasPorTipoRepository {
 
     dados[tipo]!.add(categoria);
 
-    dados[tipo]!.sort(
+        dados[tipo]!.sort(
       (a, b) => a
           .toLowerCase()
           .compareTo(
             b.toLowerCase(),
           ),
+    );
+
+    await salvar(dados);
+  }
+
+  static Future<void> excluirCategoria(
+    String tipo,
+    String categoria,
+  ) async {
+    final dados = await carregar();
+
+    if (!dados.containsKey(tipo)) {
+      return;
+    }
+
+    dados[tipo]!.removeWhere(
+      (c) =>
+          c.toLowerCase() ==
+          categoria.toLowerCase(),
     );
 
     await salvar(dados);
