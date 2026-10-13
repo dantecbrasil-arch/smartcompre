@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/catalogo/categorias_repository.dart';
+import '../core/tipos_estabelecimento.dart';
+import 'categorias_tipo_screen.dart';
 
 class CategoriasScreen extends StatefulWidget {
   const CategoriasScreen({super.key});
@@ -143,182 +145,41 @@ if (index >= 0) {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categorias'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _adicionarCategoria,
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Categorias'),
+    ),
+    body: ListView.builder(
+      itemCount:
+          TiposEstabelecimento.todos.length,
+      itemBuilder: (context, index) {
+        final tipo =
+            TiposEstabelecimento.todos[index];
+
+        return ListTile(
+          leading: const Icon(
+            Icons.store,
           ),
-        ],
-      ),
-      body: ListView.builder(
-        controller: _scrollController,
-        itemCount:
-            CategoriasRepository
-                .categorias
-                .length,
-        itemBuilder: (context, index) {
-          final categoria =
-              CategoriasRepository
-                  .categorias[index];
-
-      return Container(
-  color:
-      categoriaDestacada != null &&
-              categoria.toLowerCase() ==
-                  categoriaDestacada!
-                      .toLowerCase()
-          ? Colors.green.shade100
-          : null,
-  child: ListTile(
-    leading: const Icon(
-      Icons.category,
-    ),
-    title: Text(
-      categoria,
-      style: TextStyle(
-        fontWeight:
-            categoriaDestacada != null &&
-                    categoria.toLowerCase() ==
-                        categoriaDestacada!
-                            .toLowerCase()
-                ? FontWeight.bold
-                : FontWeight.normal,
-      ),
-    ),
-
-  trailing: SizedBox(
-    width: 96,
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-
-  if (categoria != 'Outros')
-    IconButton(
-      icon: const Icon(Icons.edit),
-          onPressed: () async {
-            final controller =
-                TextEditingController(
-              text: categoria,
+          title: Text(tipo),
+          trailing: const Icon(
+            Icons.chevron_right,
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    CategoriasTipoScreen(
+                  tipoEstabelecimento:
+                      tipo,
+                ),
+              ),
             );
-
-            final novoNome =
-                await showDialog<String>(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text(
-                    'Editar Categoria',
-                  ),
-                  content: TextField(
-                    controller: controller,
-                    decoration:
-                        const InputDecoration(
-                      labelText: 'Categoria',
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        'Cancelar',
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(
-                          context,
-                          controller.text.trim(),
-                        );
-                      },
-                      child: const Text(
-                        'Salvar',
-                      ),
-                    ),
-                  ],
-                );
-              },
-            );
-
-            if (novoNome != null &&
-                novoNome.isNotEmpty) {
-              await CategoriasRepository.editar(
-                categoria,
-                novoNome,
-              );
-
-              setState(() {});
-            }
           },
-        ),
-        if (categoria != 'Outros')
-  IconButton(
-    icon: const Icon(
-      Icons.delete,
-      color: Colors.red,
-    ),
-    onPressed: () async {
-
-    final confirmar =
-        await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(
-            'Excluir Categoria',
-          ),
-          content: Text(
-            'Deseja excluir "$categoria"?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(
-                  context,
-                  false,
-                );
-              },
-              child: const Text(
-                'Cancelar',
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(
-                  context,
-                  true,
-                );
-              },
-              child: const Text(
-                'Excluir',
-              ),
-            ),
-          ],
         );
       },
-    );
-
-    if (confirmar == true) {
-      await CategoriasRepository
-          .excluir(categoria);
-
-      setState(() {});
-    }
-  },
-),
-      ],
     ),
-  ),
-  ),
-);  
-
-        },
-      ),
-    );
-  }
+  );
+}
 }
