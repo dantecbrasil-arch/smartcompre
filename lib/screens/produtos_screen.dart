@@ -4,6 +4,7 @@ import '../data/listas_repository.dart';
 import 'package:smartcompre/screens/camera_screen.dart';
 import 'package:smartcompre/models/item_compra.dart';
 import 'listas_screen.dart';
+import '../core/constants/categorias_por_tipo.dart';
 
 class ProdutosScreen extends StatefulWidget {
   final int listaId;
@@ -33,16 +34,10 @@ class _ProdutosScreenState
 
   String filtroBusca = '';
 
-  final List<String> categorias = [
-    'Mercearia',
-    'Laticínios',
-    'Carnes',
-    'Bebidas',
-    'Limpeza',
-    'Hortifruti',
-    'Farmácia',
-    'Outros',
-  ];
+List<String> get categorias =>
+    CategoriasPorTipo.obter(
+      widget.tipoEstabelecimento,
+    );
 
   double total = 0.0;
 
@@ -69,7 +64,11 @@ class _ProdutosScreenState
 
     final quantidadeController =
         TextEditingController(text: '1');
-String categoriaSelecionada = 'Mercearia';
+
+String categoriaSelecionada =
+    categorias.isNotEmpty
+        ? categorias.first
+        : 'Outros';
 
     final precoController =
         TextEditingController();

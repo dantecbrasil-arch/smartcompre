@@ -3,14 +3,15 @@ import '../tipos_estabelecimento.dart';
 class CategoriasPorTipo {
   static const Map<String, List<String>> categorias = {
     TiposEstabelecimento.mercado: [
-      'Açougue',
-      'Padaria',
-      'Hortifruti',
-      'Bebidas',
-      'Limpeza',
-      'Mercearia',
-      'Congelados',
-    ],
+  'Açougue',
+  'Padaria',
+  'Hortifruti',
+  'Laticínios',
+  'Bebidas',
+  'Limpeza',
+  'Mercearia',
+  'Congelados',
+],
 
     TiposEstabelecimento.farmacia: [
       'Medicamentos',

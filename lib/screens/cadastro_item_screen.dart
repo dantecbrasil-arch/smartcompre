@@ -440,8 +440,11 @@ CatalogoRepository.instance.salvarProduto(
   ProdutoCatalogo(
     nome: produtoController.text,
     categoria: categoriaSelecionada,
+    tipoEstabelecimento:
+        widget.tipoEstabelecimento,
   ),
 );
+
 
 debugPrint(
   'PRODUTO ADICIONADO AO CATALOGO',
