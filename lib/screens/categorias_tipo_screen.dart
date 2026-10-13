@@ -169,17 +169,158 @@ ScaffoldMessenger.of(context)
           final categoria =
               categorias[index];
 
-          return ListTile(
-            leading: const Icon(
-              Icons.category,
-            ),
+          final categoriaPadrao =
+    CategoriasPorTipo.obter(
+      widget.tipoEstabelecimento,
+    ).contains(categoria);
 
-            title: Text(categoria),
+return ListTile(
+  leading: const Icon(
+    Icons.category,
+  ),
 
-            trailing: const Icon(
-              Icons.chevron_right,
-            ),
-          );
+  title: Text(categoria),
+
+  trailing: categoriaPadrao
+      ? const Icon(
+          Icons.lock,
+          color: Colors.grey,
+        )
+      : SizedBox(
+    width: 96,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+
+        IconButton(
+          icon: const Icon(
+            Icons.edit,
+            color: Colors.blue,
+          ),
+          onPressed: () async {
+            final controller =
+                TextEditingController(
+              text: categoria,
+            );
+
+            final novoNome =
+                await showDialog<String>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text(
+                    'Editar Categoria',
+                  ),
+                  content: TextField(
+                    controller: controller,
+                    decoration:
+                        const InputDecoration(
+                      labelText: 'Categoria',
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        'Cancelar',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(
+                          context,
+                          controller.text.trim(),
+                        );
+                      },
+                      child: const Text(
+                        'Salvar',
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (novoNome == null ||
+                novoNome.isEmpty) {
+              return;
+            }
+
+            await CategoriasPorTipoRepository
+                .editarCategoria(
+              widget.tipoEstabelecimento,
+              categoria,
+              novoNome,
+            );
+
+            await _carregarCategorias();
+          },
+        ),
+
+        IconButton(
+          icon: const Icon(
+            Icons.delete,
+            color: Colors.red,
+          ),
+          onPressed: () async {
+            final confirmar =
+                await showDialog<bool>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text(
+                    'Excluir Categoria',
+                  ),
+                  content: Text(
+                    'Deseja excluir "$categoria"?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(
+                          context,
+                          false,
+                        );
+                      },
+                      child: const Text(
+                        'Cancelar',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(
+                          context,
+                          true,
+                        );
+                      },
+                      child: const Text(
+                        'Excluir',
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (confirmar != true) {
+              return;
+            }
+
+            await CategoriasPorTipoRepository
+                .excluirCategoria(
+              widget.tipoEstabelecimento,
+              categoria,
+            );
+
+            await _carregarCategorias();
+          },
+        ),
+      ],
+    ),
+  ),
+);
         },
       ),
     );

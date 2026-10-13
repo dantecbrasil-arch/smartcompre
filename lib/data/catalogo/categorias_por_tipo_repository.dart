@@ -99,4 +99,38 @@ class CategoriasPorTipoRepository {
 
     await salvar(dados);
   }
+  static Future<void> editarCategoria(
+  String tipo,
+  String antiga,
+  String nova,
+) async {
+  final dados = await carregar();
+
+  if (!dados.containsKey(tipo)) {
+    return;
+  }
+
+  final indice =
+      dados[tipo]!.indexWhere(
+    (c) =>
+        c.toLowerCase() ==
+        antiga.toLowerCase(),
+  );
+
+  if (indice == -1) {
+    return;
+  }
+
+  dados[tipo]![indice] = nova;
+
+  dados[tipo]!.sort(
+    (a, b) => a
+        .toLowerCase()
+        .compareTo(
+          b.toLowerCase(),
+        ),
+  );
+
+  await salvar(dados);
+}
 }
