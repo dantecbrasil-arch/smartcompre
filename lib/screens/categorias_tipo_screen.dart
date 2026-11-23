@@ -42,6 +42,8 @@ Future<void> _carregarCategorias() async {
     widget.tipoEstabelecimento,
   );
 
+  if (!mounted) return;
+
   final todas = [
     ...categoriasPadrao,
     ...categoriasUsuario,
@@ -117,6 +119,8 @@ Future<void> _carregarCategorias() async {
     },
   );
 
+  if (!context.mounted) return;
+
   if (novaCategoria == null ||
     novaCategoria.isEmpty) {
   return;
@@ -148,6 +152,8 @@ await CategoriasPorTipoRepository
 );
 
 await _carregarCategorias();
+
+if (!context.mounted) return;
 
 ScaffoldMessenger.of(context)
     .showSnackBar(
@@ -243,6 +249,8 @@ return ListTile(
               },
             );
 
+            if (!context.mounted) return;
+
             if (novoNome == null ||
                 novoNome.isEmpty) {
               return;
@@ -303,6 +311,8 @@ return ListTile(
                 );
               },
             );
+
+            if (!context.mounted) return;
 
             if (confirmar != true) {
               return;

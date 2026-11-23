@@ -88,7 +88,7 @@ class EtiquetaUnidadeParser {
 
       opcoesPreco.add(
         OpcaoPreco(
-          descricao: tipoPrecoAtual!,
+          descricao: tipoPrecoAtual,
           valor: valor,
         ),
       );

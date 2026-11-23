@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/ocr_service.dart';
 import 'package:smartcompre/screens/camera_screen.dart';
+import 'package:smartcompre/core/tipos_estabelecimento.dart';
 
 class CapturaEtiquetaScreen extends StatefulWidget {
   const CapturaEtiquetaScreen({super.key});
@@ -128,7 +129,10 @@ setState(() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const CameraScreen(),
+        builder: (_) => const CameraScreen(
+          tipoEstabelecimento:
+              TiposEstabelecimento.outros,
+        ),
       ),
     );
   },

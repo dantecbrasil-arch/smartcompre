@@ -195,6 +195,8 @@ class _HomePageState extends State<HomePage> {
 
         await ListasRepository.salvarListas();
 
+        if (!context.mounted) return;
+
         Navigator.push(
           context,
           MaterialPageRoute(

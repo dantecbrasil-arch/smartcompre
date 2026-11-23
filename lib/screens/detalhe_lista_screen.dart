@@ -108,271 +108,6 @@ Text(
 
             const SizedBox(height: 20),
 
-if (false)
-  SizedBox(
-    width: double.infinity,
-    child: ElevatedButton.icon(
-    onPressed: () {
-  showModalBottomSheet(
-    context: context,
-    builder: (context) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-
-           ListTile(
-  leading: const Icon(Icons.camera_alt),
-  title: const Text(
-    'Capturar Etiqueta',
-  ),
-  onTap: () async {
-    Navigator.pop(context);
-
-    final item =
-        await Navigator.push<ItemCompra>(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            CameraScreen(
-              tipoEstabelecimento:
-                  widget.lista['tipo'] ?? 'Outros',
-            ),
-      ),
-    );
-
-    if (item != null) {
-      setState(() {
-        produtos.insert(0, {
-          'nome': item.produto,
-          'peso': item.peso,
-          'categoria': item.categoria,
-          'quantidade': item.quantidade,
-          'preco': item.precoKg ??
-               item.total ??
-               0.0,
-          'subtotal': item.total ?? 0,
-        });
-
-        widget.lista['produtos'] =
-            produtos;
-
-        widget.lista['total'] =
-            totalAtual;
-      });
-
-      await ListasRepository.salvarListas();
-    }
-  },
-), 
-
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text(
-                'Inserir Manualmente',
-              ),
-              onTap: () {
-                Navigator.pop(context);
-
-                final nomeController =
-                    TextEditingController();
-
-                final categoriaController =
-                    TextEditingController(
-                  text: 'Outros',
-                );
-
-                      final pesoController =
-                          TextEditingController(
-                            text: '',
-                   );
-                   
-  
-
-                final quantidadeController =
-                    TextEditingController(
-                  text: '1',
-                );
-
-                final precoController =
-                    TextEditingController();
-
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text(
-                        'Adicionar Produto',
-                      ),
-                      content:
-                          SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize:
-                              MainAxisSize.min,
-                          children: [
-                            TextField(
-                              controller:
-                                  nomeController,
-                              decoration:
-                                  const InputDecoration(
-                                labelText: 'Nome',
-                              ),
-                            ),
-                            DropdownButtonFormField<String>(
-                              value: categoriaController.text,
-                              decoration: const InputDecoration(
-                                labelText: 'Categoria',
-                              ),
-                              items: CategoriasRepository.categorias
-                                  .map(
-                                    (categoria) =>
-                                        DropdownMenuItem(
-                                      value: categoria,
-                                      child: Text(categoria),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: (valor) {
-                                categoriaController.text =
-                                    valor ?? 'Outros';
-                              },
-                            ),
-                            TextField(
-                              controller: pesoController,
-                              keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true,
-                            ),
-                            decoration: const InputDecoration(
-                              labelText: 'Peso (kg)',
-                             ),
-                            ),
-                            TextField(
-                              controller:
-                                  quantidadeController,
-                              keyboardType:
-                                  TextInputType
-                                      .number,
-                              decoration:
-                                  const InputDecoration(
-                                labelText:
-                                    'Quantidade',
-                              ),
-                            ),
-                            TextField(
-                              controller:
-                                  precoController,
-                              keyboardType:
-                                  const TextInputType
-                                      .numberWithOptions(
-                                decimal: true,
-                              ),
-                              decoration:
-                                  const InputDecoration(
-                                labelText: 'Preço',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(
-                              context,
-                            );
-                          },
-                          child:
-                              const Text(
-                            'Cancelar',
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final quantidade =
-                                int.tryParse(
-                                      quantidadeController
-                                          .text,
-                                    ) ??
-                                    1;
-
-                            final preco =
-                                double.tryParse(
-                                      precoController
-                                          .text
-                                          .replaceAll(
-                                            ',',
-                                            '.',
-                                          ),
-                                    ) ??
-                                    0;
-
-                            final peso =
-                                double.tryParse(
-                                      pesoController
-                                           .text
-                                           .replaceAll(',', '.'),
-                                    ) ??
-                                    0;
-
-                            setState(() {
-                              produtos.add({
-                                'nome':
-                                    nomeController
-                                        .text,
-                                'categoria':
-                                    categoriaController
-                                        .text,
-                                'quantidade':
-                                    quantidade,
-                                'preco':
-                                    preco,
-                                'subtotal':
-                                    quantidade *
-                                        preco,
-                              });
-
-                              widget.lista[
-                                  'produtos'] = produtos;
-
-                              widget.lista[
-                                  'total'] =
-                                  totalAtual;
-                            });
-
-                            await ListasRepository
-                                .salvarListas();
-
-                            if (mounted) {
-                              Navigator.pop(
-                                context,
-                              );
-                            }
-                          },
-                          child:
-                              const Text(
-                            'Salvar',
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-
-                    ],
-        ),
-      );
-    },
-  );
-},
-    icon: const Icon(Icons.add),
-    label: const Text(
-      'Adicionar Produto',
-    ),
-  ),
-),
-
 const SizedBox(height: 20),
 
 Expanded(
@@ -448,6 +183,18 @@ final precoController =
     await showDialog(
       context: context,
       builder: (context) {
+        final categoriasDropdown =
+            <String>[...CategoriasRepository.categorias];
+
+        if (!categoriasDropdown.contains(
+          categoriaController.text,
+        )) {
+          categoriasDropdown.insert(
+            0,
+            categoriaController.text,
+          );
+        }
+
         return AlertDialog(
           title: const Text(
             'Editar Produto',
@@ -464,25 +211,29 @@ final precoController =
       ),
 
       const SizedBox(height: 10),
-
-      DropdownButtonFormField<String>(
-  value: categoriaController.text,
-  decoration: const InputDecoration(
-    labelText: 'Categoria',
-  ),
-  items: CategoriasRepository.categorias
-      .map(
-        (categoria) => DropdownMenuItem(
-          value: categoria,
-          child: Text(categoria),
+      InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Categoria',
         ),
-      )
-      .toList(),
-  onChanged: (valor) {
-    categoriaController.text =
-        valor ?? 'Outros';
-  },
-),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: categoriaController.text,
+            isExpanded: true,
+            items: categoriasDropdown
+                .map(
+                  (categoria) => DropdownMenuItem(
+                    value: categoria,
+                    child: Text(categoria),
+                  ),
+                )
+                .toList(),
+            onChanged: (valor) {
+              categoriaController.text =
+                  valor ?? 'Outros';
+            },
+          ),
+        ),
+      ),
 
       const SizedBox(height: 10),
 
@@ -588,19 +339,18 @@ final precoController =
   await ListasRepository
       .salvarListas();
 
+  if (!context.mounted) return;
 
-  if (mounted) {
-    Navigator.pop(context);
+  Navigator.pop(context);
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Produto atualizado!',
-        ),
+  ScaffoldMessenger.of(context)
+      .showSnackBar(
+    const SnackBar(
+      content: Text(
+        'Produto atualizado!',
       ),
-    );
-  }
+    ),
+  );
 },
               child: const Text(
                 'Salvar',
@@ -610,6 +360,7 @@ final precoController =
         );
       },
     );
+
   },
 ),
 
@@ -620,6 +371,9 @@ final precoController =
                             ),
                             onPressed:
                                 () async {
+                              final messenger =
+                                  ScaffoldMessenger.of(context);
+
                               final confirmar =
                                   await showDialog<bool>(
                                 context:
@@ -667,6 +421,8 @@ final precoController =
                                 },
                               );
 
+                                  if (!mounted) return;
+
                               if (confirmar == true) {
 
                                 setState(() {
@@ -681,16 +437,15 @@ final precoController =
 
                                 await ListasRepository.salvarListas();
 
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Produto removido com sucesso!',
-                                      ),
+                                if (!mounted) return;
+
+                                messenger.showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Produto removido com sucesso!',
                                     ),
-                                 );
-                               }
+                                  ),
+                               );
                              }
                             },
                           ),
@@ -735,6 +490,8 @@ onPressed: () async {
           ),
     ),
   );
+
+  if (!context.mounted) return;
 
   if (item == null) {
     return;
@@ -798,6 +555,9 @@ label: const Text(
   showDialog(
     context: context,
     builder: (context) {
+      final categoriasDropdown =
+          <String>[...CategoriasRepository.categorias];
+
       return AlertDialog(
         title: const Text(
           'Adicionar Produto',
@@ -815,23 +575,29 @@ label: const Text(
                 ),
               ),
 
-              DropdownButtonFormField<String>(
-                 value: categoriaController.text,
-                 decoration: const InputDecoration(
-                   labelText: 'Categoria',
-                 ),
-                 items: CategoriasRepository.categorias
-                    .map(
-                      (categoria) => DropdownMenuItem<String>(
-                        value: categoria,
-                        child: Text(categoria),
-                      ),
-                    )
-                    .toList(),
-                 onChanged: (valor) {
-                   categoriaController.text =
-                       valor ?? 'Outros';
-                 },
+              InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: categoriaController.text,
+                    isExpanded: true,
+                    items: categoriasDropdown
+                        .map(
+                          (categoria) =>
+                              DropdownMenuItem<String>(
+                            value: categoria,
+                            child: Text(categoria),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (valor) {
+                      categoriaController.text =
+                          valor ?? 'Outros';
+                    },
+                  ),
+                ),
               ),
 
               TextField(
@@ -944,11 +710,11 @@ label: const Text(
               await ListasRepository
                   .salvarListas();
 
-              if (mounted) {
-                Navigator.pop(
-                  context,
-                );
-              }
+              if (!context.mounted) return;
+
+              Navigator.pop(
+                context,
+              );
             },
             child:
                 const Text('Salvar'),

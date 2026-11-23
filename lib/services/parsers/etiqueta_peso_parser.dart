@@ -93,10 +93,6 @@ class EtiquetaPesoParser {
 
   if (match != null) {
 
-    print(
-      'PESO ENCONTRADO => ${match.group(1)}',
-    );
-
   final valor =
       double.tryParse(
         match.group(1)!

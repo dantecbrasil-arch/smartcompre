@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/item_compra.dart';
 import '../data/catalogo/catalogo_repository.dart';
 import '../data/catalogo/produto_catalogo.dart';
-import '../data/catalogo/categorias_repository.dart';
 import '../core/constants/categorias_por_tipo.dart';
-
+import '../data/catalogo/categorias_por_tipo_repository.dart';
 
 class CadastroItemScreen extends StatefulWidget {
   final String produto;
@@ -47,7 +46,7 @@ class _CadastroItemScreenState
       bool erroPreco = false;
 
       String categoriaSelecionada = 'Hortifruti';
-
+      List<String> categoriasDisponiveis = [];
       int quantidade = 1;
 
  
@@ -93,10 +92,43 @@ totalOcrOriginal =
       '${produtoExistente.categoria}',
     );
   }
+  _carregarCategorias();
 
   debugPrint(
     'CATEGORIA INICIAL: $categoriaSelecionada',
   );
+}
+
+Future<void> _carregarCategorias() async {
+  final categoriasPadrao =
+      CategoriasPorTipo.obter(
+    widget.tipoEstabelecimento,
+  );
+
+  final categoriasUsuario =
+      await CategoriasPorTipoRepository
+          .obterCategorias(
+    widget.tipoEstabelecimento,
+  );
+
+  final todas = [
+    ...categoriasPadrao,
+    ...categoriasUsuario,
+  ];
+
+  todas.sort(
+    (a, b) => a
+        .toLowerCase()
+        .compareTo(
+          b.toLowerCase(),
+        ),
+  );
+
+  if (!mounted) return;
+
+  setState(() {
+    categoriasDisponiveis = todas;
+  });
 }
 
 void atualizarTotal() {
@@ -123,7 +155,17 @@ void atualizarTotal() {
   @override
   Widget build(BuildContext context) {
 
+    final categoriasDropdown =
+        <String>[...categoriasDisponiveis];
 
+    if (!categoriasDropdown.contains(
+      categoriaSelecionada,
+    )) {
+      categoriasDropdown.insert(
+        0,
+        categoriaSelecionada,
+      );
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -161,31 +203,36 @@ const SizedBox(height: 16),
 
 
 
-DropdownButtonFormField<String>(
-  value: categoriaSelecionada,
+InputDecorator(
   decoration: const InputDecoration(
     labelText: 'Categoria',
   ),
-  items: CategoriasPorTipo.obter(
-widget.tipoEstabelecimento,
-)
-    .map(
-      (categoria) => DropdownMenuItem(
-        value: categoria,
-        child: Text(categoria),
-      ),
-    )
-    .toList(),
-  onChanged: (value) {
-  setState(() {
-    categoriaSelecionada = value!;
-  });
+  child: DropdownButtonHideUnderline(
+    child: DropdownButton<String>(
+      value: categoriaSelecionada,
+      isExpanded: true,
+      items: categoriasDropdown
+          .map(
+            (categoria) => DropdownMenuItem(
+              value: categoria,
+              child: Text(categoria),
+            ),
+          )
+          .toList(),
+      onChanged: (value) {
+        if (value == null) return;
 
-  debugPrint(
-    'CATEGORIA SELECIONADA: $categoriaSelecionada',
-  );
-},
+        setState(() {
+          categoriaSelecionada = value;
+        });
 
+        debugPrint(
+          'CATEGORIA SELECIONADA: '
+          '$categoriaSelecionada',
+        );
+      },
+    ),
+  ),
 ),
 
 const SizedBox(height: 16),

@@ -12,8 +12,6 @@ class ListasRepository {
 
     if (listasJson != null) {
 
-print('CARREGANDO: $listasJson');
-
       final List<dynamic> dados = jsonDecode(listasJson);
 
       listasSalvas =
@@ -25,8 +23,6 @@ print('CARREGANDO: $listasJson');
     final prefs = await SharedPreferences.getInstance();
 
     final listasJson = jsonEncode(listasSalvas);
-
-    print('SALVANDO: $listasJson');
 
     await prefs.setString(
       'listas_salvas',

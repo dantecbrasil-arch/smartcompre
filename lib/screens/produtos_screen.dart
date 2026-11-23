@@ -76,11 +76,25 @@ String categoriaSelecionada =
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Adicionar Produto'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        final categoriasDropdown =
+            <String>[...categorias];
+
+        if (!categoriasDropdown.contains(
+          categoriaSelecionada,
+        )) {
+          categoriasDropdown.insert(
+            0,
+            categoriaSelecionada,
+          );
+        }
+
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              title: const Text('Adicionar Produto'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
               TextField(
                 controller: nomeController,
                 decoration: const InputDecoration(
@@ -101,21 +115,30 @@ String categoriaSelecionada =
                   labelText: 'Quantidade',
                 ),
               ),
-              DropdownButtonFormField<String>(
-  value: categoriaSelecionada,
-  decoration: const InputDecoration(
-    labelText: 'Categoria',
-  ),
-  items: categorias.map((categoria) {
-    return DropdownMenuItem(
-      value: categoria,
-      child: Text(categoria),
-    );
-  }).toList(),
-  onChanged: (value) {
-    categoriaSelecionada = value!;
-  },
-),
+              InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: categoriaSelecionada,
+                    isExpanded: true,
+                    items: categoriasDropdown.map((categoria) {
+                      return DropdownMenuItem(
+                        value: categoria,
+                        child: Text(categoria),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+
+                      setDialogState(() {
+                        categoriaSelecionada = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
               TextField(
                 controller: precoController,
                 keyboardType: TextInputType.number,
@@ -123,9 +146,9 @@ String categoriaSelecionada =
                   labelText: 'Preço Unitário',
                 ),
               ),
-            ],
-          ),
-          actions: [
+                ],
+              ),
+              actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancelar'),
@@ -189,11 +212,15 @@ if (indiceLista != -1) {
   await ListasRepository.salvarListas();
 }
 
+if (!context.mounted) return;
+
 Navigator.pop(context);
               },
               child: const Text('Adicionar'),
             ),
-          ],
+              ],
+            );
+          },
         );
       },
     );
@@ -229,11 +256,25 @@ String categoriaSelecionada =
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Editar Produto'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        final categoriasDropdown =
+            <String>[...categorias];
+
+        if (!categoriasDropdown.contains(
+          categoriaSelecionada,
+        )) {
+          categoriasDropdown.insert(
+            0,
+            categoriaSelecionada,
+          );
+        }
+
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              title: const Text('Editar Produto'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                TextField(
                  controller: pesoController,
                  keyboardType: const TextInputType.numberWithOptions(
@@ -251,21 +292,30 @@ String categoriaSelecionada =
                 ),
               ),
 
-DropdownButtonFormField<String>(
-  value: categoriaSelecionada,
-  decoration: const InputDecoration(
-    labelText: 'Categoria',
-  ),
-  items: categorias.map((categoria) {
-    return DropdownMenuItem(
-      value: categoria,
-      child: Text(categoria),
-    );
-  }).toList(),
-  onChanged: (value) {
-    categoriaSelecionada = value!;
-  },
-),
+              InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Categoria',
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: categoriaSelecionada,
+                    isExpanded: true,
+                    items: categoriasDropdown.map((categoria) {
+                      return DropdownMenuItem(
+                        value: categoria,
+                        child: Text(categoria),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+
+                      setDialogState(() {
+                        categoriaSelecionada = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
 
               TextField(
                 controller: quantidadeController,
@@ -281,15 +331,15 @@ DropdownButtonFormField<String>(
                   labelText: 'Preço Unitário',
                 ),
               ),
-            ],
-          ),
-          actions: [
+                ],
+              ),
+              actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final nome = nomeController.text;
 
                 final quantidade =
@@ -329,13 +379,36 @@ produtos[index] = {
                   recalcularTotal();
                 });
 
+                final indiceLista =
+                    ListasRepository.listasSalvas.indexWhere(
+                  (lista) =>
+                      lista['id'] ==
+                      widget.listaId,
+                );
+
+                if (indiceLista != -1) {
+                  ListasRepository
+                      .listasSalvas[indiceLista]['produtos'] =
+                      List<Map<String, dynamic>>.from(produtos);
+
+                  ListasRepository
+                      .listasSalvas[indiceLista]['total'] =
+                      total;
+
+                  await ListasRepository.salvarListas();
+                }
+
+                if (!context.mounted) return;
+
                 Navigator.pop(context);
               },
               child: const Text(
                 'Salvar Alterações',
               ),
             ),
-          ],
+              ],
+            );
+          },
         );
       },
     );
@@ -358,12 +431,33 @@ produtos[index] = {
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 setState(() {
                   produtos.removeAt(index);
 
                   recalcularTotal();
                 });
+
+                final indiceLista =
+                    ListasRepository.listasSalvas.indexWhere(
+                  (lista) =>
+                      lista['id'] ==
+                      widget.listaId,
+                );
+
+                if (indiceLista != -1) {
+                  ListasRepository
+                      .listasSalvas[indiceLista]['produtos'] =
+                      List<Map<String, dynamic>>.from(produtos);
+
+                  ListasRepository
+                      .listasSalvas[indiceLista]['total'] =
+                      total;
+
+                  await ListasRepository.salvarListas();
+                }
+
+                if (!context.mounted) return;
 
                 Navigator.pop(context);
               },
@@ -579,6 +673,8 @@ Row(
       ),
     ),
   );
+
+  if (!mounted) return;
 
   if (item == null) {
     return;

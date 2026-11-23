@@ -32,6 +32,8 @@ class _EstabelecimentosPageState
     final lista =
         await _repository.carregar();
 
+    if (!mounted) return;
+
     setState(() {
       _estabelecimentos = lista;
     });
@@ -95,7 +97,7 @@ String tipoSelecionado =
 
                     DropdownButtonFormField<
                         String>(
-                      value:
+                      initialValue:
                           tipoSelecionado,
                       decoration:
                           const InputDecoration(
@@ -215,7 +217,7 @@ String tipoSelecionado =
       lista,
     );
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     Navigator.pop(
       context,

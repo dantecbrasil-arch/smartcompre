@@ -8,7 +8,6 @@ import 'package:smartcompre/services/ocr_service.dart';
 import 'package:smartcompre/services/etiqueta_parser.dart';
 import 'package:smartcompre/screens/cadastro_item_screen.dart';
 import 'package:smartcompre/models/item_compra.dart';
-import 'package:smartcompre/screens/lista_compras_screen.dart';
 import 'package:smartcompre/models/opcao_preco.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -78,9 +77,6 @@ Future<String> recortarCentro(String caminho) async {
   if (imagem == null) {
     return caminho;
   }
-
-  final largura = imagem.width;
-  final altura = imagem.height;
 
   final larguraRecorte = 640;
   final alturaRecorte = 240;
@@ -223,6 +219,8 @@ floatingActionButton:
               caminhoRecortado,
             );
 
+            if (!context.mounted) return;
+
             debugPrint('====================');
             debugPrint('TEXTO OCR BRUTO');
             debugPrint(texto);
@@ -276,6 +274,8 @@ floatingActionButton:
     },
   );
 
+  if (!context.mounted) return;
+
   if (opcaoEscolhida == null) {
     return;
   }
@@ -318,6 +318,8 @@ floatingActionButton:
     ),
   ),
 );
+
+if (!context.mounted) return;
 
 if (item != null) {
   debugPrint(
