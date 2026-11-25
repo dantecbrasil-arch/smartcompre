@@ -37,6 +37,16 @@ O cadastro de estabelecimentos pode ser aberto pelo campo Estabelecimento na tel
 
 O tipo escolhido determina as categorias padrão e personalizadas disponíveis para os produtos daquela lista.
 
+### Tipos de estabelecimento
+
+1. Na tela inicial, toque em Categorias.
+2. Na tela Categorias, use o botão de gerenciamento de tipos no canto superior direito.
+3. Tipos originais do aplicativo aparecem protegidos. Tipos personalizados podem ser adicionados, renomeados ou excluídos.
+
+Ao renomear um tipo personalizado, o novo nome é aplicado às listas, estabelecimentos e produtos do catálogo vinculados; os demais dados desses registros e as categorias do tipo são preservados.
+
+Não é possível excluir um tipo personalizado que tenha listas vinculadas. A mensagem informa a quantidade de listas. Se não houver listas vinculadas, a exclusão exige confirmação; estabelecimentos e produtos do catálogo associados passam para Outros. As categorias internas não são removidas e voltam a aparecer caso um tipo com o mesmo nome seja cadastrado novamente.
+
 ### Criar e preencher uma lista
 
 1. Selecione um estabelecimento na tela inicial.
@@ -68,7 +78,7 @@ O reconhecimento pode falhar se a etiqueta estiver desfocada, parcialmente cober
 ### Categorias
 
 1. Na tela inicial, toque em Categorias.
-2. Escolha o tipo de estabelecimento.
+2. Escolha um tipo de estabelecimento, original ou personalizado.
 3. Consulte as categorias padrão e personalizadas daquele tipo.
 4. Use a opção de adicionar para criar uma categoria personalizada.
 5. Use as ações disponíveis para editar ou excluir categorias personalizadas.

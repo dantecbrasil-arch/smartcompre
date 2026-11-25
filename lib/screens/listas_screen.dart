@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../core/tipos_estabelecimento.dart';
 import '../data/listas_repository.dart';
+import '../data/tipos_estabelecimento_repository.dart';
 import 'detalhe_lista_screen.dart';
 
 const _nomesMeses = [
@@ -20,11 +21,7 @@ const _nomesMeses = [
   'dezembro',
 ];
 
-enum _PeriodoListas {
-  mesAtual,
-  escolherMes,
-  todas,
-}
+enum _PeriodoListas { mesAtual, escolherMes, todas }
 
 class _ListaNaTela {
   final int indiceOriginal;
@@ -54,6 +51,23 @@ class _ListasScreenState extends State<ListasScreen> {
     DateTime.now().month,
   );
   String? _tipoSelecionado;
+  List<String> _tiposEstabelecimento = TiposEstabelecimento.todos;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarTipos();
+  }
+
+  Future<void> _carregarTipos() async {
+    final tipos = await TiposEstabelecimentoRepository.carregarTodos();
+
+    if (!mounted) return;
+
+    setState(() {
+      _tiposEstabelecimento = tipos;
+    });
+  }
 
   DateTime? _lerData(dynamic valor) {
     if (valor is DateTime) {
@@ -70,7 +84,7 @@ class _ListasScreenState extends State<ListasScreen> {
   String _tipoParaPasta(dynamic valor) {
     final tipo = valor is String ? valor.trim() : '';
 
-    if (TiposEstabelecimento.todos.contains(tipo)) {
+    if (_tiposEstabelecimento.contains(tipo)) {
       return tipo;
     }
 
@@ -84,15 +98,12 @@ class _ListasScreenState extends State<ListasScreen> {
         : _mesSelecionado;
     final resultado = <_ListaNaTela>[];
 
-    for (final entrada
-        in ListasRepository.listasSalvas.asMap().entries) {
+    for (final entrada in ListasRepository.listasSalvas.asMap().entries) {
       final lista = entrada.value;
       final data = _lerData(lista['data']);
       final incluir = switch (_periodo) {
         _PeriodoListas.mesAtual =>
-          data != null &&
-              data.year == agora.year &&
-              data.month == agora.month,
+          data != null && data.year == agora.year && data.month == agora.month,
         _PeriodoListas.escolherMes =>
           data != null &&
               data.year == mesAlvo.year &&
@@ -134,9 +145,7 @@ class _ListasScreenState extends State<ListasScreen> {
     return resultado;
   }
 
-  Map<String, List<_ListaNaTela>> _agruparPorTipo(
-    List<_ListaNaTela> listas,
-  ) {
+  Map<String, List<_ListaNaTela>> _agruparPorTipo(List<_ListaNaTela> listas) {
     final grupos = <String, List<_ListaNaTela>>{};
 
     for (final item in listas) {
@@ -167,8 +176,8 @@ class _ListasScreenState extends State<ListasScreen> {
     final anoInicial = _mesSelecionado.year < primeiroAno
         ? primeiroAno
         : _mesSelecionado.year > ultimoAno
-            ? ultimoAno
-            : _mesSelecionado.year;
+        ? ultimoAno
+        : _mesSelecionado.year;
     final mesInicial = anoInicial == _mesSelecionado.year
         ? _mesSelecionado.month
         : 1;
@@ -190,9 +199,7 @@ class _ListasScreenState extends State<ListasScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Mês',
-                    ),
+                    decoration: const InputDecoration(labelText: 'Mês'),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         value: mesEscolhido,
@@ -219,9 +226,7 @@ class _ListasScreenState extends State<ListasScreen> {
                   ),
                   const SizedBox(height: 12),
                   InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Ano',
-                    ),
+                    decoration: const InputDecoration(labelText: 'Ano'),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         value: anoEscolhido,
@@ -273,10 +278,7 @@ class _ListasScreenState extends State<ListasScreen> {
 
     setState(() {
       _periodo = _PeriodoListas.escolherMes;
-      _mesSelecionado = DateTime(
-        dataEscolhida.year,
-        dataEscolhida.month,
-      );
+      _mesSelecionado = DateTime(dataEscolhida.year, dataEscolhida.month);
       _tipoSelecionado = null;
     });
   }
@@ -296,9 +298,7 @@ class _ListasScreenState extends State<ListasScreen> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetalheListaScreen(
-          lista: item.lista,
-        ),
+        builder: (context) => DetalheListaScreen(lista: item.lista),
       ),
     );
 
@@ -321,9 +321,7 @@ class _ListasScreenState extends State<ListasScreen> {
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Excluir Lista'),
-          content: Text(
-            'Deseja excluir "${item.lista['nomeLista']}"?',
-          ),
+          content: Text('Deseja excluir "${item.lista['nomeLista']}"?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
@@ -433,9 +431,7 @@ class _ListasScreenState extends State<ListasScreen> {
       );
     }
 
-    final tipos = TiposEstabelecimento.todos
-        .where(grupos.containsKey)
-        .toList();
+    final tipos = _tiposEstabelecimento.where(grupos.containsKey).toList();
 
     return ListView.builder(
       itemCount: tipos.length,
@@ -498,10 +494,7 @@ class _ListasScreenState extends State<ListasScreen> {
               '💰 Total: ${formatoMoeda.format(lista['total'])}',
             ),
             trailing: IconButton(
-              icon: const Icon(
-                Icons.delete,
-                color: Colors.red,
-              ),
+              icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () => _excluirLista(item),
             ),
           ),
@@ -512,10 +505,7 @@ class _ListasScreenState extends State<ListasScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final formatoMoeda = NumberFormat.currency(
-      locale: 'pt_BR',
-      symbol: 'R\$ ',
-    );
+    final formatoMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$ ');
     final formatoData = DateFormat('dd/MM/yyyy');
     final listas = _obterListasDoPeriodo();
     final grupos = _agruparPorTipo(listas);

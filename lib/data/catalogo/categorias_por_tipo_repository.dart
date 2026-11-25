@@ -15,59 +15,53 @@ class CategoriaRepositoryException implements Exception {
 }
 
 class CategoriasPorTipoRepository {
-  static const _key =
-      'categorias_por_tipo_usuario';
+  static const _key = 'categorias_por_tipo_usuario';
 
-  static Future<
-      Map<String, List<String>>> carregar() async {
-    final prefs =
-        await SharedPreferences.getInstance();
+  static Future<Map<String, List<String>>> carregar() async {
+    final prefs = await SharedPreferences.getInstance();
 
-    final json =
-        prefs.getString(_key);
+    final json = prefs.getString(_key);
 
     if (json == null) {
       return {};
     }
 
-    final Map<String, dynamic> dados =
-        jsonDecode(json);
+    final Map<String, dynamic> dados = jsonDecode(json);
 
-    return dados.map(
-      (key, value) => MapEntry(
-        key,
-        List<String>.from(value),
-      ),
-    );
+    return dados.map((key, value) => MapEntry(key, List<String>.from(value)));
   }
 
-  static Future<void> salvar(
-    Map<String, List<String>> dados,
-  ) async {
-    final prefs =
-        await SharedPreferences.getInstance();
+  static Future<void> salvar(Map<String, List<String>> dados) async {
+    final prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString(
-      _key,
-      jsonEncode(dados),
-    );
+    await prefs.setString(_key, jsonEncode(dados));
   }
 
-  static Future<List<String>>
-      obterCategorias(
-    String tipo,
-  ) async {
+  static Future<List<String>> obterCategorias(String tipo) async {
     final dados = await carregar();
 
     return dados[tipo] ?? [];
   }
 
-  static Future<void> adicionarCategoria(
-    String tipo,
-    String categoria,
-  ) async {
-    final nomeNormalizado =
-        normalizarCategoria(categoria);
+  static Future<void> renomearTipo(String tipoAtual, String tipoNovo) async {
+    if (tipoAtual == tipoNovo) {
+      return;
+    }
+
+    final dados = await carregar();
+    final categoriasAtuais = dados.remove(tipoAtual);
+
+    if (categoriasAtuais == null) {
+      return;
+    }
+
+    final categoriasDestino = dados.remove(tipoNovo) ?? [];
+    dados[tipoNovo] = [...categoriasDestino, ...categoriasAtuais];
+    await salvar(dados);
+  }
+
+  static Future<void> adicionarCategoria(String tipo, String categoria) async {
+    final nomeNormalizado = normalizarCategoria(categoria);
 
     if (nomeNormalizado.isEmpty) {
       throw const CategoriaRepositoryException(
@@ -95,23 +89,13 @@ class CategoriasPorTipoRepository {
     dados.putIfAbsent(tipo, () => []);
     dados[tipo]!.add(nomeNormalizado);
 
-    dados[tipo]!.sort(
-      (a, b) => a
-          .toLowerCase()
-          .compareTo(
-            b.toLowerCase(),
-          ),
-    );
+    dados[tipo]!.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     await salvar(dados);
   }
 
-  static Future<void> excluirCategoria(
-    String tipo,
-    String categoria,
-  ) async {
-    final nomeNormalizado =
-        normalizarCategoria(categoria);
+  static Future<void> excluirCategoria(String tipo, String categoria) async {
+    final nomeNormalizado = normalizarCategoria(categoria);
 
     if (nomeNormalizado.isEmpty) {
       return;
@@ -129,9 +113,7 @@ class CategoriasPorTipoRepository {
       return;
     }
 
-    dados[tipo]!.removeWhere(
-      (c) => normalizarCategoria(c) == nomeNormalizado,
-    );
+    dados[tipo]!.removeWhere((c) => normalizarCategoria(c) == nomeNormalizado);
 
     await salvar(dados);
   }
@@ -141,10 +123,8 @@ class CategoriasPorTipoRepository {
     String antiga,
     String nova,
   ) async {
-    final nomeAntigoNormalizado =
-        normalizarCategoria(antiga);
-    final nomeNovoNormalizado =
-        normalizarCategoria(nova);
+    final nomeAntigoNormalizado = normalizarCategoria(antiga);
+    final nomeNovoNormalizado = normalizarCategoria(nova);
 
     if (nomeNovoNormalizado.isEmpty) {
       throw const CategoriaRepositoryException(
@@ -166,9 +146,7 @@ class CategoriasPorTipoRepository {
 
     final categoriasDoTipo = dados[tipo]!;
     final indice = categoriasDoTipo.indexWhere(
-      (categoria) =>
-          normalizarCategoria(categoria) ==
-          nomeAntigoNormalizado,
+      (categoria) => normalizarCategoria(categoria) == nomeAntigoNormalizado,
     );
 
     if (indice == -1) {
@@ -182,11 +160,10 @@ class CategoriasPorTipoRepository {
     }
 
     final existe = categoriasDoTipo.asMap().entries.any(
-          (entry) =>
-              entry.key != indice &&
-              normalizarCategoria(entry.value) ==
-                  nomeNovoNormalizado,
-        );
+      (entry) =>
+          entry.key != indice &&
+          normalizarCategoria(entry.value) == nomeNovoNormalizado,
+    );
 
     if (existe) {
       throw const CategoriaRepositoryException(
@@ -196,25 +173,14 @@ class CategoriasPorTipoRepository {
 
     categoriasDoTipo[indice] = nomeNovoNormalizado;
 
-    categoriasDoTipo.sort(
-      (a, b) => a
-          .toLowerCase()
-          .compareTo(
-            b.toLowerCase(),
-          ),
-    );
+    categoriasDoTipo.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     await salvar(dados);
   }
 
-  static bool _ehCategoriaPadrao(
-    String tipo,
-    String categoriaNormalizada,
-  ) {
+  static bool _ehCategoriaPadrao(String tipo, String categoriaNormalizada) {
     return CategoriasPorTipo.obter(tipo).any(
-      (categoria) =>
-          normalizarCategoria(categoria) ==
-          categoriaNormalizada,
+      (categoria) => normalizarCategoria(categoria) == categoriaNormalizada,
     );
   }
 }
