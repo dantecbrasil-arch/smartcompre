@@ -5,6 +5,8 @@ import 'package:smartcompre/screens/camera_screen.dart';
 import 'package:smartcompre/models/item_compra.dart';
 import 'listas_screen.dart';
 import '../core/constants/categorias_por_tipo.dart';
+import '../core/utils/ordenacao_alfabetica.dart';
+import '../data/catalogo/categorias_por_tipo_repository.dart';
 
 class ProdutosScreen extends StatefulWidget {
   final int listaId;
@@ -39,6 +41,22 @@ List<String> get categorias =>
       widget.tipoEstabelecimento,
     );
 
+  Future<ResultadoCategoriasOrdenadas>
+      _carregarCategoriasDisponiveis({
+    String? categoriaSelecionada,
+  }) async {
+    final categoriasPersonalizadas =
+        await CategoriasPorTipoRepository.obterCategorias(
+      widget.tipoEstabelecimento,
+    );
+
+    return combinarCategoriasOrdenadas(
+      categorias,
+      categoriasPersonalizadas,
+      categoriaSelecionada: categoriaSelecionada,
+    );
+  }
+
   double total = 0.0;
 
   final formatoMoeda = NumberFormat.currency(
@@ -54,7 +72,23 @@ List<String> get categorias =>
     }
   }
 
-  void adicionarProduto() {
+  Future<void> adicionarProduto() async {
+    final categoriaInicial =
+        categorias.isNotEmpty
+            ? categorias.first
+            : 'Outros';
+    final resultadoCategorias =
+        await _carregarCategoriasDisponiveis(
+      categoriaSelecionada: categoriaInicial,
+    );
+
+    if (!mounted) return;
+
+    final categoriasDropdown =
+        resultadoCategorias.categorias;
+    String categoriaSelecionada =
+        resultadoCategorias.categoriaSelecionada!;
+
     final nomeController = TextEditingController();
 
     final pesoController =
@@ -65,29 +99,12 @@ List<String> get categorias =>
     final quantidadeController =
         TextEditingController(text: '1');
 
-String categoriaSelecionada =
-    categorias.isNotEmpty
-        ? categorias.first
-        : 'Outros';
-
     final precoController =
         TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
-        final categoriasDropdown =
-            <String>[...categorias];
-
-        if (!categoriasDropdown.contains(
-          categoriaSelecionada,
-        )) {
-          categoriasDropdown.insert(
-            0,
-            categoriaSelecionada,
-          );
-        }
-
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
             return AlertDialog(
@@ -226,11 +243,26 @@ Navigator.pop(context);
     );
   }
 
-  void editarProduto(int index) {
+  Future<void> editarProduto(int index) async {
     final produto = produtos[index];
 
-String categoriaSelecionada =
+    final categoriaInicial =
     produto['categoria'] ?? 'Mercearia';
+
+    final resultadoCategorias =
+        await _carregarCategoriasDisponiveis(
+      categoriaSelecionada: categoriaInicial,
+    );
+
+    if (!mounted) return;
+
+    final indiceProduto = produtos.indexOf(produto);
+    if (indiceProduto == -1) return;
+
+    final categoriasDropdown =
+        resultadoCategorias.categorias;
+    String categoriaSelecionada =
+        resultadoCategorias.categoriaSelecionada!;
 
     final nomeController = TextEditingController(
       text: produto['nome'],
@@ -256,18 +288,6 @@ String categoriaSelecionada =
     showDialog(
       context: context,
       builder: (context) {
-        final categoriasDropdown =
-            <String>[...categorias];
-
-        if (!categoriasDropdown.contains(
-          categoriaSelecionada,
-        )) {
-          categoriasDropdown.insert(
-            0,
-            categoriaSelecionada,
-          );
-        }
-
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
             return AlertDialog(
@@ -368,7 +388,7 @@ String categoriaSelecionada =
 
                 setState(() {
                   
-produtos[index] = {
+                produtos[indiceProduto] = {
   'nome': nome,
   'categoria': categoriaSelecionada,
   'peso': peso,

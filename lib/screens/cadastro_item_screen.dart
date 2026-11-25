@@ -3,6 +3,7 @@ import '../models/item_compra.dart';
 import '../data/catalogo/catalogo_repository.dart';
 import '../data/catalogo/produto_catalogo.dart';
 import '../core/constants/categorias_por_tipo.dart';
+import '../core/utils/ordenacao_alfabetica.dart';
 import '../data/catalogo/categorias_por_tipo_repository.dart';
 
 class CadastroItemScreen extends StatefulWidget {
@@ -81,6 +82,7 @@ totalOcrOriginal =
   final produtoExistente =
       _catalogo.buscarProduto(
     widget.produto,
+    widget.tipoEstabelecimento,
   );
 
   if (produtoExistente != null) {
@@ -111,23 +113,18 @@ Future<void> _carregarCategorias() async {
     widget.tipoEstabelecimento,
   );
 
-  final todas = [
-    ...categoriasPadrao,
-    ...categoriasUsuario,
-  ];
-
-  todas.sort(
-    (a, b) => a
-        .toLowerCase()
-        .compareTo(
-          b.toLowerCase(),
-        ),
+  final resultado = combinarCategoriasOrdenadas(
+    categoriasPadrao,
+    categoriasUsuario,
+    categoriaSelecionada: categoriaSelecionada,
   );
 
   if (!mounted) return;
 
   setState(() {
-    categoriasDisponiveis = todas;
+    categoriasDisponiveis = resultado.categorias;
+    categoriaSelecionada =
+        resultado.categoriaSelecionada!;
   });
 }
 
@@ -155,17 +152,12 @@ void atualizarTotal() {
   @override
   Widget build(BuildContext context) {
 
-    final categoriasDropdown =
-        <String>[...categoriasDisponiveis];
-
-    if (!categoriasDropdown.contains(
-      categoriaSelecionada,
-    )) {
-      categoriasDropdown.insert(
-        0,
-        categoriaSelecionada,
-      );
-    }
+    final resultadoDropdown = combinarCategoriasOrdenadas(
+      categoriasDisponiveis,
+      const [],
+      categoriaSelecionada: categoriaSelecionada,
+    );
+    final categoriasDropdown = resultadoDropdown.categorias;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -209,7 +201,7 @@ InputDecorator(
   ),
   child: DropdownButtonHideUnderline(
     child: DropdownButton<String>(
-      value: categoriaSelecionada,
+      value: resultadoDropdown.categoriaSelecionada,
       isExpanded: true,
       items: categoriasDropdown
           .map(

@@ -12,6 +12,8 @@ class CatalogoRepository {
   CatalogoRepository._internal();
 
   final List<ProdutoCatalogo> _produtos = [];
+  final Map<ProdutoCatalogo, Map<String, dynamic>>
+      _registrosLegadosSemTipo = {};
 
   static const String _chaveCatalogo =
     'catalogo_produtos';
@@ -28,12 +30,16 @@ class CatalogoRepository {
 }
 
 
-  ProdutoCatalogo? buscarProduto(String nome) {
+  ProdutoCatalogo? buscarProduto(
+    String nome,
+    String tipoEstabelecimento,
+  ) {
     try {
       return _produtos.firstWhere(
         (p) =>
-    normalizarNome(p.nome) ==
-    normalizarNome(nome),
+            !_registrosLegadosSemTipo.containsKey(p) &&
+            p.tipoEstabelecimento == tipoEstabelecimento &&
+            normalizarNome(p.nome) == normalizarNome(nome),
 
       );
     } catch (_) {
@@ -45,10 +51,13 @@ class CatalogoRepository {
     final prefs =
         await SharedPreferences.getInstance();
 
-    final listaJson =
-        _produtos
-            .map((p) => p.toMap())
-            .toList();
+    final listaJson = _produtos
+        .map(
+          (produto) =>
+              _registrosLegadosSemTipo[produto] ??
+              produto.toMap(),
+        )
+        .toList();
 
     await prefs.setString(
       _chaveCatalogo,
@@ -75,14 +84,28 @@ class CatalogoRepository {
       jsonDecode(json) as List;
 
   _produtos.clear();
+  _registrosLegadosSemTipo.clear();
 
-  _produtos.addAll(
-    lista.map(
-      (item) => ProdutoCatalogo.fromMap(
-        Map<String, dynamic>.from(item),
-      ),
-    ),
-  );
+  for (final item in lista) {
+    final dados =
+        Map<String, dynamic>.from(item);
+    final tipo = dados['tipoEstabelecimento'];
+
+    if (tipo is! String || tipo.trim().isEmpty) {
+      final produto = ProdutoCatalogo.fromMap({
+        ...dados,
+        'tipoEstabelecimento': '',
+      });
+
+      _produtos.add(produto);
+      _registrosLegadosSemTipo[produto] = dados;
+      continue;
+    }
+
+    _produtos.add(
+      ProdutoCatalogo.fromMap(dados),
+    );
+  }
 
   debugPrint(
     'CATALOGO CARREGADO: ${_produtos.length}',
@@ -95,6 +118,9 @@ class CatalogoRepository {
 
   final index = _produtos.indexWhere(
   (p) =>
+      !_registrosLegadosSemTipo.containsKey(p) &&
+      p.tipoEstabelecimento ==
+          produto.tipoEstabelecimento &&
       normalizarNome(p.nome) ==
       normalizarNome(produto.nome),
 );
@@ -128,6 +154,7 @@ class CatalogoRepository {
 
 Future<void> limparCatalogo() async {
   _produtos.clear();
+  _registrosLegadosSemTipo.clear();
 
   final prefs =
       await SharedPreferences.getInstance();

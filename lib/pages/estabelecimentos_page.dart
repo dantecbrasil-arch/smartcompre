@@ -1,8 +1,242 @@
 import 'package:flutter/material.dart';
 
+import '../core/utils/ordenacao_alfabetica.dart';
 import '../models/estabelecimento.dart';
 import '../repositorios/estabelecimentos_repository.dart';
 import '../core/tipos_estabelecimento.dart';
+
+const Set<String> _palavrasDeLigacao = {
+  'a',
+  'as',
+  'ao',
+  'aos',
+  'com',
+  'da',
+  'das',
+  'de',
+  'do',
+  'dos',
+  'e',
+  'em',
+  'na',
+  'nas',
+  'no',
+  'nos',
+  'o',
+  'os',
+  'para',
+  'por',
+};
+
+const Map<String, String> _abreviacoesEndereco = {
+  'al': 'Al',
+  'av': 'Av',
+  'br': 'BR',
+  'cep': 'CEP',
+  'estr': 'Estr',
+  'km': 'km',
+  'nº': 'nº',
+  'r': 'R',
+  'rod': 'Rod',
+  'sn': 'S/N',
+  'trav': 'Trav',
+  'tv': 'Tv',
+};
+
+const Set<String> _siglasEstados = {
+  'ac',
+  'al',
+  'am',
+  'ap',
+  'ba',
+  'ce',
+  'df',
+  'es',
+  'go',
+  'ma',
+  'mg',
+  'ms',
+  'mt',
+  'pa',
+  'pb',
+  'pe',
+  'pi',
+  'pr',
+  'rj',
+  'rn',
+  'ro',
+  'rr',
+  'rs',
+  'sc',
+  'se',
+  'sp',
+  'to',
+};
+
+bool _ehLetraComCaixa(int rune) {
+  final caractere = String.fromCharCode(rune);
+  return caractere.toLowerCase() != caractere.toUpperCase();
+}
+
+String _letrasMinusculas(String texto) {
+  return String.fromCharCodes(
+    texto.runes.where(_ehLetraComCaixa),
+  ).toLowerCase();
+}
+
+String _substituirNucleo(
+  String palavra,
+  String substituicao,
+) {
+  final runes = palavra.runes.toList();
+  var inicio = -1;
+  var fim = -1;
+
+  for (var i = 0; i < runes.length; i++) {
+    if (_ehLetraComCaixa(runes[i])) {
+      if (inicio == -1) {
+        inicio = i;
+      }
+      fim = i;
+    }
+  }
+
+  if (inicio == -1) {
+    return palavra;
+  }
+
+  return '${String.fromCharCodes(runes.take(inicio))}'
+      '$substituicao'
+      '${String.fromCharCodes(runes.skip(fim + 1))}';
+}
+
+String _capitalizarPalavra(String palavra) {
+  final resultado = StringBuffer();
+  var capitalizarProxima = true;
+
+  for (final rune in palavra.toLowerCase().runes) {
+    final caractere = String.fromCharCode(rune);
+
+    if (caractere == '-' ||
+        caractere == "'" ||
+        caractere == '’') {
+      resultado.write(caractere);
+      capitalizarProxima = true;
+    } else if (_ehLetraComCaixa(rune)) {
+      resultado.write(
+        capitalizarProxima
+            ? caractere.toUpperCase()
+            : caractere,
+      );
+      capitalizarProxima = false;
+    } else {
+      resultado.write(caractere);
+    }
+  }
+
+  return resultado.toString();
+}
+
+String? _normalizarAbreviacaoEndereco(
+  String palavra,
+  String letras,
+) {
+  if (letras == 'al') {
+    final abreviacao =
+        palavra.contains('.')
+            ? 'Al'
+            : palavra == palavra.toUpperCase()
+            ? 'AL'
+            : 'Al';
+    return _substituirNucleo(
+      palavra,
+      abreviacao,
+    );
+  }
+
+  final abreviacao =
+      _abreviacoesEndereco[palavra.toLowerCase()] ??
+      _abreviacoesEndereco[letras] ??
+      (_siglasEstados.contains(letras)
+          ? letras.toUpperCase()
+          : null);
+
+  if (abreviacao == null) {
+    return null;
+  }
+
+  return _substituirNucleo(
+    palavra,
+    abreviacao,
+  );
+}
+
+String _normalizarTextoDeTitulo(
+  String valor, {
+  bool minusculasLigacao = false,
+  bool endereco = false,
+}) {
+  final texto = valor.trim().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+
+  if (texto.isEmpty) {
+    return '';
+  }
+
+  return texto
+      .split(' ')
+      .asMap()
+      .entries
+      .map((entrada) {
+        final palavra = entrada.value;
+        final letras = _letrasMinusculas(palavra);
+
+        if (endereco) {
+          final abreviacao =
+              _normalizarAbreviacaoEndereco(
+            palavra,
+            letras,
+          );
+
+          if (abreviacao != null) {
+            return abreviacao;
+          }
+        }
+
+        if (minusculasLigacao &&
+            entrada.key > 0 &&
+            _palavrasDeLigacao.contains(letras)) {
+          return palavra.toLowerCase();
+        }
+
+        return _capitalizarPalavra(palavra);
+      })
+      .join(' ');
+}
+
+String _normalizarNomeEstabelecimento(String valor) {
+  return _normalizarTextoDeTitulo(valor).replaceAllMapped(
+    RegExp(r'\biFood\b', caseSensitive: false),
+    (_) => 'iFood',
+  );
+}
+
+String _normalizarCidade(String valor) {
+  return _normalizarTextoDeTitulo(
+    valor,
+    minusculasLigacao: true,
+  );
+}
+
+String _normalizarEndereco(String valor) {
+  return _normalizarTextoDeTitulo(
+    valor,
+    minusculasLigacao: true,
+    endereco: true,
+  );
+}
 
 class EstabelecimentosPage extends StatefulWidget {
   const EstabelecimentosPage({
@@ -173,11 +407,19 @@ String tipoSelecionado =
                 ),
                 ElevatedButton(
   onPressed: () async {
-    if (nomeController.text
-        .trim()
-        .isEmpty) {
+                  final nomeNormalizado =
+                      _normalizarNomeEstabelecimento(
+                    nomeController.text,
+                  );
+
+                  if (nomeNormalizado.isEmpty) {
       return;
     }
+
+                  final cidadeNormalizada =
+                      _normalizarCidade(cidadeController.text);
+                  final enderecoNormalizado =
+                      _normalizarEndereco(enderecoController.text);
 
     final lista =
         await _repository.carregar();
@@ -190,9 +432,9 @@ String tipoSelecionado =
   if (index != -1) {
     lista[index] = Estabelecimento(
       id: estabelecimento.id,
-      nome: nomeController.text.trim(),
-      endereco: enderecoController.text.trim(),
-      cidade: cidadeController.text.trim(),
+      nome: nomeNormalizado,
+      endereco: enderecoNormalizado,
+      cidade: cidadeNormalizada,
       tipo: tipoSelecionado,
       placeId: estabelecimento.placeId,
       latitude: estabelecimento.latitude,
@@ -205,9 +447,9 @@ String tipoSelecionado =
       id: DateTime.now()
           .millisecondsSinceEpoch
           .toString(),
-      nome: nomeController.text.trim(),
-      endereco: enderecoController.text.trim(),
-      cidade: cidadeController.text.trim(),
+      nome: nomeNormalizado,
+      endereco: enderecoNormalizado,
+      cidade: cidadeNormalizada,
       tipo: tipoSelecionado,
     ),
   );
@@ -243,15 +485,19 @@ String tipoSelecionado =
     BuildContext context,
   ) {
     final estabelecimentosFiltrados =
-    _estabelecimentos.where((e) {
-  final texto =
-      '${e.nome} ${e.endereco} ${e.tipo}'
-          .toLowerCase();
+        ordenarAlfabeticamente(
+      _estabelecimentos.where((e) {
+        final texto =
+            '${e.nome} ${e.endereco} ${e.tipo}'
+                .toLowerCase();
 
-  return texto.contains(
-    _filtro.toLowerCase(),
-  );
-}).toList();
+        return texto.contains(
+          _filtro.toLowerCase(),
+        );
+      }),
+      (estabelecimento) => estabelecimento.nome,
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(

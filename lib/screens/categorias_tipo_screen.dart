@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/categorias_por_tipo.dart';
+import '../core/utils/categoria_normalizer.dart';
+import '../core/utils/ordenacao_alfabetica.dart';
 import '../data/catalogo/categorias_por_tipo_repository.dart';
 
 class CategoriasTipoScreen extends StatefulWidget {
@@ -44,22 +46,22 @@ Future<void> _carregarCategorias() async {
 
   if (!mounted) return;
 
-  final todas = [
-    ...categoriasPadrao,
-    ...categoriasUsuario,
-  ];
-
-  todas.sort(
-    (a, b) => a
-        .toLowerCase()
-        .compareTo(
-          b.toLowerCase(),
-        ),
+  final resultado = combinarCategoriasOrdenadas(
+    categoriasPadrao,
+    categoriasUsuario,
   );
 
   setState(() {
-    categorias = todas;
+    categorias = resultado.categorias;
   });
+}
+
+void _mostrarMensagemCategoria(String mensagem) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(mensagem),
+    ),
+  );
 }
 
   @override
@@ -121,35 +123,46 @@ Future<void> _carregarCategorias() async {
 
   if (!context.mounted) return;
 
-  if (novaCategoria == null ||
-    novaCategoria.isEmpty) {
+  if (novaCategoria == null) {
+    return;
+}
+
+final nomeNormalizado =
+    normalizarCategoria(novaCategoria);
+
+if (nomeNormalizado.isEmpty) {
+  _mostrarMensagemCategoria(
+    'O nome da categoria não pode ficar vazio.',
+  );
   return;
 }
 
 final existe = categorias.any(
-  (c) =>
-      c.toLowerCase() ==
-      novaCategoria.toLowerCase(),
+  (categoria) =>
+      normalizarCategoria(categoria) ==
+      nomeNormalizado,
 );
 
 if (existe) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(
-    const SnackBar(
-      content: Text(
-        'Categoria já existe',
-      ),
-    ),
+  _mostrarMensagemCategoria(
+    'Categoria já existe neste tipo de estabelecimento.',
   );
 
   return;
 }
 
-await CategoriasPorTipoRepository
-    .adicionarCategoria(
-  widget.tipoEstabelecimento,
-  novaCategoria,
-);
+try {
+  await CategoriasPorTipoRepository
+      .adicionarCategoria(
+    widget.tipoEstabelecimento,
+    nomeNormalizado,
+  );
+} on CategoriaRepositoryException catch (error) {
+  if (!context.mounted) return;
+
+  _mostrarMensagemCategoria(error.message);
+  return;
+}
 
 await _carregarCategorias();
 
@@ -160,7 +173,7 @@ ScaffoldMessenger.of(context)
   SnackBar(
     content: Text(
       'Categoria criada: '
-      '$novaCategoria',
+      '$nomeNormalizado',
     ),
   ),
 );
@@ -176,9 +189,13 @@ ScaffoldMessenger.of(context)
               categorias[index];
 
           final categoriaPadrao =
-    CategoriasPorTipo.obter(
-      widget.tipoEstabelecimento,
-    ).contains(categoria);
+              CategoriasPorTipo.obter(
+                widget.tipoEstabelecimento,
+              ).any(
+                (categoriaPadrao) =>
+                    normalizarCategoria(categoriaPadrao) ==
+                    normalizarCategoria(categoria),
+              );
 
 return ListTile(
   leading: const Icon(
@@ -251,17 +268,47 @@ return ListTile(
 
             if (!context.mounted) return;
 
-            if (novoNome == null ||
-                novoNome.isEmpty) {
+            if (novoNome == null) {
               return;
             }
 
-            await CategoriasPorTipoRepository
-                .editarCategoria(
-              widget.tipoEstabelecimento,
-              categoria,
-              novoNome,
-            );
+            final nomeNormalizado =
+                normalizarCategoria(novoNome);
+
+            if (nomeNormalizado.isEmpty) {
+              _mostrarMensagemCategoria(
+                'O nome da categoria não pode ficar vazio.',
+              );
+              return;
+            }
+
+            final existe = categorias.asMap().entries.any(
+                  (entry) =>
+                      entry.key != index &&
+                      normalizarCategoria(entry.value) ==
+                          nomeNormalizado,
+                );
+
+            if (existe) {
+              _mostrarMensagemCategoria(
+                'Categoria já existe neste tipo de estabelecimento.',
+              );
+              return;
+            }
+
+            try {
+              await CategoriasPorTipoRepository
+                  .editarCategoria(
+                widget.tipoEstabelecimento,
+                categoria,
+                nomeNormalizado,
+              );
+            } on CategoriaRepositoryException catch (error) {
+              if (!context.mounted) return;
+
+              _mostrarMensagemCategoria(error.message);
+              return;
+            }
 
             await _carregarCategorias();
           },
@@ -318,11 +365,18 @@ return ListTile(
               return;
             }
 
-            await CategoriasPorTipoRepository
-                .excluirCategoria(
-              widget.tipoEstabelecimento,
-              categoria,
-            );
+            try {
+              await CategoriasPorTipoRepository
+                  .excluirCategoria(
+                widget.tipoEstabelecimento,
+                categoria,
+              );
+            } on CategoriaRepositoryException catch (error) {
+              if (!context.mounted) return;
+
+              _mostrarMensagemCategoria(error.message);
+              return;
+            }
 
             await _carregarCategorias();
           },

@@ -2,6 +2,18 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/constants/categorias_por_tipo.dart';
+import '../../core/utils/categoria_normalizer.dart';
+
+class CategoriaRepositoryException implements Exception {
+  final String message;
+
+  const CategoriaRepositoryException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 class CategoriasPorTipoRepository {
   static const _key =
       'categorias_por_tipo_usuario';
@@ -54,23 +66,36 @@ class CategoriasPorTipoRepository {
     String tipo,
     String categoria,
   ) async {
+    final nomeNormalizado =
+        normalizarCategoria(categoria);
+
+    if (nomeNormalizado.isEmpty) {
+      throw const CategoriaRepositoryException(
+        'O nome da categoria não pode ficar vazio.',
+      );
+    }
+
     final dados = await carregar();
 
-    dados.putIfAbsent(tipo, () => []);
+    final categoriasDoTipo = [
+      ...CategoriasPorTipo.obter(tipo),
+      ...?dados[tipo],
+    ];
 
-    final existe = dados[tipo]!.any(
-      (c) =>
-          c.toLowerCase() ==
-          categoria.toLowerCase(),
+    final existe = categoriasDoTipo.any(
+      (c) => normalizarCategoria(c) == nomeNormalizado,
     );
 
     if (existe) {
-      return;
+      throw const CategoriaRepositoryException(
+        'Categoria já existe neste tipo de estabelecimento.',
+      );
     }
 
-    dados[tipo]!.add(categoria);
+    dados.putIfAbsent(tipo, () => []);
+    dados[tipo]!.add(nomeNormalizado);
 
-        dados[tipo]!.sort(
+    dados[tipo]!.sort(
       (a, b) => a
           .toLowerCase()
           .compareTo(
@@ -85,6 +110,19 @@ class CategoriasPorTipoRepository {
     String tipo,
     String categoria,
   ) async {
+    final nomeNormalizado =
+        normalizarCategoria(categoria);
+
+    if (nomeNormalizado.isEmpty) {
+      return;
+    }
+
+    if (_ehCategoriaPadrao(tipo, nomeNormalizado)) {
+      throw const CategoriaRepositoryException(
+        'Categorias padrão não podem ser excluídas.',
+      );
+    }
+
     final dados = await carregar();
 
     if (!dados.containsKey(tipo)) {
@@ -92,45 +130,91 @@ class CategoriasPorTipoRepository {
     }
 
     dados[tipo]!.removeWhere(
-      (c) =>
-          c.toLowerCase() ==
-          categoria.toLowerCase(),
+      (c) => normalizarCategoria(c) == nomeNormalizado,
     );
 
     await salvar(dados);
   }
+
   static Future<void> editarCategoria(
-  String tipo,
-  String antiga,
-  String nova,
-) async {
-  final dados = await carregar();
+    String tipo,
+    String antiga,
+    String nova,
+  ) async {
+    final nomeAntigoNormalizado =
+        normalizarCategoria(antiga);
+    final nomeNovoNormalizado =
+        normalizarCategoria(nova);
 
-  if (!dados.containsKey(tipo)) {
-    return;
+    if (nomeNovoNormalizado.isEmpty) {
+      throw const CategoriaRepositoryException(
+        'O nome da categoria não pode ficar vazio.',
+      );
+    }
+
+    if (_ehCategoriaPadrao(tipo, nomeAntigoNormalizado)) {
+      throw const CategoriaRepositoryException(
+        'Categorias padrão não podem ser editadas.',
+      );
+    }
+
+    final dados = await carregar();
+
+    if (!dados.containsKey(tipo)) {
+      return;
+    }
+
+    final categoriasDoTipo = dados[tipo]!;
+    final indice = categoriasDoTipo.indexWhere(
+      (categoria) =>
+          normalizarCategoria(categoria) ==
+          nomeAntigoNormalizado,
+    );
+
+    if (indice == -1) {
+      return;
+    }
+
+    if (_ehCategoriaPadrao(tipo, nomeNovoNormalizado)) {
+      throw const CategoriaRepositoryException(
+        'Categoria já existe neste tipo de estabelecimento.',
+      );
+    }
+
+    final existe = categoriasDoTipo.asMap().entries.any(
+          (entry) =>
+              entry.key != indice &&
+              normalizarCategoria(entry.value) ==
+                  nomeNovoNormalizado,
+        );
+
+    if (existe) {
+      throw const CategoriaRepositoryException(
+        'Categoria já existe neste tipo de estabelecimento.',
+      );
+    }
+
+    categoriasDoTipo[indice] = nomeNovoNormalizado;
+
+    categoriasDoTipo.sort(
+      (a, b) => a
+          .toLowerCase()
+          .compareTo(
+            b.toLowerCase(),
+          ),
+    );
+
+    await salvar(dados);
   }
 
-  final indice =
-      dados[tipo]!.indexWhere(
-    (c) =>
-        c.toLowerCase() ==
-        antiga.toLowerCase(),
-  );
-
-  if (indice == -1) {
-    return;
+  static bool _ehCategoriaPadrao(
+    String tipo,
+    String categoriaNormalizada,
+  ) {
+    return CategoriasPorTipo.obter(tipo).any(
+      (categoria) =>
+          normalizarCategoria(categoria) ==
+          categoriaNormalizada,
+    );
   }
-
-  dados[tipo]![indice] = nova;
-
-  dados[tipo]!.sort(
-    (a, b) => a
-        .toLowerCase()
-        .compareTo(
-          b.toLowerCase(),
-        ),
-  );
-
-  await salvar(dados);
-}
 }

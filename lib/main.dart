@@ -7,6 +7,36 @@ import 'data/catalogo/catalogo_repository.dart';
 import 'data/catalogo/categorias_repository.dart';
 import 'pages/estabelecimentos_page.dart';
 import 'models/estabelecimento.dart';
+import 'repositorios/estabelecimentos_repository.dart';
+
+String _normalizarNomeLista(String valor) {
+  final texto = valor
+      .trim()
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .toLowerCase();
+
+  if (texto.isEmpty) {
+    return '';
+  }
+
+  final resultado = StringBuffer();
+  var primeiraLetraCapitalizada = false;
+
+  for (final rune in texto.runes) {
+    final caractere = String.fromCharCode(rune);
+    final ehLetra =
+        caractere.toLowerCase() != caractere.toUpperCase();
+
+    if (!primeiraLetraCapitalizada && ehLetra) {
+      resultado.write(caractere.toUpperCase());
+      primeiraLetraCapitalizada = true;
+    } else {
+      resultado.write(caractere);
+    }
+  }
+
+  return resultado.toString();
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -169,22 +199,75 @@ class _HomePageState extends State<HomePage> {
                     onPressed: habilitarCriacao
     ? () async {
 
+        final estabelecimentoEscolhido =
+            estabelecimentoSelecionado;
+        Estabelecimento? estabelecimentoAtualizado;
+
+        if (estabelecimentoEscolhido != null) {
+          final estabelecimentos =
+              await EstabelecimentosRepository().carregar();
+
+          if (!context.mounted) return;
+
+          for (final estabelecimento in estabelecimentos) {
+            if (estabelecimento.id ==
+                estabelecimentoEscolhido.id) {
+              estabelecimentoAtualizado =
+                  estabelecimento;
+              break;
+            }
+          }
+
+          if (estabelecimentoAtualizado == null) {
+            setState(() {
+              estabelecimentoSelecionado = null;
+              localController.clear();
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Estabelecimento não encontrado. '
+                  'Selecione-o novamente.',
+                ),
+              ),
+            );
+            return;
+          }
+
+          setState(() {
+            estabelecimentoSelecionado =
+                estabelecimentoAtualizado;
+            localController.text =
+                estabelecimentoAtualizado!.nome;
+          });
+        }
+
+        final nomeLocal =
+            estabelecimentoAtualizado?.nome ??
+            localController.text.trim();
+        final endereco =
+            estabelecimentoAtualizado?.endereco ?? '';
+        final tipoLista =
+            estabelecimentoAtualizado?.tipo ?? '';
+        final tipoProdutos =
+            estabelecimentoAtualizado?.tipo ?? 'Outros';
+        final nomeLista =
+            _normalizarNomeLista(listaController.text);
+
         final listaId =
             DateTime.now().millisecondsSinceEpoch;
 
         ListasRepository.listasSalvas.add({
           'id': listaId,
 
-  'nomeLocal': estabelecimentoSelecionado?.nome ??
-      localController.text.trim(),
+  'nomeLocal': nomeLocal,
 
-  'endereco':
-      estabelecimentoSelecionado?.endereco ?? '',
+  'endereco': endereco,
 
-  'tipo':
-      estabelecimentoSelecionado?.tipo ?? '',
+  'tipo': tipoLista,
 
-  'nomeLista': listaController.text.trim(),
+  'nomeLista': nomeLista,
 
   'data': DateTime.now().toIso8601String(),
 
@@ -202,11 +285,9 @@ class _HomePageState extends State<HomePage> {
           MaterialPageRoute(
             builder: (_) => ProdutosScreen(
               listaId: listaId,
-              nomeLocal: localController.text.trim(),
-              nomeLista: listaController.text.trim(),
-              tipoEstabelecimento:
-                  estabelecimentoSelecionado?.tipo ??
-                  'Outros',
+              nomeLocal: nomeLocal,
+              nomeLista: nomeLista,
+              tipoEstabelecimento: tipoProdutos,
             ),
           ),
         );

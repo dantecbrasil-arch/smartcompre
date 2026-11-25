@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 import '../data/listas_repository.dart';
 import 'camera_screen.dart';
 import '../models/item_compra.dart';
-import '../data/catalogo/categorias_repository.dart';
+import '../core/constants/categorias_por_tipo.dart';
+import '../core/utils/ordenacao_alfabetica.dart';
+import '../data/catalogo/categorias_por_tipo_repository.dart';
 
 class DetalheListaScreen extends StatefulWidget {
   final Map<String, dynamic> lista;
@@ -28,6 +30,33 @@ class _DetalheListaScreenState
       (total, produto) =>
           total +
           (produto['subtotal'] as num).toDouble(),
+    );
+  }
+
+  String get _tipoEstabelecimento {
+    final tipo = widget.lista['tipo'];
+
+    if (tipo is! String || tipo.trim().isEmpty) {
+      return 'Outros';
+    }
+
+    return tipo;
+  }
+
+  Future<ResultadoCategoriasOrdenadas> _carregarCategoriasDoTipo({
+    String? categoriaSelecionada,
+  }) async {
+    final categoriasPadrao =
+        CategoriasPorTipo.obter(_tipoEstabelecimento);
+    final categoriasPersonalizadas =
+        await CategoriasPorTipoRepository.obterCategorias(
+      _tipoEstabelecimento,
+    );
+
+    return combinarCategoriasOrdenadas(
+      categoriasPadrao,
+      categoriasPersonalizadas,
+      categoriaSelecionada: categoriaSelecionada,
     );
   }
 
@@ -180,22 +209,25 @@ final precoController =
   text: produto['preco'].toString(),
 );
 
+    final resultadoCategorias =
+        await _carregarCategoriasDoTipo(
+      categoriaSelecionada: categoriaController.text,
+    );
+
+    if (!context.mounted) return;
+
+    categoriaController.text =
+        resultadoCategorias.categoriaSelecionada!;
+
     await showDialog(
       context: context,
       builder: (context) {
-        final categoriasDropdown =
-            <String>[...CategoriasRepository.categorias];
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final categoriasDropdown =
+                resultadoCategorias.categorias;
 
-        if (!categoriasDropdown.contains(
-          categoriaController.text,
-        )) {
-          categoriasDropdown.insert(
-            0,
-            categoriaController.text,
-          );
-        }
-
-        return AlertDialog(
+            return AlertDialog(
           title: const Text(
             'Editar Produto',
           ),
@@ -230,6 +262,7 @@ final precoController =
             onChanged: (valor) {
               categoriaController.text =
                   valor ?? 'Outros';
+              setDialogState(() {});
             },
           ),
         ),
@@ -357,6 +390,8 @@ final precoController =
               ),
             ),
           ],
+        );
+          },
         );
       },
     );
@@ -532,13 +567,32 @@ label: const Text(
 
     Expanded(
       child: ElevatedButton.icon(
-        onPressed: () {
+        onPressed: () async {
+  final categoriasSemSelecao =
+      await _carregarCategoriasDoTipo();
+
+  if (!context.mounted) return;
+
+  final categoriaInicial =
+      categoriasSemSelecao.categorias.contains('Outros')
+          ? 'Outros'
+          : CategoriasPorTipo.obter(
+              _tipoEstabelecimento,
+            ).first;
+  final resultadoCategorias = combinarCategoriasOrdenadas(
+    categoriasSemSelecao.categorias,
+    const [],
+    categoriaSelecionada: categoriaInicial,
+  );
+  final categoriasDropdown =
+      resultadoCategorias.categorias;
+
   final nomeController =
       TextEditingController();
 
   final categoriaController =
       TextEditingController(
-    text: 'Outros',
+    text: resultadoCategorias.categoriaSelecionada!,
   );
 
   final pesoController =
@@ -555,10 +609,9 @@ label: const Text(
   showDialog(
     context: context,
     builder: (context) {
-      final categoriasDropdown =
-          <String>[...CategoriasRepository.categorias];
-
-      return AlertDialog(
+      return StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
         title: const Text(
           'Adicionar Produto',
         ),
@@ -595,6 +648,7 @@ label: const Text(
                     onChanged: (valor) {
                       categoriaController.text =
                           valor ?? 'Outros';
+                      setDialogState(() {});
                     },
                   ),
                 ),
@@ -720,6 +774,8 @@ label: const Text(
                 const Text('Salvar'),
           ),
         ],
+      );
+        },
       );
     },
   );
