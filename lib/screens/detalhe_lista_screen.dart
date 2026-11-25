@@ -79,6 +79,12 @@ class _DetalheListaScreenState
     final formatoData = DateFormat(
       'dd/MM/yyyy',
     );
+    final valorData = widget.lista['data'];
+    final dataCriacao = valorData is DateTime
+        ? valorData
+        : valorData is String
+            ? DateTime.tryParse(valorData.trim())
+            : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -129,7 +135,7 @@ Column(
 const SizedBox(height: 6),
 
 Text(
-  '📅 ${formatoData.format(DateTime.parse(widget.lista['data']))}',
+  '📅 ${dataCriacao == null ? 'Data não informada' : formatoData.format(dataCriacao)}',
   style: const TextStyle(
     fontSize: 16,
   ),

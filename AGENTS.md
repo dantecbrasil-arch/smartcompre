@@ -35,3 +35,14 @@ Desenvolver e aprimorar o aplicativo SmartCompre para Android.
 ## Segurança
 O projeto possui uma cópia de backup.
 Preservar o projeto original e trabalhar com alterações pequenas e verificáveis.
+
+## Documentação do produto
+- Manter a documentação pública e a documentação interna separadas: `docs/MANUAL_DO_USUARIO.md` é o manual público e a fonte única do conteúdo exibido no aplicativo; `docs/ROADMAP_DO_PROJETO.md` é o planejamento interno.
+- O manual deve conter somente funcionalidades disponíveis, instruções de uso, regras observáveis pelo usuário, limitações conhecidas e histórico verificável. Não incluir nele ideias, planejamento ou detalhes estratégicos futuros.
+- A tela do aplicativo deve carregar exclusivamente `docs/MANUAL_DO_USUARIO.md`. Nunca incluir o roadmap como asset nem apresentá-lo na interface do usuário.
+- Antes de alterar uma funcionalidade, consultar o manual para entender e preservar o comportamento documentado e consultar o roadmap quando a mudança se relacionar a uma proposta futura.
+- Ao criar, modificar ou remover uma funcionalidade, atualizar o manual na mesma etapa, incluindo o que mudou e as regras automáticas relevantes.
+- Atualizar o roadmap conforme o andamento. Manter as propostas futuras no documento interno; só movê-las para o manual depois de confirmar a implementação e validação.
+- No roadmap, identificar claramente ideias registradas, funcionalidades planejadas, itens em desenvolvimento, itens aguardando aprovação e itens implementados. Uma ideia ou fase proposta não é autorização para desenvolver.
+- Nunca marcar uma funcionalidade como concluída sem verificar o código e executar as validações pertinentes.
+- Registrar no histórico somente commits que já existam, com a data, a descrição e o hash real. Não antecipar nem inventar hashes para alterações sem commit.

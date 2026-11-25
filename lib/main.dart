@@ -8,6 +8,7 @@ import 'data/catalogo/categorias_repository.dart';
 import 'pages/estabelecimentos_page.dart';
 import 'models/estabelecimento.dart';
 import 'repositorios/estabelecimentos_repository.dart';
+import 'screens/manual_usuario_screen.dart';
 
 String _normalizarNomeLista(String valor) {
   final texto = valor
@@ -346,6 +347,28 @@ class _HomePageState extends State<HomePage> {
                      style: TextStyle(
                        fontSize: 22,
                      ),
+                   ),
+                 ),
+               ),
+
+               const SizedBox(height: 20),
+
+               SizedBox(
+                 width: 250,
+                 height: 60,
+                 child: ElevatedButton(
+                   onPressed: () {
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(
+                         builder: (_) =>
+                             const ManualUsuarioScreen(),
+                       ),
+                     );
+                   },
+                   child: const Text(
+                     'Ajuda / Manual do Usuário',
+                     textAlign: TextAlign.center,
                    ),
                  ),
                ),
