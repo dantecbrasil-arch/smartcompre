@@ -11,10 +11,7 @@ import 'repositorios/estabelecimentos_repository.dart';
 import 'screens/manual_usuario_screen.dart';
 
 String _normalizarNomeLista(String valor) {
-  final texto = valor
-      .trim()
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .toLowerCase();
+  final texto = valor.trim().replaceAll(RegExp(r'\s+'), ' ').toLowerCase();
 
   if (texto.isEmpty) {
     return '';
@@ -25,8 +22,7 @@ String _normalizarNomeLista(String valor) {
 
   for (final rune in texto.runes) {
     final caractere = String.fromCharCode(rune);
-    final ehLetra =
-        caractere.toLowerCase() != caractere.toUpperCase();
+    final ehLetra = caractere.toLowerCase() != caractere.toUpperCase();
 
     if (!primeiraLetraCapitalizada && ehLetra) {
       resultado.write(caractere.toUpperCase());
@@ -44,12 +40,11 @@ Future<void> main() async {
 
   await ListasRepository.carregarListas();
 
-await CatalogoRepository.instance
-    .carregarCatalogo();
+  await CatalogoRepository.instance.carregarCatalogo();
 
-await CategoriasRepository.carregar();
+  await CategoriasRepository.carregar();
 
-runApp(const SmartCompreApp());
+  runApp(const SmartCompreApp());
 }
 
 class SmartCompreApp extends StatelessWidget {
@@ -60,9 +55,7 @@ class SmartCompreApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SmartCompre',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
+      theme: ThemeData(primarySwatch: Colors.green),
       home: const HomePage(),
     );
   }
@@ -76,12 +69,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController localController =
-      TextEditingController();
+  final TextEditingController localController = TextEditingController();
 
-  final TextEditingController listaController =
-      TextEditingController();
-      Estabelecimento? estabelecimentoSelecionado;
+  final TextEditingController listaController = TextEditingController();
+  Estabelecimento? estabelecimentoSelecionado;
+
+  void _limparFormularioLista() {
+    setState(() {
+      localController.clear();
+      listaController.clear();
+      estabelecimentoSelecionado = null;
+    });
+  }
 
   @override
   void dispose() {
@@ -97,31 +96,21 @@ class _HomePageState extends State<HomePage> {
         listaController.text.trim().isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SmartCompre'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('SmartCompre'), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                const Icon(
-                  Icons.shopping_cart,
-                  size: 130,
-                  color: Colors.green,
-                ),
+                const Icon(Icons.shopping_cart, size: 130, color: Colors.green),
 
                 const SizedBox(height: 20),
 
                 const Text(
                   'Bem-vindo ao SmartCompre',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 30),
@@ -131,51 +120,41 @@ class _HomePageState extends State<HomePage> {
                   readOnly: true,
                   decoration: const InputDecoration(
                     labelText: 'Estabelecimento',
-                     border: OutlineInputBorder(),
-                     prefixIcon: Icon(Icons.store),
-                     suffixIcon: Icon(Icons.arrow_drop_down),
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.store),
+                    suffixIcon: Icon(Icons.arrow_drop_down),
                   ),
                   onTap: () async {
                     final estabelecimento =
                         await Navigator.push<Estabelecimento>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            const EstabelecimentosPage(),
-                      ),
-                    );
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EstabelecimentosPage(),
+                          ),
+                        );
 
                     if (estabelecimento != null) {
                       setState(() {
-                        estabelecimentoSelecionado =
-                            estabelecimento;
+                        estabelecimentoSelecionado = estabelecimento;
 
-                        localController.text =
-                            estabelecimento.nome;
+                        localController.text = estabelecimento.nome;
                       });
                     }
                   },
-                  ),
+                ),
 
-                  if (estabelecimentoSelecionado != null)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 8,
-                        left: 12,
-                        bottom: 8,
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '📍 ${estabelecimentoSelecionado!.endereco}\n'
-                          '🏷 ${estabelecimentoSelecionado!.tipo}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
+                if (estabelecimentoSelecionado != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 12, bottom: 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '📍 ${estabelecimentoSelecionado!.endereco}\n'
+                        '🏷 ${estabelecimentoSelecionado!.tipo}',
+                        style: const TextStyle(color: Colors.grey),
                       ),
                     ),
-
+                  ),
 
                 const SizedBox(height: 15),
 
@@ -198,107 +177,131 @@ class _HomePageState extends State<HomePage> {
                   height: 60,
                   child: ElevatedButton(
                     onPressed: habilitarCriacao
-    ? () async {
+                        ? () async {
+                            final estabelecimentoEscolhido =
+                                estabelecimentoSelecionado;
+                            Estabelecimento? estabelecimentoAtualizado;
 
-        final estabelecimentoEscolhido =
-            estabelecimentoSelecionado;
-        Estabelecimento? estabelecimentoAtualizado;
+                            if (estabelecimentoEscolhido != null) {
+                              final estabelecimentos =
+                                  await EstabelecimentosRepository().carregar();
 
-        if (estabelecimentoEscolhido != null) {
-          final estabelecimentos =
-              await EstabelecimentosRepository().carregar();
+                              if (!context.mounted) return;
 
-          if (!context.mounted) return;
+                              for (final estabelecimento in estabelecimentos) {
+                                if (estabelecimento.id ==
+                                    estabelecimentoEscolhido.id) {
+                                  estabelecimentoAtualizado = estabelecimento;
+                                  break;
+                                }
+                              }
 
-          for (final estabelecimento in estabelecimentos) {
-            if (estabelecimento.id ==
-                estabelecimentoEscolhido.id) {
-              estabelecimentoAtualizado =
-                  estabelecimento;
-              break;
-            }
-          }
+                              if (estabelecimentoAtualizado == null) {
+                                setState(() {
+                                  estabelecimentoSelecionado = null;
+                                  localController.clear();
+                                });
 
-          if (estabelecimentoAtualizado == null) {
-            setState(() {
-              estabelecimentoSelecionado = null;
-              localController.clear();
-            });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Estabelecimento não encontrado. '
+                                      'Selecione-o novamente.',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Estabelecimento não encontrado. '
-                  'Selecione-o novamente.',
-                ),
-              ),
-            );
-            return;
-          }
+                              setState(() {
+                                estabelecimentoSelecionado =
+                                    estabelecimentoAtualizado;
+                                localController.text =
+                                    estabelecimentoAtualizado!.nome;
+                              });
+                            }
 
-          setState(() {
-            estabelecimentoSelecionado =
-                estabelecimentoAtualizado;
-            localController.text =
-                estabelecimentoAtualizado!.nome;
-          });
-        }
+                            final nomeLocal =
+                                estabelecimentoAtualizado?.nome ??
+                                localController.text.trim();
+                            final endereco =
+                                estabelecimentoAtualizado?.endereco ?? '';
+                            final tipoLista =
+                                estabelecimentoAtualizado?.tipo ?? '';
+                            final tipoProdutos =
+                                estabelecimentoAtualizado?.tipo ?? 'Outros';
+                            final nomeLista = _normalizarNomeLista(
+                              listaController.text,
+                            );
 
-        final nomeLocal =
-            estabelecimentoAtualizado?.nome ??
-            localController.text.trim();
-        final endereco =
-            estabelecimentoAtualizado?.endereco ?? '';
-        final tipoLista =
-            estabelecimentoAtualizado?.tipo ?? '';
-        final tipoProdutos =
-            estabelecimentoAtualizado?.tipo ?? 'Outros';
-        final nomeLista =
-            _normalizarNomeLista(listaController.text);
+                            final listaId =
+                                DateTime.now().millisecondsSinceEpoch;
 
-        final listaId =
-            DateTime.now().millisecondsSinceEpoch;
+                            ListasRepository.listasSalvas.add({
+                              'id': listaId,
 
-        ListasRepository.listasSalvas.add({
-          'id': listaId,
+                              'nomeLocal': nomeLocal,
 
-  'nomeLocal': nomeLocal,
+                              'endereco': endereco,
 
-  'endereco': endereco,
+                              'tipo': tipoLista,
 
-  'tipo': tipoLista,
+                              'nomeLista': nomeLista,
 
-  'nomeLista': nomeLista,
+                              'data': DateTime.now().toIso8601String(),
 
-  'data': DateTime.now().toIso8601String(),
+                              'total': 0.0,
 
-  'total': 0.0,
+                              'produtos': [],
+                            });
 
-  'produtos': [],
-});
+                            await ListasRepository.salvarListas();
 
-        await ListasRepository.salvarListas();
+                            if (!context.mounted) return;
 
-        if (!context.mounted) return;
+                            await Navigator.push<void>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProdutosScreen(
+                                  listaId: listaId,
+                                  nomeLocal: nomeLocal,
+                                  nomeLista: nomeLista,
+                                  tipoEstabelecimento: tipoProdutos,
+                                ),
+                              ),
+                            );
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ProdutosScreen(
-              listaId: listaId,
-              nomeLocal: nomeLocal,
-              nomeLista: nomeLista,
-              tipoEstabelecimento: tipoProdutos,
-            ),
-          ),
-        );
-      }
-    : null,
+                            if (!mounted) return;
+
+                            _limparFormularioLista();
+                          }
+                        : null,
                     child: const Text(
                       '🛒 Criar Lista',
-                      style: TextStyle(
-                        fontSize: 22,
-                      ),
+                      style: TextStyle(fontSize: 22),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                SizedBox(
+                  width: 250,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await Navigator.push<void>(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ListasScreen()),
+                      );
+
+                      if (!mounted) return;
+
+                      _limparFormularioLista();
+                    },
+                    child: const Text(
+                      '📋 Minhas Listas',
+                      style: TextStyle(fontSize: 22),
                     ),
                   ),
                 ),
@@ -313,65 +316,37 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              const ListasScreen(),
+                          builder: (_) => const CategoriasScreen(),
                         ),
                       );
                     },
                     child: const Text(
-                      '📋 Minhas Listas',
-                      style: TextStyle(
-                        fontSize: 22,
-                      ),
+                      '⚙ Categorias',
+                      style: TextStyle(fontSize: 22),
                     ),
                   ),
                 ),
 
-               const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-               SizedBox(
-                 width: 250,
-                 height: 60,
-                 child: ElevatedButton(
-                   onPressed: () {
-                     Navigator.push(
-                       context,
-                       MaterialPageRoute(
-                         builder: (_) =>
-                             const CategoriasScreen(),
+                SizedBox(
+                  width: 250,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ManualUsuarioScreen(),
                         ),
                       );
-                   },
-                   child: const Text(
-                     '⚙ Categorias',
-                     style: TextStyle(
-                       fontSize: 22,
-                     ),
-                   ),
-                 ),
-               ),
-
-               const SizedBox(height: 20),
-
-               SizedBox(
-                 width: 250,
-                 height: 60,
-                 child: ElevatedButton(
-                   onPressed: () {
-                     Navigator.push(
-                       context,
-                       MaterialPageRoute(
-                         builder: (_) =>
-                             const ManualUsuarioScreen(),
-                       ),
-                     );
-                   },
-                   child: const Text(
-                     'Ajuda / Manual do Usuário',
-                     textAlign: TextAlign.center,
-                   ),
-                 ),
-               ),
+                    },
+                    child: const Text(
+                      'Ajuda / Manual do Usuário',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

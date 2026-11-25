@@ -84,6 +84,8 @@ A tela inicia no período Mês atual. Também é possível escolher diretamente 
 ## Regras automáticas do aplicativo
 
 - **Nome da lista:** ao salvar, remove espaços no início e no fim, reduz sequências de espaços a um só, converte o texto para minúsculas e deixa maiúscula a primeira letra da frase. Acentos e caracteres especiais são preservados.
+- **Nome do produto digitado manualmente:** ao salvar uma inclusão ou edição manual, reduz espaços redundantes e coloca cada palavra em formato de título, preservando acentos. O texto identificado por OCR não recebe essa transformação.
+- **Categoria de produto novo incluído manualmente:** ao salvar, usa a normalização existente para deixar a primeira letra maiúscula, as demais minúsculas e preservar acentos. Categorias de produtos já salvos não são migradas automaticamente.
 - **Estabelecimentos:** ao salvar, remove espaços nas extremidades e reduz espaços repetidos. Nomes, cidades e endereços têm capitalização própria; “iFood” e abreviações de endereço recebem tratamento específico, e palavras de ligação ficam minúsculas em cidades e endereços, exceto no início.
 - **Categorias:** ao criar uma categoria personalizada, remove espaços nas extremidades, reduz espaços repetidos, converte o texto para minúsculas e deixa maiúscula a primeira letra da frase. As opções são separadas por tipo de estabelecimento. A lista apresentada combina categorias padrão e personalizadas, elimina duplicidades equivalentes por espaços e caixa e ordena sem diferenciar acentos. Essa operação de interface não modifica os dados persistidos.
 - **Total do produto:** quando há peso maior que zero, o subtotal é calculado como peso multiplicado pelo preço unitário; caso contrário, usa quantidade multiplicada pelo preço unitário.

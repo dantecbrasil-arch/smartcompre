@@ -5,6 +5,8 @@ import 'package:smartcompre/screens/camera_screen.dart';
 import 'package:smartcompre/models/item_compra.dart';
 import 'listas_screen.dart';
 import '../core/constants/categorias_por_tipo.dart';
+import '../core/utils/categoria_normalizer.dart';
+import '../core/utils/nome_produto_manual_normalizer.dart';
 import '../core/utils/ordenacao_alfabetica.dart';
 import '../data/catalogo/categorias_por_tipo_repository.dart';
 
@@ -25,30 +27,24 @@ class ProdutosScreen extends StatefulWidget {
   });
 
   @override
-  State<ProdutosScreen> createState() =>
-      _ProdutosScreenState();
+  State<ProdutosScreen> createState() => _ProdutosScreenState();
 }
 
-class _ProdutosScreenState
-    extends State<ProdutosScreen> {
-
+class _ProdutosScreenState extends State<ProdutosScreen> {
   final List<Map<String, dynamic>> produtos = [];
 
   String filtroBusca = '';
 
-List<String> get categorias =>
-    CategoriasPorTipo.obter(
-      widget.tipoEstabelecimento,
-    );
+  List<String> get categorias =>
+      CategoriasPorTipo.obter(widget.tipoEstabelecimento);
 
-  Future<ResultadoCategoriasOrdenadas>
-      _carregarCategoriasDisponiveis({
+  Future<ResultadoCategoriasOrdenadas> _carregarCategoriasDisponiveis({
     String? categoriaSelecionada,
   }) async {
     final categoriasPersonalizadas =
         await CategoriasPorTipoRepository.obterCategorias(
-      widget.tipoEstabelecimento,
-    );
+          widget.tipoEstabelecimento,
+        );
 
     return combinarCategoriasOrdenadas(
       categorias,
@@ -59,10 +55,7 @@ List<String> get categorias =>
 
   double total = 0.0;
 
-  final formatoMoeda = NumberFormat.currency(
-    locale: 'pt_BR',
-    symbol: 'R\$ ',
-  );
+  final formatoMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$ ');
 
   void recalcularTotal() {
     total = 0;
@@ -73,34 +66,25 @@ List<String> get categorias =>
   }
 
   Future<void> adicionarProduto() async {
-    final categoriaInicial =
-        categorias.isNotEmpty
-            ? categorias.first
-            : 'Outros';
-    final resultadoCategorias =
-        await _carregarCategoriasDisponiveis(
+    final categoriaInicial = categorias.isNotEmpty
+        ? categorias.first
+        : 'Outros';
+    final resultadoCategorias = await _carregarCategoriasDisponiveis(
       categoriaSelecionada: categoriaInicial,
     );
 
     if (!mounted) return;
 
-    final categoriasDropdown =
-        resultadoCategorias.categorias;
-    String categoriaSelecionada =
-        resultadoCategorias.categoriaSelecionada!;
+    final categoriasDropdown = resultadoCategorias.categorias;
+    String categoriaSelecionada = resultadoCategorias.categoriaSelecionada!;
 
     final nomeController = TextEditingController();
 
-    final pesoController =
-        TextEditingController(
-          text: '0',
-        );
+    final pesoController = TextEditingController(text: '0');
 
-    final quantidadeController =
-        TextEditingController(text: '1');
+    final quantidadeController = TextEditingController(text: '1');
 
-    final precoController =
-        TextEditingController();
+    final precoController = TextEditingController();
 
     showDialog(
       context: context,
@@ -112,129 +96,115 @@ List<String> get categorias =>
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-              TextField(
-                controller: nomeController,
-                decoration: const InputDecoration(
-                  labelText: 'Nome do Produto',
-                ),
-              ),
-              TextField(
-                controller: pesoController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Peso (kg)',
-              ),
-            ),
-              TextField(
-                controller: quantidadeController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Quantidade',
-                ),
-              ),
-              InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Categoria',
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: categoriaSelecionada,
-                    isExpanded: true,
-                    items: categoriasDropdown.map((categoria) {
-                      return DropdownMenuItem(
-                        value: categoria,
-                        child: Text(categoria),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value == null) return;
-
-                      setDialogState(() {
-                        categoriaSelecionada = value;
-                      });
-                    },
+                  TextField(
+                    controller: nomeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nome do Produto',
+                    ),
                   ),
-                ),
-              ),
-              TextField(
-                controller: precoController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Preço Unitário',
-                ),
-              ),
+                  TextField(
+                    controller: pesoController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Peso (kg)'),
+                  ),
+                  TextField(
+                    controller: quantidadeController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Quantidade'),
+                  ),
+                  InputDecorator(
+                    decoration: const InputDecoration(labelText: 'Categoria'),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: categoriaSelecionada,
+                        isExpanded: true,
+                        items: categoriasDropdown.map((categoria) {
+                          return DropdownMenuItem(
+                            value: categoria,
+                            child: Text(categoria),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value == null) return;
+
+                          setDialogState(() {
+                            categoriaSelecionada = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  TextField(
+                    controller: precoController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Preço Unitário',
+                    ),
+                  ),
                 ],
               ),
               actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final nome = nomeController.text;
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final nome = normalizarNomeProdutoManual(
+                      nomeController.text,
+                    );
 
-                final quantidade =
-                    int.tryParse(
-                          quantidadeController.text,
+                    final quantidade =
+                        int.tryParse(quantidadeController.text) ?? 1;
+
+                    final textoPreco = precoController.text
+                        .replaceAll('.', '')
+                        .replaceAll(',', '.');
+
+                    final preco = double.tryParse(textoPreco) ?? 0.0;
+
+                    final peso =
+                        double.tryParse(
+                          pesoController.text.replaceAll(',', '.'),
                         ) ??
-                        1;
+                        0;
 
-                final textoPreco = precoController.text
-                    .replaceAll('.', '')
-                    .replaceAll(',', '.');
-
-                final preco =
-                    double.tryParse(textoPreco) ?? 0.0;
-                  
-                final peso =
-                    double.tryParse(
-                      pesoController.text
-                          .replaceAll(',', '.'),
-                    ) ??
-                    0;
-
-                final subtotal =
-                    peso > 0
+                    final subtotal = peso > 0
                         ? peso * preco
                         : quantidade * preco;
 
-                setState(() {
-  produtos.add({
-    'nome': nome,
-    'categoria': categoriaSelecionada,
-    'peso': peso,
-    'quantidade': quantidade,
-    'preco': preco,
-    'subtotal': subtotal,
-  });
+                    setState(() {
+                      produtos.add({
+                        'nome': nome,
+                        'categoria': normalizarCategoria(categoriaSelecionada),
+                        'peso': peso,
+                        'quantidade': quantidade,
+                        'preco': preco,
+                        'subtotal': subtotal,
+                      });
 
-  recalcularTotal();
-});
+                      recalcularTotal();
+                    });
 
-final indiceLista =
-    ListasRepository.listasSalvas.indexWhere(
-  (lista) =>
-      lista['id'] ==
-      widget.listaId,
-);
+                    final indiceLista = ListasRepository.listasSalvas
+                        .indexWhere((lista) => lista['id'] == widget.listaId);
 
-if (indiceLista != -1) {
-  ListasRepository.listasSalvas[indiceLista]
-      ['produtos'] = produtos;
+                    if (indiceLista != -1) {
+                      ListasRepository.listasSalvas[indiceLista]['produtos'] =
+                          produtos;
 
-  ListasRepository.listasSalvas[indiceLista]
-      ['total'] = total;
+                      ListasRepository.listasSalvas[indiceLista]['total'] =
+                          total;
 
-  await ListasRepository.salvarListas();
-}
+                      await ListasRepository.salvarListas();
+                    }
 
-if (!context.mounted) return;
+                    if (!context.mounted) return;
 
-Navigator.pop(context);
-              },
-              child: const Text('Adicionar'),
-            ),
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Adicionar'),
+                ),
               ],
             );
           },
@@ -246,11 +216,9 @@ Navigator.pop(context);
   Future<void> editarProduto(int index) async {
     final produto = produtos[index];
 
-    final categoriaInicial =
-    produto['categoria'] ?? 'Mercearia';
+    final categoriaInicial = produto['categoria'] ?? 'Mercearia';
 
-    final resultadoCategorias =
-        await _carregarCategoriasDisponiveis(
+    final resultadoCategorias = await _carregarCategoriasDisponiveis(
       categoriaSelecionada: categoriaInicial,
     );
 
@@ -259,31 +227,22 @@ Navigator.pop(context);
     final indiceProduto = produtos.indexOf(produto);
     if (indiceProduto == -1) return;
 
-    final categoriasDropdown =
-        resultadoCategorias.categorias;
-    String categoriaSelecionada =
-        resultadoCategorias.categoriaSelecionada!;
+    final categoriasDropdown = resultadoCategorias.categorias;
+    String categoriaSelecionada = resultadoCategorias.categoriaSelecionada!;
 
-    final nomeController = TextEditingController(
-      text: produto['nome'],
-    );
+    final nomeController = TextEditingController(text: produto['nome']);
 
-    final quantidadeController =
-        TextEditingController(
+    final quantidadeController = TextEditingController(
       text: produto['quantidade'].toString(),
     );
 
-    final precoController =
-        TextEditingController(
-      text: produto['preco']
-          .toStringAsFixed(2)
-          .replaceAll('.', ','),
+    final precoController = TextEditingController(
+      text: produto['preco'].toStringAsFixed(2).replaceAll('.', ','),
     );
 
-    final pesoController =
-        TextEditingController(
+    final pesoController = TextEditingController(
       text: (produto['peso'] ?? 0).toString(),
-   );
+    );
 
     showDialog(
       context: context,
@@ -295,137 +254,118 @@ Navigator.pop(context);
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-               TextField(
-                 controller: pesoController,
-                 keyboardType: const TextInputType.numberWithOptions(
-                   decimal: true,
+                  TextField(
+                    controller: pesoController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(labelText: 'Peso (kg)'),
                   ),
-                  decoration: const InputDecoration(
-                    labelText: 'Peso (kg)',
+
+                  TextField(
+                    controller: nomeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nome do Produto',
+                    ),
                   ),
-                ),
 
-              TextField(
-                controller: nomeController,
-                decoration: const InputDecoration(
-                  labelText: 'Nome do Produto',
-                ),
-              ),
+                  InputDecorator(
+                    decoration: const InputDecoration(labelText: 'Categoria'),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: categoriaSelecionada,
+                        isExpanded: true,
+                        items: categoriasDropdown.map((categoria) {
+                          return DropdownMenuItem(
+                            value: categoria,
+                            child: Text(categoria),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value == null) return;
 
-              InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Categoria',
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: categoriaSelecionada,
-                    isExpanded: true,
-                    items: categoriasDropdown.map((categoria) {
-                      return DropdownMenuItem(
-                        value: categoria,
-                        child: Text(categoria),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value == null) return;
-
-                      setDialogState(() {
-                        categoriaSelecionada = value;
-                      });
-                    },
+                          setDialogState(() {
+                            categoriaSelecionada = value;
+                          });
+                        },
+                      ),
+                    ),
                   ),
-                ),
-              ),
 
-              TextField(
-                controller: quantidadeController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Quantidade',
-                ),
-              ),
-              TextField(
-                controller: precoController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Preço Unitário',
-                ),
-              ),
+                  TextField(
+                    controller: quantidadeController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Quantidade'),
+                  ),
+                  TextField(
+                    controller: precoController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Preço Unitário',
+                    ),
+                  ),
                 ],
               ),
               actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final nome = nomeController.text;
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final nome = normalizarNomeProdutoManual(
+                      nomeController.text,
+                    );
 
-                final quantidade =
-                    int.tryParse(
-                          quantidadeController.text,
+                    final quantidade =
+                        int.tryParse(quantidadeController.text) ?? 1;
+
+                    final textoPreco = precoController.text
+                        .replaceAll('.', '')
+                        .replaceAll(',', '.');
+
+                    final preco = double.tryParse(textoPreco) ?? 0.0;
+
+                    final peso =
+                        double.tryParse(
+                          pesoController.text.replaceAll(',', '.'),
                         ) ??
-                        1;
+                        0;
+                    final subtotal = peso > 0
+                        ? peso * preco
+                        : quantidade * preco;
 
-                final textoPreco = precoController.text
-                    .replaceAll('.', '')
-                    .replaceAll(',', '.');
+                    setState(() {
+                      produtos[indiceProduto] = {
+                        'nome': nome,
+                        'categoria': categoriaSelecionada,
+                        'peso': peso,
+                        'quantidade': quantidade,
+                        'preco': preco,
+                        'subtotal': subtotal,
+                      };
+                      recalcularTotal();
+                    });
 
-                final preco =
-                    double.tryParse(textoPreco) ?? 0.0;
+                    final indiceLista = ListasRepository.listasSalvas
+                        .indexWhere((lista) => lista['id'] == widget.listaId);
 
-                final peso =
-                    double.tryParse(
-                      pesoController.text
-                          .replaceAll(',', '.'),
-                    ) ??
-                    0;
-                final subtotal =
-                    peso > 0
-                         ? peso * preco
-                         : quantidade * preco;
+                    if (indiceLista != -1) {
+                      ListasRepository.listasSalvas[indiceLista]['produtos'] =
+                          List<Map<String, dynamic>>.from(produtos);
 
-                setState(() {
-                  
-                produtos[indiceProduto] = {
-  'nome': nome,
-  'categoria': categoriaSelecionada,
-  'peso': peso,
-  'quantidade': quantidade,
-  'preco': preco,
-  'subtotal': subtotal,
-};
-                  recalcularTotal();
-                });
+                      ListasRepository.listasSalvas[indiceLista]['total'] =
+                          total;
 
-                final indiceLista =
-                    ListasRepository.listasSalvas.indexWhere(
-                  (lista) =>
-                      lista['id'] ==
-                      widget.listaId,
-                );
+                      await ListasRepository.salvarListas();
+                    }
 
-                if (indiceLista != -1) {
-                  ListasRepository
-                      .listasSalvas[indiceLista]['produtos'] =
-                      List<Map<String, dynamic>>.from(produtos);
+                    if (!context.mounted) return;
 
-                  ListasRepository
-                      .listasSalvas[indiceLista]['total'] =
-                      total;
-
-                  await ListasRepository.salvarListas();
-                }
-
-                if (!context.mounted) return;
-
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Salvar Alterações',
-              ),
-            ),
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Salvar Alterações'),
+                ),
               ],
             );
           },
@@ -440,9 +380,7 @@ Navigator.pop(context);
       builder: (context) {
         return AlertDialog(
           title: const Text('Excluir Produto'),
-          content: Text(
-            'Deseja excluir ${produtos[index]['nome']}?',
-          ),
+          content: Text('Deseja excluir ${produtos[index]['nome']}?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -458,21 +396,15 @@ Navigator.pop(context);
                   recalcularTotal();
                 });
 
-                final indiceLista =
-                    ListasRepository.listasSalvas.indexWhere(
-                  (lista) =>
-                      lista['id'] ==
-                      widget.listaId,
+                final indiceLista = ListasRepository.listasSalvas.indexWhere(
+                  (lista) => lista['id'] == widget.listaId,
                 );
 
                 if (indiceLista != -1) {
-                  ListasRepository
-                      .listasSalvas[indiceLista]['produtos'] =
+                  ListasRepository.listasSalvas[indiceLista]['produtos'] =
                       List<Map<String, dynamic>>.from(produtos);
 
-                  ListasRepository
-                      .listasSalvas[indiceLista]['total'] =
-                      total;
+                  ListasRepository.listasSalvas[indiceLista]['total'] = total;
 
                   await ListasRepository.salvarListas();
                 }
@@ -489,330 +421,268 @@ Navigator.pop(context);
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-
-final produtosFiltrados =
-    produtos.where((produto) {
-  return produto['nome']
-      .toLowerCase()
-      .contains(filtroBusca);
-}).toList();
+    final produtosFiltrados = produtos.where((produto) {
+      return produto['nome'].toLowerCase().contains(filtroBusca);
+    }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('🛒 Cadastro de Produtos'),
-      ),
+      appBar: AppBar(title: const Text('🛒 Cadastro de Produtos')),
       body: SafeArea(
-  child: Padding(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-
-        Text(
-  widget.nomeLista,
-  style: const TextStyle(
-    fontSize: 24,
-    fontWeight: FontWeight.bold,
-  ),
-),
-
-const SizedBox(height: 8),
-
-Text(
-  '📍 ${widget.nomeLocal}',
-  style: const TextStyle(
-    fontSize: 16,
-    color: Colors.grey,
-  ),
-),
-
-const SizedBox(height: 20),
-        
-
-        Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'Produtos Adicionados',
-                style: TextStyle(
-                  fontSize: 18,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.nomeLista,
+                style: const TextStyle(
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
 
-            if (filtroBusca.isNotEmpty)
-              TextButton.icon(
-                onPressed: () {
-                  setState(() {
-                    filtroBusca = '';
-                  });
-                },
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Voltar'),
+              const SizedBox(height: 8),
+
+              Text(
+                '📍 ${widget.nomeLocal}',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
 
-            TextButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text(
-                        'Buscar Produto',
+              const SizedBox(height: 20),
+
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Produtos Adicionados',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      content: TextField(
-                        autofocus: true,
-                        decoration:
-                            const InputDecoration(
-                          hintText:
-                              'Digite o nome...',
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            filtroBusca =
-                                value.toLowerCase();
-                          });
+                    ),
+                  ),
+
+                  if (filtroBusca.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          filtroBusca = '';
+                        });
+                      },
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text('Voltar'),
+                    ),
+
+                  TextButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text('Buscar Produto'),
+                            content: TextField(
+                              autofocus: true,
+                              decoration: const InputDecoration(
+                                hintText: 'Digite o nome...',
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  filtroBusca = value.toLowerCase();
+                                });
+                              },
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Concluir'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.search),
+                    label: const Text('Pesquisar'),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              Expanded(
+                child: produtosFiltrados.isEmpty
+                    ? const Center(child: Text('Nenhum produto adicionado.'))
+                    : ListView.builder(
+                        itemCount: produtosFiltrados.length,
+                        itemBuilder: (context, index) {
+                          final produto = produtosFiltrados[index];
+
+                          return Card(
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                child: Text('${index + 1}'),
+                              ),
+                              title: Text(
+                                '${produto['nome']} | '
+                                '🏷️ ${produto['categoria']} | '
+                                '⚖️ ${produto['peso'] ?? '-'} kg | '
+                                '${produto['quantidade']} x '
+                                '${formatoMoeda.format(produto['preco'])}',
+                              ),
+                              subtitle: Text(
+                                'Subtotal: ${formatoMoeda.format(produto['subtotal'])}',
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      editarProduto(index);
+                                    },
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      excluirProduto(index);
+                                    },
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         },
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child:
-                              const Text('Concluir'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              icon: const Icon(Icons.search),
-              label: const Text('Pesquisar'),
-            ),
-          ],
-        ),
+              ),
 
-        const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-        Expanded(
-          child: produtosFiltrados.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Nenhum produto adicionado.',
-                  ),
-                )
-              : ListView.builder(
-                  itemCount:
-                      produtosFiltrados.length,
-                  itemBuilder:
-                      (context, index) {
-                    final produto =
-                        produtosFiltrados[index];
+              Text(
+                '💰 Total: ${formatoMoeda.format(total)}',
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
 
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text(
-                            '${index + 1}',
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final item = await Navigator.push<ItemCompra>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CameraScreen(
+                              tipoEstabelecimento: widget.tipoEstabelecimento,
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          '${produto['nome']} | '
-                          '🏷️ ${produto['categoria']} | '
-                          '⚖️ ${produto['peso'] ?? '-'} kg | '
-                          '${produto['quantidade']} x '
-                          '${formatoMoeda.format(produto['preco'])}',
-                        ),
-                        subtitle: Text(
-                          'Subtotal: ${formatoMoeda.format(produto['subtotal'])}',
-                        ),
-                        trailing: Row(
-                          mainAxisSize:
-                              MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                editarProduto(
-                                  index,
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                excluirProduto(
-                                  index,
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
+                        );
+
+                        if (!mounted) return;
+
+                        if (item == null) {
+                          return;
+                        }
+
+                        setState(() {
+                          produtos.insert(0, {
+                            'nome': item.produto,
+                            'peso': item.peso,
+                            'categoria': item.categoria,
+                            'quantidade': item.quantidade,
+                            'preco': item.precoKg ?? item.total ?? 0.0,
+                            'subtotal': item.total ?? 0.0,
+                          });
+
+                          recalcularTotal();
+                        });
+
+                        final indiceLista = ListasRepository.listasSalvas
+                            .indexWhere(
+                              (lista) => lista['id'] == widget.listaId,
+                            );
+
+                        if (indiceLista != -1) {
+                          ListasRepository
+                                  .listasSalvas[indiceLista]['produtos'] =
+                              List<Map<String, dynamic>>.from(produtos);
+
+                          ListasRepository.listasSalvas[indiceLista]['total'] =
+                              total;
+
+                          await ListasRepository.salvarListas();
+                        }
+                      },
+                      icon: const Icon(Icons.photo_camera, size: 28),
+                      label: const Text(
+                        'Capturar',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(60),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: adicionarProduto,
+                      icon: const Icon(Icons.edit, size: 28),
+                      label: const Text(
+                        'Digitar',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(60),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ListasScreen()),
                     );
                   },
+                  icon: const Icon(Icons.list_alt),
+                  label: const Text('Minhas Listas'),
                 ),
+              ),
+            ],
+          ),
         ),
-
-        const SizedBox(height: 10),
-
-
-Text(
-  '💰 Total: ${formatoMoeda.format(total)}',
-  style: const TextStyle(
-    fontSize: 30,
-    fontWeight: FontWeight.bold,
-  ),
-),
-
-
-Row(
-  children: [
-
-    Expanded(
-  child: ElevatedButton.icon(
-    onPressed: () async {
-
-  final item = await Navigator.push<ItemCompra>(
-    context,
-    MaterialPageRoute(
-      builder: (context) => CameraScreen(
-        tipoEstabelecimento:
-            widget.tipoEstabelecimento,
       ),
-    ),
-  );
 
-  if (!mounted) return;
-
-  if (item == null) {
-    return;
+      bottomNavigationBar: Container(
+        height: 120,
+        color: Colors.grey.shade200,
+        child: const Center(child: Text('Espaço para Banner')),
+      ),
+    );
   }
-
-
-  setState(() {
-
-    produtos.insert(0, {
-      'nome': item.produto,
-      'peso': item.peso,
-      'categoria': item.categoria,
-      'quantidade': item.quantidade,
-      'preco': item.precoKg ??
-          item.total ??
-          0.0,
-      'subtotal': item.total ?? 0.0,
-    });
-
-
-    recalcularTotal();
-  });
-
-  final indiceLista =
-      ListasRepository.listasSalvas.indexWhere(
-    (lista) =>
-        lista['id'] ==
-        widget.listaId,
-  );
-
-  if (indiceLista != -1) {
-
-    ListasRepository
-        .listasSalvas[indiceLista]['produtos'] =
-        List<Map<String, dynamic>>.from(produtos);
-
-    ListasRepository
-        .listasSalvas[indiceLista]['total'] =
-        total;
-
-    await ListasRepository.salvarListas();
-  }
-},
-    icon: const Icon(
-      Icons.photo_camera,
-      size: 28,
-    ),
-    label: const Text(
-      'Capturar',
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    style: ElevatedButton.styleFrom(
-      minimumSize: const Size.fromHeight(60),
-    ),
-  ),
-),
-    const SizedBox(width: 8),
-
-  Expanded(
-  child: ElevatedButton.icon(
-    onPressed: adicionarProduto,
-    icon: const Icon(
-      Icons.edit,
-      size: 28,
-    ),
-    label: const Text(
-      'Digitar',
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    style: ElevatedButton.styleFrom(
-      minimumSize: const Size.fromHeight(60),
-    ),
-  ),
-),
-
-  ],
-),
-const SizedBox(height: 16),
-
-SizedBox(
-  width: double.infinity,
-  height: 60,
-  child: ElevatedButton.icon(
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const ListasScreen(),
-        ),
-      );
-    },
-    icon: const Icon(Icons.list_alt),
-    label: const Text(
-      'Minhas Listas',
-    ),
-  ),
-),
-      ],
-    ),
-  ),
-),
-  
-bottomNavigationBar: Container(
-  height: 120,
-  color: Colors.grey.shade200,
-  child: const Center(
-    child: Text(
-      'Espaço para Banner',
-    ),
-  ),
-),
-  
-);
-}
 }
